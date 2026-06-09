@@ -3,8 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>COTECNA Report Generator v6.1</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<title>COTECNA Report Generator v6.2</title>
 <style>
 :root{
   --bg:#0a0d14;--surface:#12151f;--surface2:#1a1e2e;--surface3:#222840;
@@ -12,15 +11,14 @@
   --accent:#3b82f6;--accent2:#6366f1;--accent3:#8b5cf6;
   --ok:#22c55e;--ng:#ef4444;--warn:#f59e0b;--info:#06b6d4;
   --text:#e2e8f0;--sub:#8892b0;--sub2:#5a6484;
-  --r:10px;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;}
 .header{background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 100%);border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:14px;}
 .header-logo{width:38px;height:38px;background:linear-gradient(135deg,var(--accent),var(--accent3));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;}
-.header-title{font-size:1.1rem;font-weight:700;letter-spacing:.02em;}
+.header-title{font-size:1.1rem;font-weight:700;}
 .header-sub{font-size:.72rem;color:var(--sub);margin-top:2px;}
-.header-badge{margin-left:auto;background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.3);color:#a5b4fc;font-size:.65rem;font-weight:700;padding:4px 10px;border-radius:20px;letter-spacing:.05em;}
+.header-badge{margin-left:auto;background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.3);color:#a5b4fc;font-size:.65rem;font-weight:700;padding:4px 10px;border-radius:20px;}
 .main{max-width:860px;margin:0 auto;padding:24px 16px;}
 .step-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:16px;position:relative;overflow:hidden;}
 .step-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent3));}
@@ -38,17 +36,24 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
 .btn-success:hover{opacity:.88;transform:translateY(-1px);}
 .btn-success:disabled{opacity:.35;cursor:not-allowed;transform:none;}
 .btn-full{width:100%;padding:12px;}
-.btn-warn{background:linear-gradient(135deg,#d97706,#f59e0b);color:#fff;}
 .api-section{background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:12px;margin-bottom:12px;}
 .api-section label{font-size:.7rem;color:var(--sub);font-weight:600;display:block;margin-bottom:6px;}
 .api-row{display:flex;gap:8px;}
 .api-row input{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:8px 10px;font-size:.8rem;outline:none;font-family:monospace;}
 .api-row input:focus{border-color:var(--accent);}
 .api-hint{font-size:.65rem;color:var(--sub2);margin-top:5px;}
+/* 인증 패널 */
+.auth-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+.auth-item{background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:12px;}
+.auth-item label{font-size:.68rem;color:var(--sub);font-weight:600;display:block;margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em;}
+.auth-status{font-size:.75rem;margin-top:6px;display:flex;align-items:center;gap:5px;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--sub2);}
+.dot-ok{background:var(--ok);}
+.dot-warn{background:var(--warn);}
+/* 테이블 */
 .progress-bar{height:6px;background:var(--surface2);border-radius:3px;overflow:hidden;}
 .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent3));border-radius:3px;transition:width .4s ease;}
 .log-box{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;max-height:200px;overflow-y:auto;font-size:.72rem;font-family:'Consolas',monospace;line-height:1.6;}
-.log-box:empty::before{content:'로그가 여기에 표시됩니다...';color:var(--sub2);}
 .log-ok{color:var(--ok);}
 .log-err{color:var(--ng);}
 .log-info{color:var(--info);}
@@ -63,7 +68,7 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
 .result-title{font-size:.9rem;font-weight:700;color:var(--ok);margin-bottom:12px;}
 .download-row{display:flex;gap:8px;flex-wrap:wrap;}
 .dl-btn{display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;cursor:pointer;transition:all .2s;text-decoration:none;color:var(--text);}
-.dl-btn:hover{border-color:var(--ok);background:rgba(34,197,94,.05);}
+.dl-btn:hover{border-color:var(--ok);}
 .dl-btn .dl-icon{font-size:1.2rem;}
 .dl-btn .dl-info{font-size:.75rem;}
 .dl-btn .dl-name{font-weight:700;display:block;}
@@ -72,8 +77,6 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
 .status-chip{display:flex;align-items:center;gap:5px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:4px 10px;font-size:.7rem;}
 .chip-dot{width:7px;height:7px;border-radius:50%;}
 .chip-ok{background:var(--ok);}
-.chip-warn{background:var(--warn);}
-.chip-ng{background:var(--ng);}
 .class-title{font-size:.75rem;font-weight:700;color:var(--sub);margin-bottom:8px;}
 .class-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;}
 .class-slot{background:var(--surface2);border:1px solid var(--border);border-radius:7px;overflow:hidden;text-align:center;}
@@ -82,27 +85,15 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
 .class-slot.slot-ok{border-color:var(--ok);}
 .class-slot.slot-ok .slot-name{color:var(--ok);}
 .class-slot .slot-img-placeholder{height:70px;display:flex;align-items:center;justify-content:center;color:var(--sub2);font-size:.8rem;}
-.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;}
-.info-item{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:9px 12px;}
-.info-item label{display:block;font-size:.65rem;color:var(--sub);font-weight:600;margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em;}
-.info-item span{font-size:.82rem;color:var(--text);}
-/* 자주검사 리스트 테이블 */
 .insp-table{width:100%;border-collapse:collapse;font-size:.76rem;margin-bottom:10px;}
 .insp-table th{background:var(--surface2);color:var(--sub);font-weight:600;text-align:left;padding:7px 10px;border-bottom:1px solid var(--border);}
 .insp-table td{padding:7px 10px;border-bottom:1px solid var(--border);}
 .insp-table tr:last-child td{border-bottom:none;}
-.insp-table tr.selected{background:rgba(59,130,246,.12);}
-.insp-table td input[type=checkbox]{cursor:pointer;width:14px;height:14px;}
 .badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.65rem;font-weight:700;}
-.badge-kobe{background:rgba(99,102,241,.2);color:#a5b4fc;}
-.badge-yoko{background:rgba(6,182,212,.2);color:#67e8f9;}
-.badge-tokyo{background:rgba(139,92,246,.2);color:#c4b5fd;}
-.badge-oomoto{background:rgba(245,158,11,.15);color:#fcd34d;}
-.badge-kaneko{background:rgba(34,197,94,.15);color:#86efac;}
 @keyframes spin{to{transform:rotate(360deg)}}
 .spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px;}
 @media(max-width:600px){
-  .info-grid{grid-template-columns:1fr;}
+  .auth-grid{grid-template-columns:1fr;}
   .class-grid{grid-template-columns:repeat(3,1fr);}
   .download-row{flex-direction:column;}
 }
@@ -114,14 +105,14 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
   <div class="header-logo">📋</div>
   <div>
     <div class="header-title">COTECNA Report Generator</div>
-    <div class="header-sub">LEENEAR CORPORATION — AI 자동화 Tool v6.1 (2026.06.09)</div>
+    <div class="header-sub">LEENEAR CORPORATION — AI 자동화 Tool v6.2 (2026.06.09)</div>
   </div>
   <div class="header-badge">LEENAI</div>
 </div>
 
 <div class="main">
 
-  <!-- ─── STEP 1: API 키 설정 ─── -->
+  <!-- STEP 1: API 키 -->
   <div class="step-card">
     <div class="step-header">
       <div class="step-num">1</div>
@@ -139,30 +130,53 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
     </div>
   </div>
 
-  <!-- ─── STEP 2: COMPASS 로그인 → 자주검사 리스트업 ─── -->
+  <!-- STEP 2: 로그인 (DV / Graph 독립) -->
   <div class="step-card">
     <div class="step-header">
       <div class="step-num">2</div>
-      <div class="step-title">COMPASS 로그인 &amp; 자주검사 리스트</div>
-      <div class="step-desc">인도네시아향 자주검사 대상 자동 조회</div>
+      <div class="step-title">로그인</div>
+      <div class="step-desc">COMPASS + SharePoint 각각 1회</div>
     </div>
 
-    <!-- 인증 버튼 영역 -->
-    <div id="authArea" style="display:flex;gap:8px;align-items:center;margin-bottom:12px;">
-      <button class="btn btn-primary" id="loginBtn" onclick="doLogin()">🔐 COMPASS 로그인</button>
-      <span id="loginStatus" style="font-size:.76rem;color:var(--sub);">미로그인</span>
+    <div class="auth-grid">
+      <!-- DV 로그인 -->
+      <div class="auth-item">
+        <label>① COMPASS (Dataverse)</label>
+        <button class="btn btn-primary" id="dvLoginBtn" onclick="doLoginDV()" style="width:100%;">🔐 COMPASS 로그인</button>
+        <div class="auth-status">
+          <div class="dot" id="dvDot"></div>
+          <span id="dvStatus">미로그인</span>
+        </div>
+      </div>
+      <!-- Graph 로그인 -->
+      <div class="auth-item">
+        <label>② SharePoint (Graph)</label>
+        <button class="btn btn-secondary" id="spLoginBtn" onclick="doLoginGraph()" style="width:100%;">🔐 SharePoint 로그인</button>
+        <div class="auth-status">
+          <div class="dot" id="spDot"></div>
+          <span id="spStatus">미로그인</span>
+        </div>
+      </div>
+    </div>
+    <div style="font-size:.68rem;color:var(--sub2);">※ ①②를 순서대로 로그인 후 리스트 조회가 가능합니다.</div>
+  </div>
+
+  <!-- STEP 3: 리스트 조회 -->
+  <div class="step-card">
+    <div class="step-header">
+      <div class="step-num">3</div>
+      <div class="step-title">자주검사 리스트</div>
+      <div class="step-desc">인도네시아향 자주검사 대상 조회</div>
     </div>
 
-    <!-- 기간 필터 -->
     <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap;">
-      <label style="font-size:.72rem;color:var(--sub);font-weight:600;">검사일 범위:</label>
+      <label style="font-size:.72rem;color:var(--sub);font-weight:600;">검사일:</label>
       <input type="date" id="dateFrom" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:6px 10px;font-size:.78rem;">
       <span style="color:var(--sub);">~</span>
-      <input type="date" id="dateTo"   style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:6px 10px;font-size:.78rem;">
+      <input type="date" id="dateTo" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:6px 10px;font-size:.78rem;">
       <button class="btn btn-secondary" id="fetchBtn" onclick="fetchInspectionList()" disabled style="padding:8px 14px;">📋 리스트 조회</button>
     </div>
 
-    <!-- 결과 테이블 -->
     <div id="listArea" style="display:none;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
         <span id="listCount" style="font-size:.76rem;color:var(--sub);"></span>
@@ -173,17 +187,11 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
       </div>
       <div style="overflow-x:auto;">
         <table class="insp-table">
-          <thead>
-            <tr>
-              <th style="width:32px;"></th>
-              <th>IV No</th>
-              <th>VO No / Partial</th>
-              <th>검사일</th>
-              <th>압축장</th>
-              <th>PORT</th>
-              <th>CT 수</th>
-            </tr>
-          </thead>
+          <thead><tr>
+            <th style="width:32px;"></th>
+            <th>IV No</th><th>VO No / Partial</th>
+            <th>검사일</th><th>압축장</th><th>PORT</th><th>CT 수</th>
+          </tr></thead>
           <tbody id="listBody"></tbody>
         </table>
       </div>
@@ -193,32 +201,26 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
     </div>
   </div>
 
-  <!-- ─── STEP 3~5: 처리 진행 (선택 후 표시) ─── -->
+  <!-- STEP 4: 처리 진행 -->
   <div id="processSection" style="display:none;">
     <div class="step-card">
       <div class="step-header">
-        <div class="step-num">3</div>
+        <div class="step-num">4</div>
         <div class="step-title">자동 처리</div>
-        <div class="step-desc">SharePoint 사진 취득 → AI 분류 → 리포트 생성</div>
+        <div class="step-desc">사진 취득 → AI 분류 → 리포트 생성</div>
       </div>
-
-      <!-- 현재 처리 중인 건 표시 -->
       <div id="curJobInfo" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:12px;display:none;">
         <div style="font-size:.7rem;color:var(--sub);margin-bottom:4px;">현재 처리 중</div>
         <div id="curJobTitle" style="font-size:.88rem;font-weight:700;"></div>
-        <div id="curJobSub"   style="font-size:.72rem;color:var(--sub);margin-top:2px;"></div>
+        <div id="curJobSub" style="font-size:.72rem;color:var(--sub);margin-top:2px;"></div>
       </div>
-
-      <!-- Phase 바 -->
-      <div id="phaseBar" style="display:flex;gap:6px;margin-bottom:12px;font-size:.7rem;font-weight:700;flex-wrap:wrap;">
+      <div id="phaseBar" style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;">
         <div class="phase-chip" id="ph1">📷 사진 취득</div>
         <div style="color:var(--sub2);align-self:center;">→</div>
         <div class="phase-chip" id="ph2">🤖 AI 분류</div>
         <div style="color:var(--sub2);align-self:center;">→</div>
         <div class="phase-chip" id="ph3">📄 리포트 생성</div>
       </div>
-
-      <!-- 진행바 -->
       <div class="progress-bar" style="margin-bottom:10px;">
         <div class="progress-fill" id="progressFill" style="width:0%;"></div>
       </div>
@@ -226,11 +228,7 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
         <span id="progressLabel">대기 중...</span>
         <span id="progressPct">0%</span>
       </div>
-
-      <!-- 로그 -->
       <div class="log-box" id="logBox" style="max-height:240px;"></div>
-
-      <!-- AI 분류 미리보기 -->
       <div id="classifyPreview" style="display:none;margin-top:10px;">
         <div class="class-title">📷 AI 분류 결과 (컨테이너 1번)</div>
         <div class="class-grid" id="classGrid"></div>
@@ -238,41 +236,37 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
     </div>
   </div>
 
-  <!-- ─── 결과 다운로드 ─── -->
+  <!-- 결과 다운로드 -->
   <div class="result-section" id="resultSection">
     <div class="result-card">
       <div class="result-title">✅ 리포트 생성 완료!</div>
       <div class="download-row" id="downloadRow"></div>
-      <div class="status-row"   id="statusRow"></div>
+      <div class="status-row" id="statusRow"></div>
     </div>
   </div>
 
-</div><!-- /main -->
+</div>
 
 <script>
 'use strict';
-// ═══════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════
 //  CONSTANTS
-// ═══════════════════════════════════════════════════════════════
-const CLIENT_ID   = 'f071a165-5e9b-44bf-b6a1-baba654524db';
-const TENANT_ID   = 'a56988ff-c2b8-4df8-9727-889ad4205198';
+// ═══════════════════════════════════════
+const CLIENT_ID    = 'f071a165-5e9b-44bf-b6a1-baba654524db';
+const TENANT_ID    = 'a56988ff-c2b8-4df8-9727-889ad4205198';
 const REDIRECT_URI = location.href.split('?')[0].split('#')[0];
-const DV_SCOPE    = 'https://orgde512c6f.crm7.dynamics.com/user_impersonation';
-const GRAPH_SCOPE = 'https://graph.microsoft.com/Sites.ReadWrite.All';
-const DV_BASE     = 'https://orgde512c6f.crm7.dynamics.com/api/data/v9.2';
-
-// SharePoint PHOTO 폴더
+const DV_SCOPE     = 'https://orgde512c6f.crm7.dynamics.com/user_impersonation offline_access';
+const GRAPH_SCOPE  = 'https://graph.microsoft.com/Sites.ReadWrite.All offline_access';
+const DV_BASE      = 'https://orgde512c6f.crm7.dynamics.com/api/data/v9.2';
 const SP_DRIVE_ID  = 'b!ZK58_9YllU-vETQD3Xz0TbOInXbVCXJHnQ2280KJBArFLeM_18EgRbSeoO-TW__U';
-const SP_PHOTO_ID  = '01P6A72OX3JYO5I2N4WBGZG233QKK2F75A';  // PHOTO 폴더 ItemId
+const SP_PHOTO_ID  = '01P6A72OX3JYO5I2N4WBGZG233QKK2F75A';
 
 const SLOT_ORDER    = ['empty','half','full','right_door','inspector','cotecna_seal'];
 const SLOT_CAPTIONS = {
-  empty:        'Empty container',
-  half:         'Half load container',
-  full:         'Full load container',
-  right_door:   'Right door closed, with Container No.',
-  inspector:    'Inspector with closed container',
-  cotecna_seal: 'Cotecna container seal, closed up',
+  empty:'Empty container', half:'Half load container',
+  full:'Full load container', right_door:'Right door closed, with Container No.',
+  inspector:'Inspector with closed container',
+  cotecna_seal:'Cotecna container seal, closed up',
 };
 const IMG_CX = 3303270, IMG_CY = 2477135;
 
@@ -289,183 +283,183 @@ cotecna_seal - シールのクローズアップ写真。上部に「COTECNA」�
 
 const BALING_PROMPT = `この写真は廃紙ベール(bale)検査の写真です。以下のうち最も当てはまるものを1単語だけ答えてください:
 
-goods_yard  - ベールが倉庫・ヤードに複数積まれている全景写真（ヤード在庫・倉庫全体が見える）
+goods_yard  - ベールが倉庫・ヤードに複数積まれている全景写真
 person_bale - ヘルメット着用の検査員が検査カードを持ってベールの前に立っている写真（人物あり）
-open_bale   - ベールが解体・開梱されて紙・雑誌が床に散らばっている写真（人なし）
+open_bale   - ベールが解体・開梱されて紙・雑誌が床に散らばっている写真
 rebale      - COTECNAのテープ・ラベル・番号が貼られた再圧縮済みのベールの写真
 
 必ず上記4つのいずれか1つのみ答えてください。`;
 
-// ═══════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════
 //  STATE
-// ═══════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════
 const S = {
-  apiKey: '',
-  dvToken: null,
-  graphToken: null,
-  pkceVerifier: null,
-  loginTarget: null,   // 'dv' | 'graph'
-  inspectionList: [],  // [{ivNo, voNo, partialNo, workDate, packer, pol, ctCount, containers:[{no,ctNo,seal}]}]
-  selectedRows: [],    // 선택된 ivNo 배열
-  // --- v5.3 재활용 state ---
-  mode: 'folder',
-  groups: {},
-  containers: [],
-  vanPhotos: {},
-  baraPhotos: {},
-  pressPhotos: {},
-  classifiedVan: {},
-  classifiedBaling: {},
-  logoB64: null,
-  voNo: '', reportDate: '', inspPlace: '', baleCount: 0,
-  rootName: '',
-  fileList: [],        // 더미 (v5.3 호환)
+  apiKey:'', dvToken:null, graphToken:null,
+  inspectionList:[], selectedRows:[],
+  // v5.3 재활용
+  mode:'folder', groups:{}, containers:[],
+  vanPhotos:{}, baraPhotos:{}, pressPhotos:{},
+  classifiedVan:{}, classifiedBaling:{},
+  logoB64:null, voNo:'', reportDate:'', inspPlace:'', baleCount:0,
+  rootName:'', fileList:[],
 };
 
-// ═══════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════
+//  PKCE 유틸
+// ═══════════════════════════════════════
+function b64url(buf){ return btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,''); }
+async function sha256b64(str){ return b64url(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str))); }
+
+async function startPKCE(scope, stateKey) {
+  const verifier  = b64url(crypto.getRandomValues(new Uint8Array(32)));
+  const challenge = await sha256b64(verifier);
+  sessionStorage.setItem('pkce_v', verifier);
+  sessionStorage.setItem('pkce_state', stateKey);
+  const p = new URLSearchParams({
+    client_id: CLIENT_ID, response_type: 'code',
+    redirect_uri: REDIRECT_URI, scope,
+    code_challenge: challenge, code_challenge_method: 'S256',
+    response_mode: 'query',
+  });
+  location.href = `https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/authorize?${p}`;
+}
+
+async function exchangeCode(code, scope) {
+  const r = await fetch(`https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/token`, {
+    method:'POST',
+    headers:{'Content-Type':'application/x-www-form-urlencoded'},
+    body: new URLSearchParams({
+      grant_type:'authorization_code', client_id: CLIENT_ID,
+      code, redirect_uri: REDIRECT_URI,
+      code_verifier: sessionStorage.getItem('pkce_v'), scope,
+    }),
+  });
+  if (!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+// ═══════════════════════════════════════
 //  INIT
-// ═══════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════
 window.onload = async () => {
   // API 키 복원
   const saved = localStorage.getItem('cotecna_api_key');
   if (saved) { S.apiKey = saved; document.getElementById('apiKey').value = saved; }
 
-  // 날짜 기본값: 오늘 기준 -30일 ~ 오늘
-  const now = new Date();
+  // 날짜 기본값: 오늘 ~ 7일 전
+  const now  = new Date();
   const from = new Date(now); from.setDate(from.getDate() - 7);
   document.getElementById('dateTo').value   = now.toISOString().slice(0,10);
   document.getElementById('dateFrom').value = from.toISOString().slice(0,10);
 
-  // PKCE callback 처리
-  const hash = location.hash.slice(1);
-  if (hash.includes('access_token') || location.search.includes('code=')) {
-    await handleOAuthCallback();
+  // 토큰 세션 복원
+  const dvSaved    = sessionStorage.getItem('cotecna_dv_token');
+  const graphSaved = sessionStorage.getItem('cotecna_graph_token');
+  if (dvSaved)    { S.dvToken    = dvSaved;    updateAuthUI(); }
+  if (graphSaved) { S.graphToken = graphSaved; updateAuthUI(); }
+
+  // OAuth callback 처리
+  if (location.search.includes('code=')) {
+    await handleCallback();
   }
 };
 
-// ═══════════════════════════════════════════════════════════════
-//  STEP 1 — API 키
-// ═══════════════════════════════════════════════════════════════
-function toggleApiKey() {
-  const i = document.getElementById('apiKey');
-  i.type = i.type === 'password' ? 'text' : 'password';
-}
-function saveApiKey() {
-  const v = document.getElementById('apiKey').value.trim();
-  if (!v) return alert('API 키를 입력하세요');
-  S.apiKey = v;
-  localStorage.setItem('cotecna_api_key', v);
-  log('✅ API 키 저장됨', 'ok');
-}
+// ═══════════════════════════════════════
+//  로그인 버튼
+// ═══════════════════════════════════════
+function doLoginDV()    { startPKCE(DV_SCOPE,    'dv'); }
+function doLoginGraph() { startPKCE(GRAPH_SCOPE, 'graph'); }
 
-// ═══════════════════════════════════════════════════════════════
-//  STEP 2 — PKCE OAuth (DV → Graph 순차 취득)
-// ═══════════════════════════════════════════════════════════════
-function genRandom(len) {
-  const arr = new Uint8Array(len);
-  crypto.getRandomValues(arr);
-  return btoa(String.fromCharCode(...arr)).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
-}
-async function sha256b64url(str) {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-  return btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
-}
+async function handleCallback() {
+  const params   = new URLSearchParams(location.search);
+  const code     = params.get('code');
+  const stateKey = sessionStorage.getItem('pkce_state');
+  if (!code || !stateKey) return;
 
-async function doLogin() {
-  // DV 토큰 먼저 취득
-  S.loginTarget = 'dv';
-  S.pkceVerifier = genRandom(64);
-  const challenge = await sha256b64url(S.pkceVerifier);
-  sessionStorage.setItem('pkce_verifier', S.pkceVerifier);
-  sessionStorage.setItem('pkce_target', 'dv');
-
-  const url = `https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/authorize`
-    + `?client_id=${CLIENT_ID}`
-    + `&response_type=code`
-    + `&redirect_uri=${encodeURIComponent(REDIRECT_URI)}`
-    + `&scope=${encodeURIComponent(DV_SCOPE + ' offline_access')}`
-    + `&code_challenge=${challenge}&code_challenge_method=S256`
-    + `&response_mode=query`;
-  location.href = url;
-}
-
-async function handleOAuthCallback() {
-  const params = new URLSearchParams(location.search);
-  const code = params.get('code');
-  if (!code) return;
-
-  const verifier = sessionStorage.getItem('pkce_verifier');
-  const target   = sessionStorage.getItem('pkce_target');
-  if (!verifier) return;
-
-  const scope = target === 'dv' ? (DV_SCOPE + ' offline_access') : (GRAPH_SCOPE + ' offline_access');
+  history.replaceState({}, '', location.pathname);
 
   try {
-    const res = await fetch(`https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/token`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        client_id: CLIENT_ID, grant_type: 'authorization_code',
-        code, redirect_uri: REDIRECT_URI,
-        code_verifier: verifier, scope,
-      }),
-    });
-    const data = await res.json();
+    const scope = stateKey === 'dv' ? DV_SCOPE : GRAPH_SCOPE;
+    const data  = await exchangeCode(code, scope);
     if (data.error) throw new Error(data.error_description || data.error);
 
-    if (target === 'dv') {
+    if (stateKey === 'dv') {
       S.dvToken = data.access_token;
-      sessionStorage.removeItem('pkce_verifier');
-      sessionStorage.removeItem('pkce_target');
-
-      // 이어서 Graph 토큰 취득
-      sessionStorage.setItem('pkce_target', 'graph');
-      const v2 = genRandom(64);
-      S.pkceVerifier = v2;
-      sessionStorage.setItem('pkce_verifier', v2);
-      const c2 = await sha256b64url(v2);
-      history.replaceState({}, '', location.pathname);
-
-      const url2 = `https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/authorize`
-        + `?client_id=${CLIENT_ID}&response_type=code`
-        + `&redirect_uri=${encodeURIComponent(REDIRECT_URI)}`
-        + `&scope=${encodeURIComponent(GRAPH_SCOPE + ' offline_access')}`
-        + `&code_challenge=${c2}&code_challenge_method=S256`
-        + `&response_mode=query`;
-      location.href = url2;
+      sessionStorage.setItem('cotecna_dv_token', S.dvToken);
+      log('✅ COMPASS 로그인 완료', 'ok');
     } else {
-      // Graph 토큰 완료
       S.graphToken = data.access_token;
-      sessionStorage.removeItem('pkce_verifier');
-      sessionStorage.removeItem('pkce_target');
-      history.replaceState({}, '', location.pathname);
-
-      document.getElementById('loginStatus').textContent = '✅ 로그인 완료';
-      document.getElementById('loginStatus').style.color = 'var(--ok)';
-      document.getElementById('loginBtn').textContent = '🔄 재로그인';
-      document.getElementById('fetchBtn').disabled = false;
-      log('✅ COMPASS + SharePoint 인증 완료', 'ok');
+      sessionStorage.setItem('cotecna_graph_token', S.graphToken);
+      log('✅ SharePoint 로그인 완료', 'ok');
     }
+    sessionStorage.removeItem('pkce_v');
+    sessionStorage.removeItem('pkce_state');
   } catch(e) {
-    history.replaceState({}, '', location.pathname);
     alert('로그인 실패: ' + e.message);
   }
+  updateAuthUI();
 }
 
-// ═══════════════════════════════════════════════════════════════
-//  STEP 2 — COMPASS OData fetch (9단계 체인)
-// ═══════════════════════════════════════════════════════════════
+function updateAuthUI() {
+  // DV
+  const dvDot    = document.getElementById('dvDot');
+  const dvStatus = document.getElementById('dvStatus');
+  if (S.dvToken) {
+    dvDot.className    = 'dot dot-ok';
+    dvStatus.textContent = '✅ 로그인 완료';
+    dvStatus.style.color = 'var(--ok)';
+    document.getElementById('dvLoginBtn').textContent = '🔄 재로그인';
+  }
+  // Graph
+  const spDot    = document.getElementById('spDot');
+  const spStatus = document.getElementById('spStatus');
+  if (S.graphToken) {
+    spDot.className    = 'dot dot-ok';
+    spStatus.textContent = '✅ 로그인 완료';
+    spStatus.style.color = 'var(--ok)';
+    document.getElementById('spLoginBtn').className = 'btn btn-primary';
+    document.getElementById('spLoginBtn').textContent = '🔄 재로그인';
+  }
+  // 리스트 조회 버튼
+  document.getElementById('fetchBtn').disabled = !(S.dvToken && S.graphToken);
+}
+
+// ═══════════════════════════════════════
+//  STEP 1 — API 키
+// ═══════════════════════════════════════
+function toggleApiKey(){
+  const i=document.getElementById('apiKey');
+  i.type=i.type==='password'?'text':'password';
+}
+function saveApiKey(){
+  const v=document.getElementById('apiKey').value.trim();
+  if(!v) return alert('API 키를 입력하세요');
+  S.apiKey=v;
+  localStorage.setItem('cotecna_api_key',v);
+  log('✅ API 키 저장됨','ok');
+}
+
+// ═══════════════════════════════════════
+//  COMPASS OData
+// ═══════════════════════════════════════
 async function dvGet(url) {
   const r = await fetch(url, {
-    headers: { Authorization: `Bearer ${S.dvToken}`, 'OData-MaxVersion': '4.0',
-      'OData-Version': '4.0', Accept: 'application/json;odata.metadata=minimal' }
+    headers:{ Authorization:`Bearer ${S.dvToken}`,
+      'OData-MaxVersion':'4.0','OData-Version':'4.0',
+      Accept:'application/json;odata.metadata=minimal' }
   });
-  if (!r.ok) throw new Error(`DV ${r.status}: ${await r.text()}`);
+  if (!r.ok) {
+    // 토큰 만료 감지
+    if (r.status === 401) { S.dvToken=null; sessionStorage.removeItem('cotecna_dv_token'); updateAuthUI(); }
+    throw new Error(`DV ${r.status}`);
+  }
   return r.json();
 }
 
 async function fetchInspectionList() {
-  if (!S.dvToken) { alert('먼저 COMPASS에 로그인하세요'); return; }
+  if (!S.dvToken)    { alert('COMPASS에 로그인하세요'); return; }
+  if (!S.graphToken) { alert('SharePoint에 로그인하세요'); return; }
+
   const dateFrom = document.getElementById('dateFrom').value;
   const dateTo   = document.getElementById('dateTo').value;
   if (!dateFrom || !dateTo) { alert('날짜를 입력하세요'); return; }
@@ -477,81 +471,75 @@ async function fetchInspectionList() {
 
   try {
     log('📋 COMPASS 자주검사 대상 조회 중...', 'info');
-
-    // STEP 1: container_information WHERE inspection=True + 날짜 범위
     const fromISO = dateFrom + 'T00:00:00Z';
     const toISO   = dateTo   + 'T23:59:59Z';
     const filter  = `crcf9_inspection eq true and crcf9_work_date ge ${fromISO} and crcf9_work_date le ${toISO}`;
     const ctUrl   = `${DV_BASE}/crcf9_container_informations?$filter=${encodeURIComponent(filter)}`
-                  + `&$select=crcf9_container_informationid,crcf9_container_no,crcf9_partial_no,crcf9_work_date,_crcf9_booking_id_value,crcf9_shipping_seal_no&$orderby=crcf9_work_date desc&$top=200`;
+                  + `&$select=crcf9_container_informationid,crcf9_container_no,crcf9_partial_no,crcf9_work_date,_crcf9_booking_id_value,crcf9_shipping_seal_no`
+                  + `&$orderby=crcf9_work_date desc&$top=200`;
 
     const ctData = await dvGet(ctUrl);
     if (!ctData.value?.length) {
       log('ℹ️ 해당 기간 자주검사 대상 없음', 'warn');
-      document.getElementById('listBody').innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--sub);padding:20px;">해당 기간에 자주검사 대상이 없습니다</td></tr>';
+      document.getElementById('listBody').innerHTML =
+        '<tr><td colspan="7" style="text-align:center;color:var(--sub);padding:20px;">해당 기간에 자주검사 대상이 없습니다</td></tr>';
       document.getElementById('listArea').style.display = 'block';
       return;
     }
     log(`  CT ${ctData.value.length}건 취득`, 'info');
 
-    // STEP 2: BKG GUID 취합 → 병렬 fetch
-    const bkgGuids = [...new Set(ctData.value.map(c => c._crcf9_booking_id_value).filter(Boolean))];
-    log(`  BKG ${bkgGuids.length}건 fetch 중...`, 'info');
-
+    // BKG 병렬 fetch
+    const bkgGuids = [...new Set(ctData.value.map(c=>c._crcf9_booking_id_value).filter(Boolean))];
     const bkgMap = {};
     await Promise.all(bkgGuids.map(async guid => {
       try {
         const d = await dvGet(`${DV_BASE}/cr49f_bookings(${guid})?$select=cr49f_bookingid,cr49f_invoice_no,cr49f_booking_no,_cr49f_region_japan_id_value,_cr49f_sale_contract_id_value`);
         bkgMap[guid] = d;
-      } catch(e) { log(`  ⚠️ BKG ${guid} fetch 실패`, 'warn'); }
+      } catch(e){}
     }));
 
-    // STEP 3: sale_contract GUID → VO No (crcf9_vo_no)
-    const scGuids = [...new Set(Object.values(bkgMap).map(b => b._cr49f_sale_contract_id_value).filter(Boolean))];
-    log(`  Sale Contract ${scGuids.length}건 fetch 중...`, 'info');
+    // sale_contract → VO No
+    const scGuids = [...new Set(Object.values(bkgMap).map(b=>b._cr49f_sale_contract_id_value).filter(Boolean))];
     const scMap = {};
     await Promise.all(scGuids.map(async guid => {
       try {
-        const d = await dvGet(`${DV_BASE}/cr49f_sale_contracts(${guid})?$select=cr49f_sale_contractid,crcf9_vo_no,cr49f_buyer`);
+        const d = await dvGet(`${DV_BASE}/cr49f_sale_contracts(${guid})?$select=cr49f_sale_contractid,crcf9_vo_no`);
         scMap[guid] = d;
-      } catch(e) {}
+      } catch(e){}
     }));
 
-    // STEP 4: POL (region_japan) → 港名
-    const polGuids = [...new Set(Object.values(bkgMap).map(b => b._cr49f_region_japan_id_value).filter(Boolean))];
+    // POL
+    const polGuids = [...new Set(Object.values(bkgMap).map(b=>b._cr49f_region_japan_id_value).filter(Boolean))];
     const polMap = {};
     await Promise.all(polGuids.map(async guid => {
       try {
-        const d = await dvGet(`${DV_BASE}/cr49f_region_japans(${guid})?$select=cr49f_region_japanid,cr49f_name`);
-        polMap[guid] = d.cr49f_name || guid;
-      } catch(e) {}
+        const d = await dvGet(`${DV_BASE}/cr49f_region_japans(${guid})?$select=cr49f_name`);
+        polMap[guid] = d.cr49f_name || '—';
+      } catch(e){}
     }));
 
-    // STEP 5: booking_detail → purchase_contract → packer
-    // booking_details where _cr49f_booking_id_value = guid
+    // booking_detail → packer
     const bkgDetailMap = {};
     await Promise.all(bkgGuids.map(async guid => {
       try {
-        const d = await dvGet(`${DV_BASE}/cr49f_purchase_details?$filter=_cr49f_booking_id_value eq ${guid}&$select=cr49f_purchase_detailid,_cr49f_purchase_contract_id_value,cr49f_packer_name&$top=10`);
+        const d = await dvGet(`${DV_BASE}/cr49f_purchase_details?$filter=_cr49f_booking_id_value eq ${guid}&$select=cr49f_purchase_detailid,_cr49f_purchase_contract_id_value,cr49f_packer_name&$top=5`);
         bkgDetailMap[guid] = d.value || [];
-      } catch(e) { bkgDetailMap[guid] = []; }
+      } catch(e){ bkgDetailMap[guid]=[]; }
     }));
 
-    // STEP 6: purchase_contract → packer名 (purchase_detail에 packer없을 경우 fallback)
     const pcGuids = [...new Set(
-      Object.values(bkgDetailMap).flat()
-        .map(d => d._cr49f_purchase_contract_id_value).filter(Boolean)
+      Object.values(bkgDetailMap).flat().map(d=>d._cr49f_purchase_contract_id_value).filter(Boolean)
     )];
     const pcMap = {};
     await Promise.all(pcGuids.map(async guid => {
       try {
-        const d = await dvGet(`${DV_BASE}/cr49f_purchase_contracts(${guid})?$select=cr49f_purchase_contractid,cr49f_packer_name,cr49f_plant_name`);
+        const d = await dvGet(`${DV_BASE}/cr49f_purchase_contracts(${guid})?$select=cr49f_packer_name`);
         pcMap[guid] = d;
-      } catch(e) {}
+      } catch(e){}
     }));
 
-    // ─── CT를 IV No でグループ化 ───
-    const ivMap = {}; // ivNo → { bkg, sc, pol, ctList[] }
+    // IV 단위 그룹핑
+    const ivMap = {};
     for (const ct of ctData.value) {
       const bkg = bkgMap[ct._crcf9_booking_id_value];
       if (!bkg) continue;
@@ -559,31 +547,21 @@ async function fetchInspectionList() {
       if (!ivMap[ivNo]) {
         const sc  = scMap[bkg._cr49f_sale_contract_id_value] || {};
         const pol = polMap[bkg._cr49f_region_japan_id_value] || '—';
-        // packer 이름 취득
         const details = bkgDetailMap[ct._crcf9_booking_id_value] || [];
         let packerName = '—';
         for (const det of details) {
           const pc = pcMap[det._cr49f_purchase_contract_id_value];
-          if (pc?.cr49f_packer_name) { packerName = pc.cr49f_packer_name; break; }
-          if (det.cr49f_packer_name) { packerName = det.cr49f_packer_name; break; }
+          if (pc?.cr49f_packer_name){ packerName=pc.cr49f_packer_name; break; }
+          if (det.cr49f_packer_name){ packerName=det.cr49f_packer_name; break; }
         }
-        // VO No パース: "X.13.097522-P3" 형태
-        const rawVo  = sc.crcf9_vo_no || '';
+        const rawVo   = sc.crcf9_vo_no || '';
         const voMatch = rawVo.match(/X\.(\d+\.\d+)-?P(\d+)/i);
         const voNo    = voMatch ? `X.${voMatch[1]}` : rawVo;
         const partial = voMatch ? `P${voMatch[2]}` : (ct.crcf9_partial_no || '—');
-        ivMap[ivNo] = {
-          ivNo, voNo, partial, bkgNo: bkg.cr49f_booking_no || '—',
-          packer: packerName, pol,
-          workDate: ct.crcf9_work_date?.slice(0,10) || '—',
-          ctList: [],
-        };
+        ivMap[ivNo] = { ivNo, voNo, partial, bkgNo:bkg.cr49f_booking_no||'—',
+          packer:packerName, pol, workDate:ct.crcf9_work_date?.slice(0,10)||'—', ctList:[] };
       }
-      ivMap[ivNo].ctList.push({
-        ctNo:  ct.crcf9_container_no || '—',
-        seal:  ct.crcf9_shipping_seal_no || '',
-        date:  ct.crcf9_work_date?.slice(0,10) || '—',
-      });
+      ivMap[ivNo].ctList.push({ ctNo:ct.crcf9_container_no||'—', seal:ct.crcf9_shipping_seal_no||'', date:ct.crcf9_work_date?.slice(0,10)||'—' });
     }
 
     S.inspectionList = Object.values(ivMap);
@@ -592,7 +570,6 @@ async function fetchInspectionList() {
 
   } catch(e) {
     log(`❌ COMPASS 조회 실패: ${e.message}`, 'err');
-    console.error(e);
   } finally {
     document.getElementById('fetchBtn').disabled = false;
     document.getElementById('fetchBtn').textContent = '📋 리스트 조회';
@@ -602,13 +579,7 @@ async function fetchInspectionList() {
 function renderInspectionTable() {
   const tbody = document.getElementById('listBody');
   tbody.innerHTML = '';
-
   for (const row of S.inspectionList) {
-    const polBadge = row.pol.includes('KOBE') ? 'badge-kobe'
-                   : row.pol.includes('YOKO') ? 'badge-yoko'
-                   : row.pol.includes('TOKYO') ? 'badge-tokyo' : '';
-    const pkBadge  = row.packer.includes('大本') || row.packer.toUpperCase().includes('OOMOTO') ? 'badge-oomoto'
-                   : row.packer.includes('兼子') || row.packer.toUpperCase().includes('KANEKO') ? 'badge-kaneko' : '';
     const tr = document.createElement('tr');
     tr.dataset.ivno = row.ivNo;
     tr.innerHTML = `
@@ -616,541 +587,295 @@ function renderInspectionTable() {
       <td style="font-weight:700;color:var(--info);">${row.ivNo}</td>
       <td><span style="font-weight:600;">${row.voNo}</span><span style="color:var(--sub);margin-left:4px;">${row.partial}</span></td>
       <td>${row.workDate}</td>
-      <td><span class="badge ${pkBadge}" style="background:rgba(34,197,94,.12);color:#86efac;">${row.packer}</span></td>
-      <td><span class="badge ${polBadge}">${row.pol}</span></td>
+      <td><span class="badge" style="background:rgba(34,197,94,.12);color:#86efac;">${row.packer}</span></td>
+      <td>${row.pol}</td>
       <td style="text-align:center;font-weight:700;">${row.ctList.length}</td>`;
     tbody.appendChild(tr);
   }
-
   document.getElementById('listCount').textContent = `${S.inspectionList.length}件`;
   document.getElementById('listArea').style.display = 'block';
 }
 
-function selectAll(v) {
-  document.querySelectorAll('.row-chk').forEach(c => c.checked = v);
-  onChkChange();
-}
-function onChkChange() {
-  S.selectedRows = [...document.querySelectorAll('.row-chk:checked')].map(c => c.dataset.ivno);
-  document.getElementById('proceedBtn').disabled = !S.selectedRows.length;
-  document.getElementById('proceedBtn').textContent =
-    S.selectedRows.length ? `▶ 선택 ${S.selectedRows.length}건 리포트 생성 시작` : '▶ 선택 건 리포트 생성 시작';
+function selectAll(v){ document.querySelectorAll('.row-chk').forEach(c=>c.checked=v); onChkChange(); }
+function onChkChange(){
+  S.selectedRows=[...document.querySelectorAll('.row-chk:checked')].map(c=>c.dataset.ivno);
+  const btn=document.getElementById('proceedBtn');
+  btn.disabled=!S.selectedRows.length;
+  btn.textContent=S.selectedRows.length?`▶ 선택 ${S.selectedRows.length}건 리포트 생성 시작`:'▶ 선택 건 리포트 생성 시작';
 }
 
-// ═══════════════════════════════════════════════════════════════
-//  STEP 3 — 선택 건 순차 처리
-// ═══════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════
+//  처리 진행
+// ═══════════════════════════════════════
 async function proceedSelected() {
   if (!S.selectedRows.length) return;
   S.apiKey = document.getElementById('apiKey').value.trim();
-  if (!S.apiKey) return alert('Anthropic API 키를 입력하세요');
-  if (!S.graphToken) return alert('SharePoint 인증이 필요합니다. 로그인을 다시 시도해주세요.');
+  if (!S.apiKey)      return alert('Anthropic API 키를 입력하세요');
+  if (!S.graphToken)  return alert('SharePoint 로그인이 필요합니다');
 
   document.getElementById('proceedBtn').disabled = true;
   document.getElementById('processSection').style.display = 'block';
-  document.getElementById('resultSection').style.display = 'none';
+  document.getElementById('resultSection').style.display  = 'none';
   document.getElementById('processSection').scrollIntoView({behavior:'smooth'});
 
   const allDownloads = [];
 
   for (const ivNo of S.selectedRows) {
-    const row = S.inspectionList.find(r => r.ivNo === ivNo);
+    const row = S.inspectionList.find(r=>r.ivNo===ivNo);
     if (!row) continue;
-
     document.getElementById('curJobInfo').style.display = 'block';
-    document.getElementById('curJobTitle').textContent = `${row.ivNo}  (${row.voNo}-${row.partial})`;
-    document.getElementById('curJobSub').textContent   = `${row.packer}  /  ${row.pol}  /  CT ${row.ctList.length}본`;
+    document.getElementById('curJobTitle').textContent  = `${row.ivNo}  (${row.voNo}-${row.partial})`;
+    document.getElementById('curJobSub').textContent    = `${row.packer}  /  ${row.pol}  /  CT ${row.ctList.length}본`;
     clearLog();
     resetState(row);
-
     try {
-      // PHASE 1: SharePoint 사진 취득
       setPhase(1);
-      setProgress(5, 'SharePoint 사진 취득 중...');
+      setProgress(5,'SharePoint 사진 취득 중...');
       await loadPhotosFromSharePoint(row);
-
-      // PHASE 2: AI 분류
       setPhase(2);
-      setProgress(45, 'AI 분류 중...');
+      setProgress(45,'AI 분류 중...');
       S.logoB64 = DEFAULT_LOGO_B64;
       await classifyAll();
-
-      // PHASE 3: 리포트 생성
       setPhase(3);
-      setProgress(88, 'VAN FORM 생성 중...');
+      setProgress(88,'VAN FORM 생성 중...');
       const vanDocx    = buildVanDocx();
-      setProgress(95, 'BALING FORM 생성 중...');
+      setProgress(95,'BALING FORM 생성 중...');
       const balingDocx = buildBalingDocx();
-
-      setProgress(100, `✅ ${ivNo} 완료`);
+      setProgress(100,`✅ ${ivNo} 완료`);
       setAllDone();
-      log(`🎉 ${ivNo} 리포트 생성 완료`, 'ok');
-
-      const voSafe = (S.voNo||ivNo).replace(/[^a-zA-Z0-9._-]/g,'_');
+      log(`🎉 ${ivNo} 리포트 생성 완료`,'ok');
+      const voSafe=(S.voNo||ivNo).replace(/[^a-zA-Z0-9._-]/g,'_');
       allDownloads.push(
         {buf:vanDocx,    name:`${voSafe}_VAN.docx`,    icon:'📦', label:`${ivNo} VAN`},
         {buf:balingDocx, name:`${voSafe}_BALING.docx`, icon:'📋', label:`${ivNo} BALING`},
       );
-
-    } catch(e) {
-      log(`❌ ${ivNo} 처리 실패: ${e.message}`, 'err');
+    } catch(e){
+      log(`❌ ${ivNo} 실패: ${e.message}`,'err');
       console.error(e);
     }
   }
-
   showResults(allDownloads);
   document.getElementById('proceedBtn').disabled = false;
 }
 
 function resetState(row) {
-  S.mode = 'folder';
-  S.groups = {};
-  S.containers = row.ctList.map((ct, i) => ({ no: i+1, container: ct.ctNo, seal: ct.seal }));
-  S.vanPhotos = {};
-  S.baraPhotos = {};
-  S.pressPhotos = {};
-  S.classifiedVan = {};
-  S.classifiedBaling = { goods_yard:null, inspector:null, open_bales:[], rebales:[] };
-  S.logoB64 = null;
-  S.voNo = row.voNo && row.partial ? `${row.voNo}-${row.partial}` : row.voNo || '';
-  S.reportDate = row.workDate ? (() => {
-    const d = new Date(row.workDate);
-    const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
-    return `${months[d.getMonth()]}. ${d.getDate()}, ${d.getFullYear()}`;
+  S.mode='folder'; S.groups={};
+  S.containers = row.ctList.map((ct,i)=>({no:i+1,container:ct.ctNo,seal:ct.seal}));
+  S.vanPhotos={}; S.baraPhotos={}; S.pressPhotos={};
+  S.classifiedVan={}; S.classifiedBaling={goods_yard:null,inspector:null,open_bales:[],rebales:[]};
+  S.logoB64=null;
+  S.voNo = row.voNo&&row.partial ? `${row.voNo}-${row.partial}` : row.voNo||'';
+  S.reportDate = row.workDate ? (()=>{
+    const d=new Date(row.workDate);
+    const m=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+    return `${m[d.getMonth()]}. ${d.getDate()}, ${d.getFullYear()}`;
   })() : '';
-  S.inspPlace = row.pol || '';
-  S.baleCount = 0;
-  S.rootName = row.ivNo;
-  S.fileList = [];
+  S.inspPlace=row.pol||''; S.baleCount=0;
+  S.rootName=row.ivNo; S.fileList=[];
 }
 
-// ═══════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════
 //  SharePoint 사진 취득
-//  경로: PHOTO/{ivNo}/{ctNo}/ → 각 CT 폴더 안 jpg 파일
-// ═══════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════
 async function graphGet(url) {
-  const r = await fetch(url, { headers: { Authorization: `Bearer ${S.graphToken}` } });
+  const r = await fetch(url,{headers:{Authorization:`Bearer ${S.graphToken}`}});
   if (!r.ok) {
-    const t = await r.text();
-    throw new Error(`Graph ${r.status}: ${t.slice(0,200)}`);
+    if (r.status===401){ S.graphToken=null; sessionStorage.removeItem('cotecna_graph_token'); updateAuthUI(); }
+    throw new Error(`Graph ${r.status}`);
   }
   return r.json();
-}
-async function graphGetBinary(url) {
-  const r = await fetch(url, { headers: { Authorization: `Bearer ${S.graphToken}` } });
-  if (!r.ok) throw new Error(`Graph binary ${r.status}`);
-  return r.arrayBuffer();
 }
 
 async function loadPhotosFromSharePoint(row) {
   const ivNo = row.ivNo;
-  log(`📂 SharePoint PHOTO/${ivNo} 탐색 중...`, 'info');
+  log(`📂 SharePoint PHOTO/${ivNo} 탐색 중...`,'info');
+  const children = await graphGet(`https://graph.microsoft.com/v1.0/drives/${SP_DRIVE_ID}/items/${SP_PHOTO_ID}/children`);
+  const ivFolder  = children.value?.find(f=>f.name===ivNo&&f.folder);
+  if (!ivFolder) { log(`  ⚠️ ${ivNo} 폴더 없음 — 빈 리포트로 진행`,'warn'); return; }
+  log(`  ✅ ${ivNo} 폴더 발견`,'ok');
 
-  // PHOTO 폴더의 하위에서 ivNo 폴더 찾기
-  const childrenUrl = `https://graph.microsoft.com/v1.0/drives/${SP_DRIVE_ID}/items/${SP_PHOTO_ID}/children`;
-  const children = await graphGet(childrenUrl);
-  const ivFolder  = children.value?.find(f => f.name === ivNo && f.folder);
-
-  if (!ivFolder) {
-    log(`  ⚠️ SharePoint에 ${ivNo} 폴더 없음 — CT는 있지만 사진 미수집`, 'warn');
-    // 사진 없어도 state.containers는 이미 세팅됨 → 빈 사진으로 계속 진행
-    return;
-  }
-
-  log(`  ✅ ${ivNo} 폴더 발견`, 'ok');
-
-  // IV 폴더 안의 CT 폴더 목록
   const ivChildren = await graphGet(`https://graph.microsoft.com/v1.0/drives/${SP_DRIVE_ID}/items/${ivFolder.id}/children`);
+  const ctFolders  = ivChildren.value?.filter(f=>f.folder&&!f.name.startsWith('_')&&f.name!=='搬入票') || [];
+  log(`  CT 폴더 ${ctFolders.length}개: ${ctFolders.map(f=>f.name).join(', ')}`,'info');
+  if (!ctFolders.length) { log('  ⚠️ CT 폴더 없음','warn'); return; }
 
-  // CT 폴더만 필터 (폴더이고 컨테이너 번호 패턴 또는 ct 목록에 있는 것)
-  const ctFolders = ivChildren.value?.filter(f =>
-    f.folder && !f.name.startsWith('_') && f.name !== '搬入票'
-  ) || [];
-
-  log(`  CT 폴더 ${ctFolders.length}개 발견: ${ctFolders.map(f=>f.name).join(', ')}`, 'info');
-
-  if (!ctFolders.length) {
-    log('  ⚠️ CT 폴더 없음', 'warn');
-    return;
-  }
-
-  // CT 폴더와 containers 매핑
-  // containers에 ctNo가 있으면 매핑, 없으면 순서대로
-  const contNos = S.containers.map(c => c.no);
   let ctIdx = 0;
-
-  for (const ctFolder of ctFolders.sort((a,b) => a.name.localeCompare(b.name))) {
-    // containers에서 해당 CT 찾기
-    let cont = S.containers.find(c => c.container === ctFolder.name);
-    if (!cont) {
-      // 없으면 순서대로 배정
-      cont = S.containers[ctIdx];
-      ctIdx++;
-    }
+  for (const ctFolder of ctFolders.sort((a,b)=>a.name.localeCompare(b.name))) {
+    let cont = S.containers.find(c=>c.container===ctFolder.name);
+    if (!cont) { cont=S.containers[ctIdx]; ctIdx++; }
     if (!cont) continue;
-
     const no = cont.no;
-    log(`  📁 ${ctFolder.name} → CN${no} 로드 중...`, 'info');
+    log(`  📁 ${ctFolder.name} → CN${no} 로드 중...`,'info');
 
-    // CT 폴더 안의 사진 파일 목록
-    const ctFiles = await graphGet(
-      `https://graph.microsoft.com/v1.0/drives/${SP_DRIVE_ID}/items/${ctFolder.id}/children`
-    );
-    const imgFiles = ctFiles.value?.filter(f => f.file && f.name.match(/\.(jpe?g|png)$/i)) || [];
+    const ctFiles  = await graphGet(`https://graph.microsoft.com/v1.0/drives/${SP_DRIVE_ID}/items/${ctFolder.id}/children`);
+    const imgFiles = ctFiles.value?.filter(f=>f.file&&f.name.match(/\.(jpe?g|png)$/i)) || [];
+    if (!imgFiles.length){ log(`    ⚠️ 사진 없음`,'warn'); continue; }
 
-    if (!imgFiles.length) {
-      log(`    ⚠️ ${ctFolder.name} 사진 없음`, 'warn');
-      continue;
-    }
-
-    log(`    사진 ${imgFiles.length}장 다운로드 중...`, 'info');
-
-    // 병렬 다운로드 (최대 5개씩)
-    S.vanPhotos[no] = {};
-    const sorted = imgFiles.sort((a,b) => a.name.localeCompare(b.name, undefined, {numeric:true}));
-
-    for (let i = 0; i < sorted.length; i += 5) {
-      const batch = sorted.slice(i, i+5);
-      await Promise.all(batch.map(async (file, bIdx) => {
-        try {
-          const seq = i + bIdx + 1;
-          const dlUrl = file['@microsoft.graph.downloadUrl'] || file.downloadUrl;
-          let b64;
-          if (dlUrl) {
-            const buf = await fetch(dlUrl).then(r => r.arrayBuffer());
-            b64 = ab2b64(buf);
-          } else {
-            const buf = await graphGetBinary(
-              `https://graph.microsoft.com/v1.0/drives/${SP_DRIVE_ID}/items/${file.id}/content`
-            );
-            b64 = ab2b64(buf);
-          }
-          S.vanPhotos[no][seq]          = b64;
-          S.vanPhotos[no][`_name_${seq}`] = file.name;
-        } catch(e) {
-          log(`    ⚠️ ${file.name} 다운로드 실패: ${e.message}`, 'warn');
-        }
+    S.vanPhotos[no]={};
+    const sorted = imgFiles.sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true}));
+    for (let i=0;i<sorted.length;i+=5){
+      const batch=sorted.slice(i,i+5);
+      await Promise.all(batch.map(async(file,bIdx)=>{
+        try{
+          const seq=i+bIdx+1;
+          const dlUrl=file['@microsoft.graph.downloadUrl'];
+          const buf=await fetch(dlUrl).then(r=>r.arrayBuffer());
+          S.vanPhotos[no][seq]=ab2b64(buf);
+          S.vanPhotos[no][`_name_${seq}`]=file.name;
+        }catch(e){ log(`    ⚠️ ${file.name} 실패`,'warn'); }
       }));
-      setProgress(5 + Math.round((Object.keys(S.vanPhotos).length / ctFolders.length) * 35),
-        `사진 로드 중... ${ctFolder.name}`);
+      setProgress(5+Math.round((Object.keys(S.vanPhotos).length/ctFolders.length)*35),`사진 로드 중... ${ctFolder.name}`);
     }
-
-    // groups 세팅 (v5.3 classifyAll 호환)
-    S.groups[no] = sorted;
-    log(`    ✅ CN${no} (${ctFolder.name}): ${Object.keys(S.vanPhotos[no]).filter(k=>!k.startsWith('_')).length}장 로드`, 'ok');
+    S.groups[no]=sorted;
+    log(`    ✅ CN${no}: ${Object.keys(S.vanPhotos[no]).filter(k=>!k.startsWith('_')).length}장`,'ok');
   }
-
-  const loaded = Object.keys(S.vanPhotos).length;
-  log(`✅ 총 ${loaded}개 CT 사진 로드 완료`, 'ok');
-  setProgress(40, `사진 로드 완료 (${loaded}개 CT)`);
+  log(`✅ 사진 로드 완료 (${Object.keys(S.vanPhotos).length}개 CT)`,'ok');
+  setProgress(40,'사진 로드 완료');
 }
 
-// ═══════════════════════════════════════════════════════════════
-//  v5.3 재활용 — classifyAll (원본 그대로)
-// ═══════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════
+//  AI 분류 (v5.3 재활용)
+// ═══════════════════════════════════════
 async function classifyAll() {
-  S.classifiedVan = {};
-  S.classifiedBaling = { goods_yard:null, inspector:null, open_bales:[], rebales:[] };
-
-  const contNos = Object.keys(S.vanPhotos).map(Number).sort((a,b)=>a-b);
-  if (!contNos.length) {
-    log('⚠️ 로드된 사진이 없습니다 — 빈 리포트 생성', 'warn');
-    for (const c of S.containers) S.classifiedVan[c.no] = {};
-    return;
-  }
-
-  const first = contNos[0];
-  const firstPhotos = S.vanPhotos[first];
-  const seqKeys = Object.keys(firstPhotos).filter(k=>!k.startsWith('_')).map(Number).sort((a,b)=>a-b);
-
-  log(`  🤖 컨테이너 1번 AI 분류 중 (${seqKeys.length}장 병렬)...`, 'info');
-
-  const results = await Promise.all(
-    seqKeys.map(async seq => {
-      const label = await classifyOne(firstPhotos[seq], VAN_PROMPT).catch(() => 'unknown');
-      const fname = firstPhotos[`_name_${seq}`] || `seq${seq}`;
-      log(`    seq${seq} [${fname}] → ${label}`, 'info');
-      return { seq, label };
-    })
-  );
-
-  const slotCandidates = {};
-  for (const { seq, label } of results) {
-    if (SLOT_ORDER.includes(label)) {
-      if (!slotCandidates[label]) slotCandidates[label] = [];
-      slotCandidates[label].push(seq);
-    }
-  }
-
-  let slotMap = {};
-
-  if (slotCandidates['cotecna_seal']?.length > 1) {
-    log(`  🔍 seal 후보 ${slotCandidates['cotecna_seal'].length}개 → 재확인...`, 'info');
-    const sealChecks = await Promise.all(
-      slotCandidates['cotecna_seal'].map(async seq => {
-        try {
-          const ans = await callAI([
-            {type:'image', source:{type:'base64', media_type:'image/jpeg', data:firstPhotos[seq]}},
-            {type:'text', text:`この写真を見て「yes」か「no」だけ答えてください。
-条件：シールの上部に「COTECNA」の文字があり、下部に「JP-」で始まる番号が書かれている。
-両方確認できる場合「yes」、そうでなければ「no」。`}
-          ], 10);
-          return { seq, ok: ans.toLowerCase().includes('yes') };
-        } catch(e) { return { seq, ok: false }; }
-      })
-    );
-    slotMap['cotecna_seal'] = (sealChecks.find(r=>r.ok) ?? sealChecks[0]).seq;
-  } else if (slotCandidates['cotecna_seal']?.length === 1) {
-    slotMap['cotecna_seal'] = slotCandidates['cotecna_seal'][0];
-  }
-
-  if (slotCandidates['right_door']?.length > 1) {
-    log(`  🔍 right_door 후보 ${slotCandidates['right_door'].length}개 → 재확인...`, 'info');
-    const rdChecks = await Promise.all(
-      slotCandidates['right_door'].map(async seq => {
-        try {
-          const ans = await callAI([
-            {type:'image', source:{type:'base64', media_type:'image/jpeg', data:firstPhotos[seq]}},
-            {type:'text', text:`この写真を見て「yes」か「no」だけ答えてください。
-条件：写真の左側に廃紙ベール（荷物）があり、かつ写真の右側にTARE・MAX.GROSS・KGS・LBS・PAYLOADなどコンテナの重量表記が見える。
-両方満たす場合「yes」、そうでなければ「no」。`}
-          ], 10);
-          return { seq, ok: ans.toLowerCase().includes('yes') };
-        } catch(e) { return { seq, ok: false }; }
-      })
-    );
-    slotMap['right_door'] = (rdChecks.find(r=>r.ok) ?? rdChecks[0]).seq;
-  } else if (slotCandidates['right_door']?.length === 1) {
-    slotMap['right_door'] = slotCandidates['right_door'][0];
-  }
-
-  const allInternal = [...(slotCandidates['full']||[]), ...(slotCandidates['half']||[])].sort((a,b)=>a-b);
-  if (allInternal.length >= 2) {
-    const scores = await Promise.all(
-      allInternal.map(async seq => {
-        try {
-          const ans = await callAI([
-            {type:'image', source:{type:'base64', media_type:'image/jpeg', data:firstPhotos[seq]}},
-            {type:'text', text:`このコンテナ内部写真の廃紙ベール積載量を1〜10で評価。1=空、10=満杯。数字のみ答えてください。`}
-          ], 5);
-          return { seq, score: parseInt(ans.trim())||0 };
-        } catch(e) { return { seq, score: 0 }; }
-      })
-    );
+  S.classifiedVan={}; S.classifiedBaling={goods_yard:null,inspector:null,open_bales:[],rebales:[]};
+  const contNos=Object.keys(S.vanPhotos).map(Number).sort((a,b)=>a-b);
+  if(!contNos.length){ log('⚠️ 사진 없음 — 빈 리포트 생성','warn'); for(const c of S.containers) S.classifiedVan[c.no]={}; return; }
+  const first=contNos[0], firstPhotos=S.vanPhotos[first];
+  const seqKeys=Object.keys(firstPhotos).filter(k=>!k.startsWith('_')).map(Number).sort((a,b)=>a-b);
+  log(`  🤖 CN1 AI 분류 중 (${seqKeys.length}장)...`,'info');
+  const results=await Promise.all(seqKeys.map(async seq=>{
+    const label=await classifyOne(firstPhotos[seq],VAN_PROMPT).catch(()=>'unknown');
+    log(`    seq${seq} [${firstPhotos[`_name_${seq}`]||''}] → ${label}`,'info');
+    return{seq,label};
+  }));
+  const slotCandidates={};
+  for(const{seq,label}of results) if(SLOT_ORDER.includes(label)){ if(!slotCandidates[label]) slotCandidates[label]=[]; slotCandidates[label].push(seq); }
+  let slotMap={};
+  // cotecna_seal
+  if(slotCandidates['cotecna_seal']?.length>1){
+    const checks=await Promise.all(slotCandidates['cotecna_seal'].map(async seq=>{
+      try{ const a=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:firstPhotos[seq]}},{type:'text',text:`この写真を見て「yes」か「no」だけ答えてください。条件：「COTECNA」と「JP-」両方確認できる場合「yes」。`}],10); return{seq,ok:a.toLowerCase().includes('yes')}; }catch(e){ return{seq,ok:false}; }
+    }));
+    slotMap['cotecna_seal']=(checks.find(r=>r.ok)??checks[0]).seq;
+  } else if(slotCandidates['cotecna_seal']?.length===1) slotMap['cotecna_seal']=slotCandidates['cotecna_seal'][0];
+  // right_door
+  if(slotCandidates['right_door']?.length>1){
+    const checks=await Promise.all(slotCandidates['right_door'].map(async seq=>{
+      try{ const a=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:firstPhotos[seq]}},{type:'text',text:`左側に廃紙ベールがあり右側にTARE・MAX.GROSSなど重量表記が見える場合「yes」。`}],10); return{seq,ok:a.toLowerCase().includes('yes')}; }catch(e){ return{seq,ok:false}; }
+    }));
+    slotMap['right_door']=(checks.find(r=>r.ok)??checks[0]).seq;
+  } else if(slotCandidates['right_door']?.length===1) slotMap['right_door']=slotCandidates['right_door'][0];
+  // full/half
+  const allInternal=[...(slotCandidates['full']||[]),...(slotCandidates['half']||[])].sort((a,b)=>a-b);
+  if(allInternal.length>=2){
+    const scores=await Promise.all(allInternal.map(async seq=>{ try{ const a=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:firstPhotos[seq]}},{type:'text',text:`積載量を1〜10で評価。数字のみ。`}],5); return{seq,score:parseInt(a)||0}; }catch(e){ return{seq,score:0}; } }));
     scores.sort((a,b)=>b.score-a.score);
-    slotCandidates['full'] = [scores[0].seq];
-    slotCandidates['half'] = scores[1] ? [scores[1].seq] : [];
-    log(`  ✅ full=seq${scores[0].seq}(${scores[0].score}点), half=${scores[1]?`seq${scores[1].seq}(${scores[1].score}点)`:'なし'}`, 'ok');
-  } else if (allInternal.length === 1) {
-    slotCandidates['full'] = allInternal;
-  }
-
-  for (const slot of SLOT_ORDER) {
-    if (slot === 'cotecna_seal' || slot === 'right_door') continue;
-    if (slotCandidates[slot]?.length && !slotMap[slot])
-      slotMap[slot] = slotCandidates[slot][0];
-  }
-
-  const missing = SLOT_ORDER.filter(s => !slotMap[s]);
-  if (missing.length) log(`  ⚠️ 미분류 슬롯: ${missing.join(', ')}`, 'warn');
-  log(`  ✅ 패턴 확정: ${JSON.stringify(slotMap)}`, 'ok');
-  showClassifyPreview(firstPhotos, slotMap);
-
-  for (const no of contNos) {
-    S.classifiedVan[no] = {};
-    const photos = S.vanPhotos[no] || {};
-    for (const [slot, seq] of Object.entries(slotMap)) {
-      if (photos[seq]) S.classifiedVan[no][slot] = photos[seq];
-    }
-  }
-
-  // OCR: Container No. + Seal No. 사진에서 보완
-  const needsContOCR = S.containers.some(c => !c.container || c.container === '—' || c.container.match(/^\d+$/));
-  const needsSealOCR = S.containers.some(c => !c.seal);
-  if ((needsContOCR && slotMap['right_door']) || (needsSealOCR && slotMap['cotecna_seal'])) {
-    log('  🔍 사진 OCR 중 (CT/Seal 번호 보완)...', 'info');
-    await Promise.all(contNos.map(async no => {
-      const cont = S.containers.find(c => c.no === no);
-      if (!cont) return;
-      const tasks = [];
-      if (needsContOCR && S.classifiedVan[no]?.right_door) {
-        tasks.push(callAI([
-          {type:'image', source:{type:'base64', media_type:'image/jpeg', data:S.classifiedVan[no].right_door}},
-          {type:'text', text:`コンテナ番号（英字4文字+数字7桁）を読み取って番号だけ答えてください。`}
-        ], 30).then(val => {
-          const m = val.trim().match(/[A-Z]{4}\d{7}/i);
-          if (m) { cont.container = m[0].toUpperCase(); log(`    CN${no}: CT → ${cont.container}`, 'ok'); }
-        }).catch(()=>{}));
-      }
-      if (needsSealOCR && S.classifiedVan[no]?.cotecna_seal) {
-        tasks.push(callAI([
-          {type:'image', source:{type:'base64', media_type:'image/jpeg', data:S.classifiedVan[no].cotecna_seal}},
-          {type:'text', text:`シールの「JP-」で始まる番号を「JP-XXXXXXX」形式で答えてください。番号のみ。`}
-        ], 20).then(val => {
-          const m = val.trim().match(/JP-?\d{4,8}/i);
-          if (m) { cont.seal = m[0].toUpperCase().replace(/^JP([^-])/,'JP-$1'); log(`    CN${no}: Seal → ${cont.seal}`, 'ok'); }
-        }).catch(()=>{}));
-      }
+    slotCandidates['full']=[scores[0].seq];
+    slotCandidates['half']=scores[1]?[scores[1].seq]:[];
+  } else if(allInternal.length===1) slotCandidates['full']=allInternal;
+  for(const slot of SLOT_ORDER){ if(slot==='cotecna_seal'||slot==='right_door') continue; if(slotCandidates[slot]?.length&&!slotMap[slot]) slotMap[slot]=slotCandidates[slot][0]; }
+  log(`  ✅ 패턴: ${JSON.stringify(slotMap)}`,'ok');
+  showClassifyPreview(firstPhotos,slotMap);
+  for(const no of contNos){ S.classifiedVan[no]={}; const p=S.vanPhotos[no]||{}; for(const[slot,seq]of Object.entries(slotMap)) if(p[seq]) S.classifiedVan[no][slot]=p[seq]; }
+  // OCR
+  const needsCT=S.containers.some(c=>!c.container||c.container==='—'||c.container.match(/^\d+$/));
+  const needsSeal=S.containers.some(c=>!c.seal);
+  if((needsCT&&slotMap['right_door'])||(needsSeal&&slotMap['cotecna_seal'])){
+    log('  🔍 OCR 중...','info');
+    await Promise.all(contNos.map(async no=>{
+      const cont=S.containers.find(c=>c.no===no); if(!cont) return; const tasks=[];
+      if(needsCT&&S.classifiedVan[no]?.right_door) tasks.push(callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:S.classifiedVan[no].right_door}},{type:'text',text:`コンテナ番号（英字4文字+数字7桁）を読み取って番号だけ答えてください。`}],30).then(v=>{ const m=v.trim().match(/[A-Z]{4}\d{7}/i); if(m){ cont.container=m[0].toUpperCase(); log(`    CN${no}: CT → ${cont.container}`,'ok'); } }).catch(()=>{}));
+      if(needsSeal&&S.classifiedVan[no]?.cotecna_seal) tasks.push(callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:S.classifiedVan[no].cotecna_seal}},{type:'text',text:`シールの「JP-XXXXXXX」形式で番号のみ答えてください。`}],20).then(v=>{ const m=v.trim().match(/JP-?\d{4,8}/i); if(m){ cont.seal=m[0].toUpperCase().replace(/^JP([^-])/,'JP-$1'); log(`    CN${no}: Seal → ${cont.seal}`,'ok'); } }).catch(()=>{}));
       await Promise.all(tasks);
     }));
   }
-
-  // BALING: VAN 사진에서 재활용
-  if (slotMap['inspector']) S.classifiedBaling.inspector = firstPhotos[slotMap['inspector']];
-  if (slotMap['full'])      S.classifiedBaling.goods_yard = firstPhotos[slotMap['full']];
-
-  setProgress(80, `AI 분류 완료 — ${contNos.length}CT`);
-  log(`✅ AI 분류 완료 (${contNos.length}CT)`, 'ok');
+  if(slotMap['inspector']) S.classifiedBaling.inspector=firstPhotos[slotMap['inspector']];
+  if(slotMap['full'])      S.classifiedBaling.goods_yard=firstPhotos[slotMap['full']];
+  setProgress(80,`AI 분류 완료`);
+  log(`✅ AI 분류 완료 (${contNos.length}CT)`,'ok');
 }
 
-// ═══════════════════════════════════════════════════════════════
-//  v5.3 재활용 — AI API 호출
-// ═══════════════════════════════════════════════════════════════
-async function callAI(content, maxTokens=20, _retry=0) {
-  const r = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': S.apiKey,
-      'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true',
-    },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: maxTokens,
-      messages: [{ role: 'user', content }],
-    }),
-  });
-  if (r.status === 429 && _retry < 4) {
-    const wait = 5000 * Math.pow(2, _retry);
-    await new Promise(res => setTimeout(res, wait));
-    return callAI(content, maxTokens, _retry+1);
-  }
-  if (!r.ok) throw new Error(`API ${r.status}`);
-  const d = await r.json();
-  return d.content?.[0]?.text?.trim() || '';
+// ═══════════════════════════════════════
+//  API 호출 (v5.3 재활용)
+// ═══════════════════════════════════════
+async function callAI(content,maxTokens=20,_retry=0){
+  const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':S.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:maxTokens,messages:[{role:'user',content}]})});
+  if(r.status===429&&_retry<4){ await new Promise(res=>setTimeout(res,5000*Math.pow(2,_retry))); return callAI(content,maxTokens,_retry+1); }
+  if(!r.ok) throw new Error(`API ${r.status}`);
+  const d=await r.json(); return d.content?.[0]?.text?.trim()||'';
 }
+async function classifyOne(b64,prompt){ return callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:prompt}],20); }
 
-async function classifyOne(b64, prompt) {
-  return callAI([
-    {type:'image', source:{type:'base64', media_type:'image/jpeg', data:b64}},
-    {type:'text', text:prompt},
-  ], 20);
-}
-
-// ═══════════════════════════════════════════════════════════════
-//  v5.3 재활용 — Word 생성 (buildVanDocx / buildBalingDocx)
-// ═══════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════
+//  Word 생성 (v5.3 재활용)
+// ═══════════════════════════════════════
 function xmlEsc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function imgXml(rid, pid) {
-  return `<w:drawing><wp:inline><wp:extent cx="${IMG_CX}" cy="${IMG_CY}"/><wp:effectExtent l="0" t="0" r="0" b="0"/><wp:docPr id="${pid}" name="img${pid}"/><wp:cNvGraphicFramePr><a:graphicFrameLocks noChangeAspect="1"/></wp:cNvGraphicFramePr><a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic><pic:nvPicPr><pic:cNvPr id="0" name="img${pid}"/><pic:cNvPicPr><a:picLocks noChangeAspect="1"/></pic:cNvPicPr></pic:nvPicPr><pic:blipFill><a:blip r:embed="${rid}"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${IMG_CX}" cy="${IMG_CY}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing>`;
-}
-function cellXml(text, b64, rid, pid) {
-  const img = b64 && rid ? `<w:p><w:r><w:rPr/>${imgXml(rid,pid)}</w:r></w:p>` : `<w:p/>`;
-  const cap = `<w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:sz w:val="14"/><w:b/></w:rPr><w:t>${xmlEsc(text)}</w:t></w:r></w:p>`;
-  return `<w:tc><w:tcPr><w:tcW w:w="5316" w:type="dxa"/></w:tcPr>${img}${cap}</w:tc>`;
-}
-const SECT_PR = `<w:sectPr><w:headerReference w:type="default" r:id="rId3"/><w:footerReference w:type="default" r:id="rId4"/><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="567" w:right="720" w:bottom="340" w:left="720" w:header="360" w:footer="280"/></w:sectPr>`;
-
-function buildVanDocx() {
-  const imageRels = {};
-  let ridCounter = 10, pidCounter = 100, docXml = '';
-  const contNos = S.containers.map(c=>c.no).filter(n=>S.classifiedVan[n]);
-
-  for (let idx=0; idx<contNos.length; idx++) {
-    const no = contNos[idx];
-    const cont = S.containers.find(c=>c.no===no);
-    const classified = S.classifiedVan[no] || {};
-    const isLast = idx === contNos.length-1;
-    const hdrRow = `<w:tr><w:tc><w:tcPr><w:tcW w:w="5316" w:type="dxa"/></w:tcPr><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:sz w:val="20"/><w:b/></w:rPr><w:t>CONTAINER NO: ${xmlEsc(cont?.container||'')}</w:t></w:r></w:p></w:tc><w:tc><w:tcPr><w:tcW w:w="5316" w:type="dxa"/></w:tcPr><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:sz w:val="20"/><w:b/></w:rPr><w:t>CONTAINER SEAL NO: ${xmlEsc(cont?.seal||'')}</w:t></w:r></w:p></w:tc></w:tr>`;
-    let rowsXml = hdrRow;
-    for (const [s1,s2] of [['empty','half'],['full','right_door'],['inspector','cotecna_seal']]) {
-      const b1=classified[s1], b2=classified[s2];
-      const rid1=b1?`rId${ridCounter++}`:null, rid2=b2?`rId${ridCounter++}`:null;
-      if(b1&&rid1) imageRels[rid1]={name:`van_${no}_${s1}.jpg`,b64:b1};
-      if(b2&&rid2) imageRels[rid2]={name:`van_${no}_${s2}.jpg`,b64:b2};
-      rowsXml += `<w:tr>${cellXml(SLOT_CAPTIONS[s1],b1,rid1,pidCounter++)}${cellXml(SLOT_CAPTIONS[s2],b2,rid2,pidCounter++)}</w:tr>`;
+function imgXml(rid,pid){ return `<w:drawing><wp:inline><wp:extent cx="${IMG_CX}" cy="${IMG_CY}"/><wp:effectExtent l="0" t="0" r="0" b="0"/><wp:docPr id="${pid}" name="img${pid}"/><wp:cNvGraphicFramePr><a:graphicFrameLocks noChangeAspect="1"/></wp:cNvGraphicFramePr><a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic><pic:nvPicPr><pic:cNvPr id="0" name="img${pid}"/><pic:cNvPicPr><a:picLocks noChangeAspect="1"/></pic:cNvPicPr></pic:nvPicPr><pic:blipFill><a:blip r:embed="${rid}"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${IMG_CX}" cy="${IMG_CY}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing>`; }
+function cellXml(text,b64,rid,pid){ const img=b64&&rid?`<w:p><w:r><w:rPr/>${imgXml(rid,pid)}</w:r></w:p>`:`<w:p/>`; const cap=`<w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:sz w:val="14"/><w:b/></w:rPr><w:t>${xmlEsc(text)}</w:t></w:r></w:p>`; return `<w:tc><w:tcPr><w:tcW w:w="5316" w:type="dxa"/></w:tcPr>${img}${cap}</w:tc>`; }
+const SECT_PR=`<w:sectPr><w:headerReference w:type="default" r:id="rId3"/><w:footerReference w:type="default" r:id="rId4"/><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="567" w:right="720" w:bottom="340" w:left="720" w:header="360" w:footer="280"/></w:sectPr>`;
+function buildVanDocx(){
+  const imageRels={};let ridCounter=10,pidCounter=100,docXml='';
+  const contNos=S.containers.map(c=>c.no).filter(n=>S.classifiedVan[n]);
+  for(let idx=0;idx<contNos.length;idx++){
+    const no=contNos[idx],cont=S.containers.find(c=>c.no===no),classified=S.classifiedVan[no]||{},isLast=idx===contNos.length-1;
+    const hdrRow=`<w:tr><w:tc><w:tcPr><w:tcW w:w="5316" w:type="dxa"/></w:tcPr><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:sz w:val="20"/><w:b/></w:rPr><w:t>CONTAINER NO: ${xmlEsc(cont?.container||'')}</w:t></w:r></w:p></w:tc><w:tc><w:tcPr><w:tcW w:w="5316" w:type="dxa"/></w:tcPr><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:sz w:val="20"/><w:b/></w:rPr><w:t>CONTAINER SEAL NO: ${xmlEsc(cont?.seal||'')}</w:t></w:r></w:p></w:tc></w:tr>`;
+    let rowsXml=hdrRow;
+    for(const[s1,s2]of[['empty','half'],['full','right_door'],['inspector','cotecna_seal']]){
+      const b1=classified[s1],b2=classified[s2];
+      const rid1=b1?`rId${ridCounter++}`:null,rid2=b2?`rId${ridCounter++}`:null;
+      if(b1&&rid1)imageRels[rid1]={name:`van_${no}_${s1}.jpg`,b64:b1};
+      if(b2&&rid2)imageRels[rid2]={name:`van_${no}_${s2}.jpg`,b64:b2};
+      rowsXml+=`<w:tr>${cellXml(SLOT_CAPTIONS[s1],b1,rid1,pidCounter++)}${cellXml(SLOT_CAPTIONS[s2],b2,rid2,pidCounter++)}</w:tr>`;
     }
     const tbl=`<w:tbl><w:tblPr><w:tblW w:w="10632" w:type="dxa"/><w:tblBorders><w:top w:val="single" w:sz="4" w:color="000000"/><w:left w:val="single" w:sz="4" w:color="000000"/><w:bottom w:val="single" w:sz="4" w:color="000000"/><w:right w:val="single" w:sz="4" w:color="000000"/><w:insideH w:val="single" w:sz="4" w:color="000000"/><w:insideV w:val="single" w:sz="4" w:color="000000"/></w:tblBorders></w:tblPr>${rowsXml}</w:tbl>`;
-    docXml += tbl;
-    if(!isLast) docXml += `<w:p><w:pPr><w:pageBreakBefore/></w:pPr></w:p>`;
+    docXml+=tbl; if(!isLast) docXml+=`<w:p><w:pPr><w:pageBreakBefore/></w:pPr></w:p>`;
   }
-  return buildDocxZip(docXml, imageRels, 'van');
+  return buildDocxZip(docXml,imageRels,'van');
 }
-
-function buildBalingDocx() {
-  const imageRels = {};
-  let ridCounter=10, pidCounter=200, docXml='';
-  function addRow(cap1,b1,cap2,b2){
-    const rid1=b1?`rId${ridCounter++}`:null, rid2=b2?`rId${ridCounter++}`:null;
-    if(b1&&rid1) imageRels[rid1]={name:`baling_${ridCounter}_l.jpg`,b64:b1};
-    if(b2&&rid2) imageRels[rid2]={name:`baling_${ridCounter}_r.jpg`,b64:b2};
-    docXml += `<w:tr>${cellXml(cap1,b1,rid1,pidCounter++)}${cellXml(cap2,b2,rid2,pidCounter++)}</w:tr>`;
-  }
-  const b = S.classifiedBaling;
-  const baleCount = Math.max(b.open_bales.length, b.rebales.length, S.baleCount||0);
-  docXml += `<w:tbl><w:tblPr><w:tblW w:w="10632" w:type="dxa"/><w:tblBorders><w:top w:val="single" w:sz="4" w:color="000000"/><w:left w:val="single" w:sz="4" w:color="000000"/><w:bottom w:val="single" w:sz="4" w:color="000000"/><w:right w:val="single" w:sz="4" w:color="000000"/><w:insideH w:val="single" w:sz="4" w:color="000000"/><w:insideV w:val="single" w:sz="4" w:color="000000"/></w:tblBorders></w:tblPr>`;
+function buildBalingDocx(){
+  const imageRels={};let ridCounter=10,pidCounter=200,docXml='';
+  function addRow(c1,b1,c2,b2){ const r1=b1?`rId${ridCounter++}`:null,r2=b2?`rId${ridCounter++}`:null; if(b1&&r1)imageRels[r1]={name:`baling_${ridCounter}_l.jpg`,b64:b1}; if(b2&&r2)imageRels[r2]={name:`baling_${ridCounter}_r.jpg`,b64:b2}; docXml+=`<w:tr>${cellXml(c1,b1,r1,pidCounter++)}${cellXml(c2,b2,r2,pidCounter++)}</w:tr>`; }
+  const b=S.classifiedBaling;
+  docXml+=`<w:tbl><w:tblPr><w:tblW w:w="10632" w:type="dxa"/><w:tblBorders><w:top w:val="single" w:sz="4" w:color="000000"/><w:left w:val="single" w:sz="4" w:color="000000"/><w:bottom w:val="single" w:sz="4" w:color="000000"/><w:right w:val="single" w:sz="4" w:color="000000"/><w:insideH w:val="single" w:sz="4" w:color="000000"/><w:insideV w:val="single" w:sz="4" w:color="000000"/></w:tblBorders></w:tblPr>`;
   addRow('Goods in yard / store',b.goods_yard,'Inspector performing sampling',b.inspector);
-  const maxPairs=Math.ceil(Math.max(b.open_bales.length,b.rebales.length,1)/1);
-  for(let i=0;i<Math.max(b.open_bales.length,b.rebales.length,1);i++){
-    addRow('Open bale for inspection',b.open_bales[i]||null,'Re-baled and sealed bale',b.rebales[i]||null);
-  }
-  docXml += `</w:tbl>`;
-  return buildDocxZip(docXml, imageRels, 'baling');
+  for(let i=0;i<Math.max(b.open_bales.length,b.rebales.length,1);i++) addRow('Open bale for inspection',b.open_bales[i]||null,'Re-baled and sealed bale',b.rebales[i]||null);
+  docXml+=`</w:tbl>`; return buildDocxZip(docXml,imageRels,'baling');
 }
-
-// ═══════════════════════════════════════════════════════════════
-//  v5.3 재활용 — ZIP / Header / Footer / 결과 표시
-// ═══════════════════════════════════════════════════════════════
-function makeHeaderXml(mode) {
-  const vo = xmlEsc(S.voNo||'');
-  const dt = xmlEsc(S.reportDate||'');
-  const inspLine = mode==='van'
-    ? `<w:p><w:pPr><w:spacing w:line="180" w:lineRule="auto"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:sz w:val="22"/><w:b/></w:rPr><w:t>VAN INSPECTION REPORT</w:t></w:r></w:p>`
-    : `<w:p><w:pPr><w:spacing w:line="180" w:lineRule="auto"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:sz w:val="22"/><w:b/></w:rPr><w:t>BALING INSPECTION REPORT</w:t></w:r></w:p>`;
+function makeHeaderXml(mode){
+  const vo=xmlEsc(S.voNo||''),dt=xmlEsc(S.reportDate||'');
+  const inspLine=mode==='van'?`<w:p><w:pPr><w:spacing w:line="180" w:lineRule="auto"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:sz w:val="22"/><w:b/></w:rPr><w:t>VAN INSPECTION REPORT</w:t></w:r></w:p>`:`<w:p><w:pPr><w:spacing w:line="180" w:lineRule="auto"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:sz w:val="22"/><w:b/></w:rPr><w:t>BALING INSPECTION REPORT</w:t></w:r></w:p>`;
   return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:hdr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><w:p><w:r><w:rPr><w:noProof/></w:rPr><w:drawing><wp:inline><wp:extent cx="2030095" cy="267970"/><wp:effectExtent l="0" t="0" r="0" b="0"/><wp:docPr id="9001" name="Logo"/><wp:cNvGraphicFramePr><a:graphicFrameLocks noChangeAspect="1"/></wp:cNvGraphicFramePr><a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic><pic:nvPicPr><pic:cNvPr id="0" name="Logo"/><pic:cNvPicPr><a:picLocks noChangeAspect="1"/></pic:cNvPicPr></pic:nvPicPr><pic:blipFill><a:blip r:embed="rId1"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="2030095" cy="267970"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r></w:p><w:p><w:pPr><w:spacing w:line="180" w:lineRule="auto"/><w:tabs><w:tab w:val="right" w:pos="10466"/></w:tabs></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/><w:sz w:val="20"/></w:rPr><w:t>${vo}</w:t></w:r><w:r><w:tab/></w:r><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/><w:sz w:val="20"/></w:rPr><w:t>Date: ${dt}</w:t></w:r></w:p>${inspLine}</w:hdr>`;
 }
-function makeFooterXml() {
-  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:ftr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/><w:sz w:val="15"/></w:rPr><w:t>COTECNA INSPECTION JAPAN Co., Ltd. / Rokko Dai Ni Bldg. 5th Floor, 1-3-7 Shinkawa, Chuo-ku, Tokyo 104-0033 JAPAN</w:t></w:r></w:p><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/><w:sz w:val="15"/></w:rPr><w:t>T +81 (0)3 6262 8290 / F +81 (0)3 6262 8293</w:t></w:r></w:p><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/><w:sz w:val="15"/><w:color w:val="0563C1"/><w:u w:val="single"/></w:rPr><w:t>www.cotecna.com</w:t></w:r></w:p><w:p><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/><w:sz w:val="16"/></w:rPr><w:t>Form COTECNA WP (26-02)</w:t></w:r></w:p></w:ftr>`;
-}
-function makeStylesXml() {
-  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/><w:sz w:val="22"/></w:rPr></w:rPrDefault></w:docDefaults></w:styles>`;
-}
-
-function buildDocxZip(docXml, imageRelsMap, mode) {
-  const enc = new TextEncoder();
-  const logoBytes = S.logoB64 ? b64ToUint8(S.logoB64)
-    : new Uint8Array([137,80,78,71,13,10,26,10,0,0,0,13,73,72,68,82,0,0,0,1,0,0,0,1,8,2,0,0,0,144,119,83,222,0,0,0,12,73,68,65,84,8,215,99,248,207,192,0,0,0,2,0,1,226,33,188,51,0,0,0,0,73,69,78,68,174,66,96,130]);
-  const files = {};
-  const relEntries = [];
-  files['word/media/logo.png'] = logoBytes;
-  for (const [rid,{name,b64}] of Object.entries(imageRelsMap)) {
-    files[`word/media/${name}`] = b64ToUint8(b64);
-    relEntries.push(`<Relationship Id="${rid}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/${name}"/>`);
-  }
-  const wordRels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings" Target="settings.xml"/><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header1.xml"/><Relationship Id="rId4" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" Target="footer1.xml"/><Relationship Id="rId5" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/logo.png"/>${relEntries.join('')}</Relationships>`;
-  const contentTypes = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="jpeg" ContentType="image/jpeg"/><Default Extension="jpg" ContentType="image/jpeg"/><Default Extension="png" ContentType="image/png"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/><Override PartName="/word/settings.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml"/><Override PartName="/word/header1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml"/><Override PartName="/word/footer1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/></Types>`;
-  const docFull = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><w:body>${docXml}${SECT_PR}</w:body></w:document>`;
-  const settings = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:settings xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"></w:settings>`;
-  files['[Content_Types].xml'] = enc.encode(contentTypes);
-  files['_rels/.rels'] = enc.encode(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>`);
-  files['word/document.xml'] = enc.encode(docFull);
-  files['word/_rels/document.xml.rels'] = enc.encode(wordRels);
-  files['word/styles.xml'] = enc.encode(makeStylesXml());
-  files['word/settings.xml'] = enc.encode(settings);
-  files['word/header1.xml'] = enc.encode(makeHeaderXml(mode));
-  files['word/_rels/header1.xml.rels'] = enc.encode(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/logo.png"/></Relationships>`);
-  files['word/footer1.xml'] = enc.encode(makeFooterXml());
+function makeFooterXml(){ return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:ftr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/><w:sz w:val="15"/></w:rPr><w:t>COTECNA INSPECTION JAPAN Co., Ltd. / Rokko Dai Ni Bldg. 5th Floor, 1-3-7 Shinkawa, Chuo-ku, Tokyo 104-0033 JAPAN</w:t></w:r></w:p><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/><w:sz w:val="15"/></w:rPr><w:t>T +81 (0)3 6262 8290 / F +81 (0)3 6262 8293</w:t></w:r></w:p><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/><w:sz w:val="15"/><w:color w:val="0563C1"/><w:u w:val="single"/></w:rPr><w:t>www.cotecna.com</w:t></w:r></w:p><w:p><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/><w:sz w:val="16"/></w:rPr><w:t>Form COTECNA WP (26-02)</w:t></w:r></w:p></w:ftr>`; }
+function makeStylesXml(){ return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/><w:sz w:val="22"/></w:rPr></w:rPrDefault></w:docDefaults></w:styles>`; }
+function buildDocxZip(docXml,imageRelsMap,mode){
+  const enc=new TextEncoder();
+  const logoBytes=S.logoB64?b64ToUint8(S.logoB64):new Uint8Array([137,80,78,71,13,10,26,10,0,0,0,13,73,72,68,82,0,0,0,1,0,0,0,1,8,2,0,0,0,144,119,83,222,0,0,0,12,73,68,65,84,8,215,99,248,207,192,0,0,0,2,0,1,226,33,188,51,0,0,0,0,73,69,78,68,174,66,96,130]);
+  const files={};const relEntries=[];
+  files['word/media/logo.png']=logoBytes;
+  for(const[rid,{name,b64}]of Object.entries(imageRelsMap)){ files[`word/media/${name}`]=b64ToUint8(b64); relEntries.push(`<Relationship Id="${rid}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/${name}"/>`); }
+  const wordRels=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings" Target="settings.xml"/><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header1.xml"/><Relationship Id="rId4" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" Target="footer1.xml"/><Relationship Id="rId5" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/logo.png"/>${relEntries.join('')}</Relationships>`;
+  const contentTypes=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="jpeg" ContentType="image/jpeg"/><Default Extension="jpg" ContentType="image/jpeg"/><Default Extension="png" ContentType="image/png"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/><Override PartName="/word/settings.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml"/><Override PartName="/word/header1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml"/><Override PartName="/word/footer1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/></Types>`;
+  const docFull=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><w:body>${docXml}${SECT_PR}</w:body></w:document>`;
+  const settings=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:settings xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"></w:settings>`;
+  files['[Content_Types].xml']=enc.encode(contentTypes);
+  files['_rels/.rels']=enc.encode(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>`);
+  files['word/document.xml']=enc.encode(docFull);
+  files['word/_rels/document.xml.rels']=enc.encode(wordRels);
+  files['word/styles.xml']=enc.encode(makeStylesXml());
+  files['word/settings.xml']=enc.encode(settings);
+  files['word/header1.xml']=enc.encode(makeHeaderXml(mode));
+  files['word/_rels/header1.xml.rels']=enc.encode(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/logo.png"/></Relationships>`);
+  files['word/footer1.xml']=enc.encode(makeFooterXml());
   return makeZipStore(Object.entries(files));
 }
-
-function makeZipStore(files) {
-  function crc32(d){let c=0xFFFFFFFF;for(const b of d){c^=b;for(let j=0;j<8;j++) c=c&1?(c>>>1)^0xEDB88320:(c>>>1);}return(c^0xFFFFFFFF)>>>0;}
+function makeZipStore(files){
+  function crc32(d){let c=0xFFFFFFFF;for(const b of d){c^=b;for(let j=0;j<8;j++)c=c&1?(c>>>1)^0xEDB88320:(c>>>1);}return(c^0xFFFFFFFF)>>>0;}
   function u16(n){return new Uint8Array([n&0xFF,(n>>8)&0xFF]);}
   function u32(n){return new Uint8Array([n&0xFF,(n>>8)&0xFF,(n>>16)&0xFF,(n>>24)&0xFF]);}
   function cat(...a){const t=new Uint8Array(a.reduce((s,x)=>s+x.length,0));let p=0;for(const x of a){t.set(x,p);p+=x.length;}return t;}
   const lhs=[],cds=[];let off=0;
-  for(const [name,data] of files){
+  for(const[name,data]of files){
     const nb=new TextEncoder().encode(name),crc=crc32(data),sz=data.length;
     const lh=cat(new Uint8Array([0x50,0x4B,0x03,0x04]),u16(20),u16(0),u16(0),u16(0),u16(0),u32(crc),u32(sz),u32(sz),u16(nb.length),u16(0),nb,data);
     const cd=cat(new Uint8Array([0x50,0x4B,0x01,0x02]),u16(20),u16(20),u16(0),u16(0),u16(0),u16(0),u32(crc),u32(sz),u32(sz),u16(nb.length),u16(0),u16(0),u16(0),u16(0),u32(0),u32(off),nb);
@@ -1161,85 +886,38 @@ function makeZipStore(files) {
   return cat(...lhs,cdb,eocd);
 }
 
-// ═══════════════════════════════════════════════════════════════
-//  내장 COTECNA 로고
-// ═══════════════════════════════════════════════════════════════
-const DEFAULT_LOGO_B64 = "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";
+// ═══════════════════════════════════════
+//  로고
+// ═══════════════════════════════════════
+const DEFAULT_LOGO_B64="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";
 
-// ═══════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════
 //  유틸
-// ═══════════════════════════════════════════════════════════════
-function ab2b64(buf) {
-  const b = new Uint8Array(buf); let s='', c=8192;
-  for (let i=0;i<b.length;i+=c) s+=String.fromCharCode(...b.slice(i,i+c));
-  return btoa(s);
+// ═══════════════════════════════════════
+function ab2b64(buf){ const b=new Uint8Array(buf);let s='',c=8192; for(let i=0;i<b.length;i+=c) s+=String.fromCharCode(...b.slice(i,i+c)); return btoa(s); }
+function b64ToUint8(b64){ const b=atob(b64),a=new Uint8Array(b.length); for(let i=0;i<b.length;i++) a[i]=b.charCodeAt(i); return a; }
+function log(msg,type=''){
+  const box=document.getElementById('logBox'); if(!box) return;
+  const div=document.createElement('div'); div.className=type?`log-${type}`:''; div.textContent=msg;
+  box.appendChild(div); box.scrollTop=box.scrollHeight;
 }
-function b64ToUint8(b64) {
-  const b=atob(b64), a=new Uint8Array(b.length);
-  for(let i=0;i<b.length;i++) a[i]=b.charCodeAt(i); return a;
+function clearLog(){ const b=document.getElementById('logBox'); if(b) b.innerHTML=''; }
+function setProgress(pct,label){
+  const fill=document.getElementById('progressFill'),lbl=document.getElementById('progressLabel'),pctEl=document.getElementById('progressPct');
+  if(fill) fill.style.width=pct+'%'; if(lbl) lbl.textContent=label; if(pctEl) pctEl.textContent=pct+'%';
 }
-function log(msg, type='') {
-  const box = document.getElementById('logBox');
-  if (!box) return;
-  const div = document.createElement('div');
-  div.className = type ? `log-${type}` : '';
-  div.textContent = msg;
-  box.appendChild(div);
-  box.scrollTop = box.scrollHeight;
+function setPhase(n){ for(let i=1;i<=3;i++){ const el=document.getElementById(`ph${i}`); if(!el) continue; el.className='phase-chip'+(i<n?' done':i===n?' active':''); } }
+function setAllDone(){ for(let i=1;i<=3;i++){ const el=document.getElementById(`ph${i}`); if(el) el.className='phase-chip done'; } }
+function showClassifyPreview(photos,slotMap){
+  const wrap=document.getElementById('classifyPreview'),grid=document.getElementById('classGrid'); if(!wrap||!grid) return;
+  grid.innerHTML=''; wrap.style.display='block';
+  for(const slot of SLOT_ORDER){ const seq=slotMap[slot]; const div=document.createElement('div'); div.className='class-slot'+(seq?' slot-ok':''); if(seq&&photos[seq]) div.innerHTML=`<img src="data:image/jpeg;base64,${photos[seq]}" alt="${slot}">`; else div.innerHTML=`<div class="slot-img-placeholder">없음</div>`; div.innerHTML+=`<div class="slot-name">${slot}</div>`; grid.appendChild(div); }
 }
-function clearLog() { const b=document.getElementById('logBox'); if(b) b.innerHTML=''; }
-function setProgress(pct, label) {
-  const fill=document.getElementById('progressFill');
-  const lbl=document.getElementById('progressLabel');
-  const pctEl=document.getElementById('progressPct');
-  if(fill) fill.style.width=pct+'%';
-  if(lbl) lbl.textContent=label;
-  if(pctEl) pctEl.textContent=pct+'%';
-}
-function setPhase(n) {
-  for(let i=1;i<=3;i++){
-    const el=document.getElementById(`ph${i}`);
-    if(!el) continue;
-    el.className='phase-chip'+(i<n?' done':i===n?' active':'');
-  }
-}
-function setAllDone() {
-  for(let i=1;i<=3;i++){const el=document.getElementById(`ph${i}`);if(el) el.className='phase-chip done';}
-}
-function showClassifyPreview(photos, slotMap) {
-  const wrap=document.getElementById('classifyPreview');
-  const grid=document.getElementById('classGrid');
-  if(!wrap||!grid) return;
-  grid.innerHTML='';
-  wrap.style.display='block';
-  for (const slot of SLOT_ORDER) {
-    const seq=slotMap[slot];
-    const div=document.createElement('div');
-    div.className='class-slot'+(seq?' slot-ok':'');
-    if(seq&&photos[seq]){
-      div.innerHTML=`<img src="data:image/jpeg;base64,${photos[seq]}" alt="${slot}">`;
-    } else {
-      div.innerHTML=`<div class="slot-img-placeholder">없음</div>`;
-    }
-    div.innerHTML+=`<div class="slot-name">${slot}</div>`;
-    grid.appendChild(div);
-  }
-}
-function showResults(downloads) {
-  const section=document.getElementById('resultSection');
-  const row=document.getElementById('downloadRow');
-  const statusRow=document.getElementById('statusRow');
+function showResults(downloads){
+  const section=document.getElementById('resultSection'),row=document.getElementById('downloadRow'),statusRow=document.getElementById('statusRow');
   section.style.display='block';
-  row.innerHTML = downloads.map(d => {
-    const blob=new Blob([d.buf],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
-    const url=URL.createObjectURL(blob);
-    return `<a class="dl-btn" href="${url}" download="${d.name}"><div class="dl-icon">${d.icon}</div><div class="dl-info"><span class="dl-name">${d.label}</span><span class="dl-size">${(d.buf.length/1024).toFixed(0)}KB · ${d.name}</span></div></a>`;
-  }).join('');
-  statusRow.innerHTML=`
-    <div class="status-chip"><div class="chip-dot chip-ok"></div>생성 ${downloads.length/2|0}건</div>
-    <div class="status-chip"><div class="chip-dot chip-ok"></div>COMPASS 연동 ✅</div>
-    <div class="status-chip"><div class="chip-dot chip-ok"></div>SharePoint 사진 ✅</div>
-    <div class="status-chip"><div class="chip-dot chip-ok"></div>AI 분류 ✅</div>`;
+  row.innerHTML=downloads.map(d=>{ const blob=new Blob([d.buf],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'}); const url=URL.createObjectURL(blob); return `<a class="dl-btn" href="${url}" download="${d.name}"><div class="dl-icon">${d.icon}</div><div class="dl-info"><span class="dl-name">${d.label}</span><span class="dl-size">${(d.buf.length/1024).toFixed(0)}KB · ${d.name}</span></div></a>`; }).join('');
+  statusRow.innerHTML=`<div class="status-chip"><div class="chip-dot chip-ok"></div>생성 ${Math.floor(downloads.length/2)}건</div><div class="status-chip"><div class="chip-dot chip-ok"></div>AI 분류 ✅</div>`;
   section.scrollIntoView({behavior:'smooth'});
 }
 </script>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>COTECNA Report Generator v6.6</title>
+<title>COTECNA Report Generator v6.7</title>
 <style>
 /* ─── CSS 변수 (기존 LEENAI 툴 공통) ─── */
 :root {
@@ -121,7 +121,7 @@ body{font-family:'Segoe UI','Noto Sans JP',sans-serif;background:var(--bg);color
 .log-info{color:var(--info);}
 .log-warn{color:var(--warn);}
 
-/* ─── 현재 처리 중 ─── */
+/* ─── 処理中 ─── */
 .job-card{background:var(--surface2);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:var(--radius);padding:10px 14px;margin-bottom:12px;}
 .job-card-title{font-weight:700;font-size:13px;color:var(--accent);}
 .job-card-sub{font-size:11px;color:var(--text2);margin-top:3px;}
@@ -178,7 +178,7 @@ body{font-family:'Segoe UI','Noto Sans JP',sans-serif;background:var(--bg);color
     <div style="font-size:13px;font-weight:700;">COTECNA Report Generator</div>
     <div class="header-subtitle">LEENEAR CORPORATION</div>
   </div>
-  <div class="header-ver">v6.6</div>
+  <div class="header-ver">v6.7</div>
   <div class="header-right">
     <div class="header-user" id="headerUser"></div>
   </div>
@@ -197,7 +197,7 @@ body{font-family:'Segoe UI','Noto Sans JP',sans-serif;background:var(--bg);color
       <button class="btn btn-ghost btn-sm" onclick="toggleApiKey()">표시</button>
       <button class="btn btn-primary btn-sm" onclick="saveApiKey()">저장</button>
     </div>
-    <div class="hint">※ 브라우저 localStorage에만 저장됩니다</div>
+    <div class="hint">※ ブラウザのlocalStorageにのみ保存されます</div>
   </div>
 
   <!-- STEP 2: COMPASS 로그인 -->
@@ -216,7 +216,7 @@ body{font-family:'Segoe UI','Noto Sans JP',sans-serif;background:var(--bg);color
   <!-- STEP 3: PHOTO 폴더 + 날짜 + 조회 -->
   <div class="card">
     <div class="card-title">
-      <span class="badge badge-ok">STEP 3</span> 자주검사 리스트 조회
+      <span class="badge badge-ok">STEP 3</span> 自主検査リスト照会
     </div>
 
     <!-- PHOTO 폴더 -->
@@ -224,7 +224,7 @@ body{font-family:'Segoe UI','Noto Sans JP',sans-serif;background:var(--bg);color
       <div class="folder-banner" id="folderBanner">
         <div class="folder-icon">📁</div>
         <div class="folder-text">
-          <div class="folder-name" id="folderName">PHOTO 폴더 클릭하여 선택...</div>
+          <div class="folder-name" id="folderName">PHOTOフォルダをクリックして選択...</div>
           <div class="folder-sub" id="folderSub">OneDrive → leenearsite1 → PHOTO</div>
         </div>
       </div>
@@ -233,12 +233,12 @@ body{font-family:'Segoe UI','Noto Sans JP',sans-serif;background:var(--bg);color
 
     <!-- 날짜 필터 -->
     <div class="filter-bar">
-      <label>검사일:</label>
+      <label>検査日:</label>
       <input type="date" id="dateFrom">
       <span style="color:var(--text3);">~</span>
       <input type="date" id="dateTo">
       <button class="btn btn-primary btn-sm" id="fetchBtn" onclick="fetchList()" disabled>
-        📋 리스트 조회
+        📋 リスト照会
       </button>
     </div>
 
@@ -250,19 +250,19 @@ body{font-family:'Segoe UI','Noto Sans JP',sans-serif;background:var(--bg);color
       <div class="section-title">
         <span id="listCount"></span>
         <div style="display:flex;gap:6px;">
-          <button class="btn btn-ghost btn-sm" onclick="selectAll(true)">전체선택</button>
-          <button class="btn btn-ghost btn-sm" onclick="selectAll(false)">전체해제</button>
+          <button class="btn btn-ghost btn-sm" onclick="selectAll(true)">全選択</button>
+          <button class="btn btn-ghost btn-sm" onclick="selectAll(false)">全解除</button>
         </div>
       </div>
       <div style="overflow-x:auto;">
         <table class="dash-table">
           <thead><tr>
             <th style="width:28px;"></th>
-            <th>검사일</th>
+            <th>検査日</th>
             <th>IV No</th>
             <th>VO No</th>
             <th>Partial</th>
-            <th>압축장</th>
+            <th>圧縮場</th>
             <th>PORT</th>
             <th>CT</th>
             <th>사진</th>
@@ -272,7 +272,7 @@ body{font-family:'Segoe UI','Noto Sans JP',sans-serif;background:var(--bg);color
       </div>
       <div style="margin-top:10px;">
         <button class="btn btn-ok btn-lg btn-full" id="proceedBtn" onclick="proceedSelected()" disabled>
-          ▶ 선택 건 리포트 생성 시작
+          ▶ 選択件のレポート作成開始
         </button>
       </div>
     </div>
@@ -281,29 +281,29 @@ body{font-family:'Segoe UI','Noto Sans JP',sans-serif;background:var(--bg);color
   <!-- STEP 4: 처리 진행 -->
   <div id="processSection" class="card" style="display:none;">
     <div class="card-title">
-      <span class="badge badge-ok">STEP 4</span> 자동 처리
+      <span class="badge badge-ok">STEP 4</span> 自動処理
     </div>
     <div class="job-card" id="jobCard" style="display:none;">
       <div class="job-card-title" id="jobTitle"></div>
       <div class="job-card-sub"  id="jobSub"></div>
     </div>
     <div class="phase-row">
-      <div class="phase-chip" id="ph1">📷 사진 로드</div>
+      <div class="phase-chip" id="ph1">📷 写真読込</div>
       <span style="color:var(--text3);align-self:center;">→</span>
-      <div class="phase-chip" id="ph2">🤖 AI 분류</div>
+      <div class="phase-chip" id="ph2">🤖 AI分類</div>
       <span style="color:var(--text3);align-self:center;">→</span>
-      <div class="phase-chip" id="ph3">📄 리포트 생성</div>
+      <div class="phase-chip" id="ph3">📄 レポート作成</div>
     </div>
     <div class="progress-wrap">
       <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%;"></div></div>
       <div class="progress-label">
-        <span id="progressLabel">대기 중...</span>
+        <span id="progressLabel">待機中...</span>
         <span id="progressPct">0%</span>
       </div>
     </div>
     <div class="log-box" id="logBox"></div>
     <div id="classPreview" style="display:none;margin-top:10px;">
-      <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px;">AI 분류 결과 (CT 1번)</div>
+      <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px;">AI分類 결과 (CT 1번)</div>
       <div class="class-grid" id="classGrid"></div>
     </div>
   </div>
@@ -311,7 +311,7 @@ body{font-family:'Segoe UI','Noto Sans JP',sans-serif;background:var(--bg);color
   <!-- 결과 -->
   <div id="resultSection" style="display:none;">
     <div class="result-card">
-      <div class="result-title">✅ 리포트 생성 완료!</div>
+      <div class="result-title">✅ レポート作成 완료!</div>
       <div class="dl-row" id="dlRow"></div>
       <div class="chip-row" id="chipRow"></div>
     </div>
@@ -406,7 +406,7 @@ async function handleCallback() {
   const verifier = sessionStorage.getItem('pkce_v');
   if (!code || !verifier) return;
   history.replaceState({}, '', location.pathname);
-  showLoading('COMPASS 인증 중...');
+  showLoading('COMPASS認証中...');
   try {
     const r = await fetch(`https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/token`, {
       method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'},
@@ -421,15 +421,15 @@ async function handleCallback() {
     sessionStorage.setItem('cotecna_dv_token', S.dvToken);
     sessionStorage.removeItem('pkce_v');
     updateLoginUI();
-    flog('✅ COMPASS 로그인 완료', 'ok');
-  } catch(e) { alert('로그인 실패: ' + e.message); }
+    flog('✅ COMPASSログイン完了', 'ok');
+  } catch(e) { alert('ログイン失敗: ' + e.message); }
   finally { hideLoading(); }
 }
 
 function updateLoginUI() {
   const ok = !!S.dvToken;
   document.getElementById('loginDot').className = 'login-dot' + (ok?' ok':'');
-  document.getElementById('loginStatusTxt').textContent = ok ? '✅ ログイン完了' : '未ログイン';
+  document.getElementById('loginStatusTxt').textContent = ok ? '✅ ログイン済み' : '未ログイン';
   document.getElementById('loginStatusTxt').style.color = ok ? 'var(--ok)' : 'var(--text2)';
   document.getElementById('loginBtn').textContent = ok ? '🔄 再ログイン' : '🔐 ログイン';
   checkFetchReady();
@@ -467,7 +467,7 @@ function onApiInput() {
 function toggleApiKey() { const i=document.getElementById('apiKey'); i.type=i.type==='password'?'text':'password'; }
 function saveApiKey() {
   const v = document.getElementById('apiKey').value.trim();
-  if (!v) return alert('API 키를 입력하세요');
+  if (!v) return alert('APIキーを入力してください');
   S.apiKey=v; localStorage.setItem('cotecna_api_key',v);
   document.getElementById('apiDot').classList.add('ok');
   flog('✅ API 키 저장됨','ok');
@@ -484,7 +484,7 @@ function onFolderSelected(input) {
   const ivSet = new Set(files.map(f=>f.webkitRelativePath.split('/')[1]).filter(Boolean));
   const banner = document.getElementById('folderBanner');
   document.getElementById('folderName').textContent = S.photoFolderName;
-  document.getElementById('folderSub').textContent  = `IV 폴더 ${ivSet.size}개 · 파일 ${files.length}개`;
+  document.getElementById('folderSub').textContent  = `IVフォルダ ${ivSet.size}件 · ファイル ${files.length}個`;
   banner.classList.add('ok');
   checkFetchReady();
 }
@@ -513,14 +513,14 @@ function flog(msg,type='') {
 }
 
 // ═══════════════════════════════════════════════
-//  리스트 조회
+//  リスト照会
 // ═══════════════════════════════════════════════
 async function fetchList() {
-  if (!S.dvToken)           { alert('COMPASS에 로그인하세요'); return; }
-  if (!S.photoFiles.length) { alert('PHOTO 폴더를 선택하세요'); return; }
+  if (!S.dvToken)           { alert('COMPASSにログインしてください'); return; }
+  if (!S.photoFiles.length) { alert('PHOTOフォルダを選択してください'); return; }
   const dateFrom=document.getElementById('dateFrom').value;
   const dateTo  =document.getElementById('dateTo').value;
-  if (!dateFrom||!dateTo) { alert('날짜를 입력하세요'); return; }
+  if (!dateFrom||!dateTo) { alert('日付を入力してください'); return; }
 
   document.getElementById('fetchLog').innerHTML='';
   document.getElementById('listArea').style.display='none';
@@ -529,37 +529,59 @@ async function fetchList() {
   S.inspList=[];
 
   try {
-    flog('📋 COMPASS 자주검사 대상 조회 중...','info');
+    flog('📋 COMPASS 自主検査対象を照会中...','info');
     const filter=`crcf9_inspection eq true and crcf9_work_date ge ${dateFrom}T00:00:00Z and crcf9_work_date le ${dateTo}T23:59:59Z`;
     const ctData=await dvGet(`${DV_API}/crcf9_container_informations?$filter=${encodeURIComponent(filter)}&$select=crcf9_container_informationid,crcf9_container_no,crcf9_partial_no,crcf9_work_date,_crcf9_booking_id_value,crcf9_seal_no&$orderby=crcf9_work_date asc&$top=200`);
 
     if (!ctData.value?.length) {
-      flog('ℹ️ 해당 기간 자주검사 대상 없음','warn');
+      flog('ℹ️ 該当期間の自主検査対象なし','warn');
       document.getElementById('listBody').innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--text2);padding:20px;">해당 기간에 자주검사 대상이 없습니다</td></tr>';
       document.getElementById('listArea').style.display='block';
       return;
     }
-    flog(`  CT ${ctData.value.length}건 취득`,'info');
+    flog(`  CT ${ctData.value.length}件取得`,'info');
 
     // 병렬 fetch
     const bkgGuids=[...new Set(ctData.value.map(c=>c._crcf9_booking_id_value).filter(Boolean))];
-    flog(`  BKG ${bkgGuids.length}건 fetch 중...`,'info');
+    flog(`  BKG ${bkgGuids.length}件 fetch 中...`,'info');
     const bkgMap={};
     await Promise.all(bkgGuids.map(async g=>{ try{ bkgMap[g]=await dvGet(`${DV_API}/cr49f_bookings(${g})?$select=cr49f_bookingid,cr49f_invoice_no,cr49f_booking_no,_cr49f_region_japan_id_value,_cr49f_sale_contract_id_value`); }catch(e){} }));
 
     const scGuids=[...new Set(Object.values(bkgMap).map(b=>b._cr49f_sale_contract_id_value).filter(Boolean))];
     const scMap={};
-    await Promise.all(scGuids.map(async g=>{ try{ scMap[g]=await dvGet(`${DV_API}/cr49f_sale_contracts(${g})?$select=crcf9_vo_no`); }catch(e){} }));
+    await Promise.all(scGuids.map(async g=>{ try{ scMap[g]=await dvGet(`${DV_API}/cr49f_sale_contracts(${g})?$select=crcf9_vo_no,cr49f_sale_contract_no`); }catch(e){} }));
 
     const polGuids=[...new Set(Object.values(bkgMap).map(b=>b._cr49f_region_japan_id_value).filter(Boolean))];
     const polMap={};
-    await Promise.all(polGuids.map(async g=>{ try{ const d=await dvGet(`${DV_API}/cr49f_region_japans(${g})?$select=cr49f_name`); polMap[g]=d.cr49f_name||'—'; }catch(e){} }));
+    await Promise.all(polGuids.map(async g=>{ try{ const d=await dvGet(`${DV_API}/cr49f_region_japans(${g})?$select=cr49f_name`); polMap[g]=d.crcf9_pol||d.cr49f_name||'—'; }catch(e){} }));
 
-    const detMap={};
-    await Promise.all(bkgGuids.map(async g=>{ try{ const d=await dvGet(`${DV_API}/cr49f_purchase_details?$filter=_cr49f_booking_id_value eq ${g}&$select=_cr49f_purchase_contract_id_value,cr49f_packer_name&$top=3`); detMap[g]=d.value||[]; }catch(e){ detMap[g]=[]; } }));
-    const pcGuids=[...new Set(Object.values(detMap).flat().map(d=>d._cr49f_purchase_contract_id_value).filter(Boolean))];
+    // purchase_detail: booking_detail経由でpacker取得
+    // cr49f_booking_detail WHERE _cr49f_booking_id_value = guid → purchase_contract → packer
+    const bkgDetailMap={};
+    await Promise.all(bkgGuids.map(async g=>{
+      try{
+        const d=await dvGet(`${DV_API}/cr49f_purchase_details?$filter=_cr49f_booking_id_value eq ${g}&$select=_cr49f_purchase_contract_id_value,cr49f_packer_name&$top=5`);
+        bkgDetailMap[g]=d.value||[];
+      }catch(e){ bkgDetailMap[g]=[]; }
+    }));
+    const pcGuids=[...new Set(Object.values(bkgDetailMap).flat().map(d=>d._cr49f_purchase_contract_id_value).filter(Boolean))];
     const pcMap={};
-    await Promise.all(pcGuids.map(async g=>{ try{ pcMap[g]=await dvGet(`${DV_API}/cr49f_purchase_contracts(${g})?$select=cr49f_packer_name`); }catch(e){} }));
+    await Promise.all(pcGuids.map(async g=>{
+      try{
+        // purchase_contract → _cr49f_packer_id_value → packer名取得
+        const d=await dvGet(`${DV_API}/cr49f_purchase_contracts(${g})?$select=cr49f_packer_name,_cr49f_packer_id_value`);
+        pcMap[g]=d;
+      }catch(e){}
+    }));
+    // packerマスター取得
+    const packerGuids=[...new Set(Object.values(pcMap).map(p=>p._cr49f_packer_id_value).filter(Boolean))];
+    const packerMap={};
+    await Promise.all(packerGuids.map(async g=>{
+      try{
+        const d=await dvGet(`${DV_API}/cr49f_packers(${g})?$select=cr49f_packer,cr49f_packer_name`);
+        packerMap[g]=d;
+      }catch(e){}
+    }));
 
     // IV 단위 그룹핑
     const ivMap={};
@@ -569,10 +591,22 @@ async function fetchList() {
       if (!ivMap[ivNo]) {
         const sc=scMap[bkg._cr49f_sale_contract_id_value]||{};
         const pol=polMap[bkg._cr49f_region_japan_id_value]||'—';
-        const dets=detMap[ct._crcf9_booking_id_value]||[];
+        // packer名取得: purchase_detail → purchase_contract → packer_master
+        const dets=bkgDetailMap[ct._crcf9_booking_id_value]||[];
         let packer='—';
-        for (const d of dets){ const pc=pcMap[d._cr49f_purchase_contract_id_value]; if(pc?.cr49f_packer_name){packer=pc.cr49f_packer_name;break;} if(d.cr49f_packer_name){packer=d.cr49f_packer_name;break;} }
-        const rawVo=sc.crcf9_vo_no||''; const vm=rawVo.match(/X\.(\d+\.\d+)-?P(\d+)/i);
+        for (const d of dets){
+          if(d.cr49f_packer_name){ packer=d.cr49f_packer_name; break; }
+          const pc=pcMap[d._cr49f_purchase_contract_id_value];
+          if(pc){
+            // packerマスターから正式名取得
+            const pk=packerMap[pc._cr49f_packer_id_value];
+            if(pk?.cr49f_packer){ packer=pk.cr49f_packer; break; }
+            if(pc.cr49f_packer_name){ packer=pc.cr49f_packer_name; break; }
+          }
+        }
+        // VO No: crcf9_vo_no優先 → なければsale_contract_noからパース
+        const rawVo=sc.crcf9_vo_no||sc.cr49f_sale_contract_no||'';
+        const vm=rawVo.match(/X\.(\d+\.\d+)-?P(\d+)/i);
         ivMap[ivNo]={ ivNo, voNo:vm?`X.${vm[1]}`:(rawVo||'—'), partial:vm?`P${vm[2]}`:(ct.crcf9_partial_no||'—'),
           bkgNo:bkg.cr49f_booking_no||'—', packer, pol, workDates:[], ctList:[] };
       }
@@ -587,13 +621,13 @@ async function fetchList() {
     list.sort((a,b)=>(a.workDates[0]||'').localeCompare(b.workDates[0]||''));
     S.inspList=list;
     renderTable();
-    flog(`✅ ${list.length}件 리스트업 완료`,'ok');
+    flog(`✅ ${list.length}件 リストアップ完了`,'ok');
 
   } catch(e) {
-    flog(`❌ 조회 실패: ${e.message}`,'err');
+    flog(`❌ 照会失敗: ${e.message}`,'err');
     console.error(e);
   } finally {
-    btn.disabled=false; btn.textContent='📋 리스트 조회';
+    btn.disabled=false; btn.textContent='📋 リスト照会';
   }
 }
 
@@ -638,7 +672,7 @@ function onChkChange(){
   S.selectedIvNos=[...document.querySelectorAll('.row-chk:checked')].map(c=>c.dataset.ivno);
   const btn=document.getElementById('proceedBtn');
   btn.disabled=!S.selectedIvNos.length;
-  btn.textContent=S.selectedIvNos.length?`▶ 선택 ${S.selectedIvNos.length}건 리포트 생성 시작`:'▶ 선택 건 리포트 생성 시작';
+  btn.textContent=S.selectedIvNos.length?`▶ 선택 ${S.selectedIvNos.length}건 レポート作成 시작`:'▶ 選択件のレポート作成開始';
 }
 
 // ═══════════════════════════════════════════════
@@ -647,7 +681,7 @@ function onChkChange(){
 async function proceedSelected() {
   if (!S.selectedIvNos.length) return;
   S.apiKey=document.getElementById('apiKey').value.trim();
-  if (!S.apiKey) return alert('Anthropic API 키를 입력하세요');
+  if (!S.apiKey) return alert('Anthropic APIキーを入力してください');
   document.getElementById('proceedBtn').disabled=true;
   document.getElementById('processSection').style.display='block';
   document.getElementById('resultSection').style.display='none';
@@ -660,17 +694,23 @@ async function proceedSelected() {
     document.getElementById('jobSub').textContent=`${row.packer} / ${row.pol} / CT ${row.ctList.length}본 / ${row.workDates.join(' ~ ')}`;
     clearLog(); resetJobState(row);
     try {
-      setPhase(1); setProgress(5,'사진 로드 중...');
+      setPhase(1); setProgress(5,'写真読込 중...');
       await loadPhotosLocal(row);
-      setPhase(2); setProgress(45,'AI 분류 중...');
+      setPhase(2); setProgress(45,'AI分類 중...');
       S.logoB64=DEFAULT_LOGO_B64; await classifyAll();
-      setPhase(3); setProgress(88,'VAN FORM 생성 중...');
-      const van=buildVanDocx(); setProgress(95,'BALING FORM 생성 중...');
+      setPhase(3); setProgress(88,'VAN FORM 作成中...');
+      const van=buildVanDocx(); setProgress(95,'BALING FORM 作成中...');
       const bal=buildBalingDocx();
-      setProgress(100,`✅ ${ivNo} 완료`); setAllDone();
-      log(`🎉 ${ivNo} 완료`,'ok');
-      const vs=(S.voNo||ivNo).replace(/[^a-zA-Z0-9._-]/g,'_');
-      allDl.push({buf:van,name:`${vs}_VAN.docx`,icon:'📦',label:`${ivNo} VAN`},{buf:bal,name:`${vs}_BALING.docx`,icon:'📋',label:`${ivNo} BALING`});
+      setProgress(100,`✅ ${ivNo} 完了`); setAllDone();
+      log(`🎉 ${ivNo} 完了`,'ok');
+      // ファイル名: [VO-Partial]_VAN.docx 形式
+      const voSafe = S.voNo
+        ? S.voNo.replace(/[^a-zA-Z0-9._-]/g,'_')
+        : ivNo.replace(/[^a-zA-Z0-9._-]/g,'_');
+      allDl.push(
+        {buf:van, name:`[${voSafe}]_VAN.docx`,    icon:'📦', label:`${ivNo} VAN`},
+        {buf:bal, name:`[${voSafe}]_BALING.docx`,  icon:'📋', label:`${ivNo} BALING`}
+      );
     } catch(e){ log(`❌ ${ivNo}: ${e.message}`,'err'); console.error(e); }
   }
   showResults(allDl);
@@ -690,23 +730,23 @@ function resetJobState(row){
 }
 
 // ═══════════════════════════════════════════════
-//  로컬 사진 로드
+//  로컬 写真読込
 // ═══════════════════════════════════════════════
 async function loadPhotosLocal(row){
   const ivNo=row.ivNo; const ext=/\.(jpe?g|png)$/i;
   const ivFiles=S.photoFiles.filter(f=>f.webkitRelativePath.split('/')[1]===ivNo);
-  if(!ivFiles.length){log(`  ⚠️ 로컬에 ${ivNo} 없음 — 빈 리포트`,'warn');return;}
+  if(!ivFiles.length){log(`  ⚠️ ローカルに ${ivNo} なし — 空のレポート`,'warn');return;}
   const ctSet=new Set();
   for(const f of ivFiles){ const p=f.webkitRelativePath.split('/'); if(p.length>=4&&!p[2].startsWith('_')&&p[2]!=='搬入票') ctSet.add(p[2]); }
   const ctFolders=[...ctSet].sort();
   log(`  CT 폴더 ${ctFolders.length}개: ${ctFolders.join(', ')}`,'info');
-  if(!ctFolders.length){log('  ⚠️ CT 폴더 없음','warn');return;}
+  if(!ctFolders.length){log('  ⚠️ CTフォルダなし','warn');return;}
   let ci=0;
   for(const cf of ctFolders){
     let cont=S.containers.find(c=>c.container===cf); if(!cont){cont=S.containers[ci];ci++;} if(!cont) continue;
     const no=cont.no;
     const imgs=ivFiles.filter(f=>{const p=f.webkitRelativePath.split('/');return p[2]===cf&&ext.test(p[p.length-1]);}).sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true}));
-    if(!imgs.length){log(`    ⚠️ ${cf} 사진 없음`,'warn');continue;}
+    if(!imgs.length){log(`    ⚠️ ${cf} 写真なし`,'warn');continue;}
     S.vanPhotos[no]={}; S.groups[no]=imgs;
     for(let i=0;i<imgs.length;i+=5){
       const batch=imgs.slice(i,i+5);
@@ -714,17 +754,17 @@ async function loadPhotosLocal(row){
         try{ const seq=i+bi+1; S.vanPhotos[no][seq]=await fileToB64(f); S.vanPhotos[no][`_name_${seq}`]=f.name; }
         catch(e){log(`    ⚠️ ${f.name}`,'warn');}
       }));
-      setProgress(5+Math.round(((ci||1)/ctFolders.length)*35),`사진 로드: ${cf}`);
+      setProgress(5+Math.round(((ci||1)/ctFolders.length)*35),`写真読込: ${cf}`);
     }
     log(`    ✅ CN${no} (${cf}): ${Object.keys(S.vanPhotos[no]).filter(k=>!k.startsWith('_')).length}장`,'ok');
   }
-  log(`✅ 사진 로드 완료 (${Object.keys(S.vanPhotos).length}개 CT)`,'ok');
-  setProgress(40,'사진 로드 완료');
+  log(`✅ 写真読込 완료 (${Object.keys(S.vanPhotos).length}개 CT)`,'ok');
+  setProgress(40,'写真読込 완료');
 }
 function fileToB64(f){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(f);});}
 
 // ═══════════════════════════════════════════════
-//  AI 분류 (v5.3 재활용)
+//  AI分類 (v5.3 재활용)
 // ═══════════════════════════════════════════════
 async function classifyAll(){
   S.classifiedVan={}; S.classifiedBaling={goods_yard:null,inspector:null,open_bales:[],rebales:[]};
@@ -732,7 +772,7 @@ async function classifyAll(){
   if(!nos.length){log('⚠️ 사진 없음 — 빈 리포트','warn');for(const c of S.containers)S.classifiedVan[c.no]={};return;}
   const fp=S.vanPhotos[nos[0]];
   const seqs=Object.keys(fp).filter(k=>!k.startsWith('_')).map(Number).sort((a,b)=>a-b);
-  log(`  🤖 CN1 분류 중 (${seqs.length}장)...`,'info');
+  log(`  🤖 CT1 分類中 (${seqs.length}枚)...`,'info');
   const res=await Promise.all(seqs.map(async seq=>({seq,label:await classifyOne(fp[seq],VAN_PROMPT).catch(()=>'unknown')})));
   res.forEach(({seq,label})=>log(`    seq${seq} [${fp[`_name_${seq}`]||''}] → ${label}`,'info'));
   const cands={};
@@ -748,14 +788,14 @@ async function classifyAll(){
   for(const s of SLOT_ORDER){if(s==='cotecna_seal'||s==='right_door')continue;if(cands[s]?.length&&!sm[s])sm[s]=cands[s][0];}
   const miss=SLOT_ORDER.filter(s=>!sm[s]);
   if(miss.length)log(`  ⚠️ 미분류: ${miss.join(', ')}`,'warn');
-  log(`  ✅ 패턴: ${JSON.stringify(sm)}`,'ok');
+  log(`  ✅ パターン確定: ${JSON.stringify(sm)}`,'ok');
   showClassifyPreview(fp,sm);
   for(const no of nos){S.classifiedVan[no]={};const p=S.vanPhotos[no]||{};for(const[s,seq]of Object.entries(sm))if(p[seq])S.classifiedVan[no][s]=p[seq];}
   // OCR
   const nc=S.containers.some(c=>!c.container||c.container==='—'||c.container.match(/^\d+$/));
   const ns=S.containers.some(c=>!c.seal);
   if((nc&&sm['right_door'])||(ns&&sm['cotecna_seal'])){
-    log('  🔍 OCR 중...','info');
+    log('  🔍 OCR 処理中...','info');
     await Promise.all(nos.map(async no=>{const cont=S.containers.find(c=>c.no===no);if(!cont)return;const t=[];
       if(nc&&S.classifiedVan[no]?.right_door)t.push(callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:S.classifiedVan[no].right_door}},{type:'text',text:`コンテナ番号（英字4文字+数字7桁）番号のみ。`}],30).then(v=>{const m=v.trim().match(/[A-Z]{4}\d{7}/i);if(m){cont.container=m[0].toUpperCase();log(`    CN${no}: CT → ${cont.container}`,'ok');}}).catch(()=>{}));
       if(ns&&S.classifiedVan[no]?.cotecna_seal)t.push(callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:S.classifiedVan[no].cotecna_seal}},{type:'text',text:`「JP-XXXXXXX」形式で番号のみ。`}],20).then(v=>{const m=v.trim().match(/JP-?\d{4,8}/i);if(m){cont.seal=m[0].toUpperCase().replace(/^JP([^-])/,'JP-$1');log(`    CN${no}: Seal → ${cont.seal}`,'ok');}}).catch(()=>{}));
@@ -763,7 +803,7 @@ async function classifyAll(){
   }
   if(sm['inspector'])S.classifiedBaling.inspector=fp[sm['inspector']];
   if(sm['full'])S.classifiedBaling.goods_yard=fp[sm['full']];
-  setProgress(80,`AI 분류 완료`); log(`✅ AI 분류 완료 (${nos.length}CT)`,'ok');
+  setProgress(80,`AI分類 완료`); log(`✅ AI分類 완료 (${nos.length}CT)`,'ok');
 }
 
 async function callAI(content,maxTokens=20,_retry=0){
@@ -885,7 +925,7 @@ function showResults(downloads){
   const s=document.getElementById('resultSection'),r=document.getElementById('dlRow'),c=document.getElementById('chipRow');
   s.style.display='block';
   r.innerHTML=downloads.map(d=>{const blob=new Blob([d.buf],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});const url=URL.createObjectURL(blob);return `<a class="dl-btn" href="${url}" download="${d.name}"><div class="dl-icon">${d.icon}</div><div><span class="dl-name">${d.label}</span><span class="dl-size">${(d.buf.length/1024).toFixed(0)}KB · ${d.name}</span></div></a>`;}).join('');
-  c.innerHTML=`<div class="chip"><div class="chip-dot"></div>${Math.floor(downloads.length/2)}건 완료</div><div class="chip"><div class="chip-dot"></div>AI 분류 ✅</div>`;
+  c.innerHTML=`<div class="chip"><div class="chip-dot"></div>${Math.floor(downloads.length/2)}건 완료</div><div class="chip"><div class="chip-dot"></div>AI分類 ✅</div>`;
   s.scrollIntoView({behavior:'smooth'});
 }
 </script>

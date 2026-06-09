@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>COTECNA Report Generator v6.3</title>
+<title>COTECNA Report Generator v6.4</title>
 <style>
 :root{
   --bg:#0a0d14;--surface:#12151f;--surface2:#1a1e2e;--surface3:#222840;
@@ -105,7 +105,7 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
   <div class="header-logo">📋</div>
   <div>
     <div class="header-title">COTECNA Report Generator</div>
-    <div class="header-sub">LEENEAR CORPORATION — AI 자동화 Tool v6.3 (2026.06.09)</div>
+    <div class="header-sub">LEENEAR CORPORATION — AI 자동화 Tool v6.4 (2026.06.09)</div>
   </div>
   <div class="header-badge">LEENAI</div>
 </div>
@@ -478,7 +478,7 @@ async function fetchInspectionList() {
     const toISO   = dateTo   + 'T23:59:59Z';
     const filter  = `crcf9_inspection eq true and crcf9_work_date ge ${fromISO} and crcf9_work_date le ${toISO}`;
     const ctUrl   = `${DV_BASE}/crcf9_container_informations?$filter=${encodeURIComponent(filter)}`
-                  + `&$select=crcf9_container_informationid,crcf9_container_no,crcf9_partial_no,crcf9_work_date,_crcf9_booking_id_value,crcf9_shipping_seal_no`
+                  + `&$select=crcf9_container_informationid,crcf9_container_no,crcf9_partial_no,crcf9_work_date,_crcf9_booking_id_value,crcf9_seal_no`
                   + `&$orderby=crcf9_work_date desc&$top=200`;
 
     const ctData = await dvGet(ctUrl);
@@ -564,7 +564,7 @@ async function fetchInspectionList() {
         ivMap[ivNo] = { ivNo, voNo, partial, bkgNo:bkg.cr49f_booking_no||'—',
           packer:packerName, pol, workDate:ct.crcf9_work_date?.slice(0,10)||'—', ctList:[] };
       }
-      ivMap[ivNo].ctList.push({ ctNo:ct.crcf9_container_no||'—', seal:ct.crcf9_shipping_seal_no||'', date:ct.crcf9_work_date?.slice(0,10)||'—' });
+      ivMap[ivNo].ctList.push({ ctNo:ct.crcf9_container_no||'—', seal:ct.crcf9_seal_no||'', date:ct.crcf9_work_date?.slice(0,10)||'—' });
     }
 
     S.inspectionList = Object.values(ivMap);

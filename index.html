@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LEENAI COTECNAレポートツール v7.1</title>
+<title>LEENAI COTECNAレポートツール v7.2</title>
 <style>
 :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3350;--accent:#4f8ef7;--ok:#22c55e;--warn:#f59e0b;--error:#ef4444;--info:#38bdf8;--text:#e2e8f0;--text2:#8892a4;--text3:#4a5568;}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -56,7 +56,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 .sbadge-kaneko{background:rgba(34,197,94,.15);color:#86efac;}
 .sbadge-other{background:rgba(79,142,247,.15);color:var(--accent);}
 .date-range{font-size:11px;color:var(--text2);line-height:1.5;}
-.log-box{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;max-height:180px;overflow-y:auto;font-size:11px;font-family:'Consolas',monospace;line-height:1.7;}
+.log-box{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;max-height:200px;overflow-y:auto;font-size:11px;font-family:'Consolas',monospace;line-height:1.7;}
 .log-ok{color:var(--ok);}.log-err{color:var(--error);}.log-info{color:var(--info);}.log-warn{color:var(--warn);}
 .progress-bar{height:3px;background:var(--border);border-radius:2px;margin:8px 0;}
 .progress-bar .fill{height:100%;border-radius:2px;background:var(--accent);transition:width .4s;}
@@ -93,7 +93,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 <body>
 <header>
   <div class="logo">LEAN<span>AI</span></div>
-  <div class="version">COTECNAレポートツール v7.1 (2026-06-09)</div>
+  <div class="version">COTECNAレポートツール v7.2 (2026-06-09)</div>
   <div class="api-mini">
     <span style="color:var(--text2);font-size:11px;">API KEY</span>
     <div class="api-dot" id="apiDot"></div>
@@ -141,7 +141,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
         <input type="date" id="dateTo">
         <button class="btn btn-primary btn-sm" id="fetchBtn" onclick="fetchList()" disabled>📋 リスト照会</button>
       </div>
-      <div id="fetchLog" class="log-box mt8" style="display:none;max-height:120px;"></div>
+      <div id="fetchLog" class="log-box mt8" style="display:none;max-height:140px;"></div>
       <div id="listArea" style="display:none;" class="mt12">
         <div class="section-hdr">
           <span class="count" id="listCount"></span>
@@ -241,15 +241,12 @@ async function dvGet(url){const r=await fetch(url,{headers:{Authorization:`Beare
 function flog(msg,type=''){const box=document.getElementById('fetchLog');if(!box)return;box.style.display='block';const div=document.createElement('div');div.className=type?`log-${type}`:'';div.textContent=msg;box.appendChild(div);box.scrollTop=box.scrollHeight;}
 
 // ══════════════════════════════════════════════════════════════════
-//  fetchList v7.1
-//  グループ単位: IV No + Partial No の組み合わせ
-//  (同じ IV でも Partial が異なれば別行 → Packer/Plant も別)
-//
-//  CT → purchase_contract 直接 (_crcf9_purchase_contract_id_value)
-//  CT → booking (_crcf9_booking_id_value)
-//  booking → sale_contract (_cr49f_sale_contract_id_value)
-//  booking → region_japan (_cr49f_region_japan_id_value)
-//  purchase_contract → packer (_cr49f_packer_id_value)
+//  fetchList v7.2
+//  修正: purchase_contract の packer 取得を正しい経路に
+//       CT→PC→packer マスターの3段階
+//  修正: $select でエラーになる可能性のあるフィールドを
+//        2パターンで試行 (with $select → fail → without $select)
+//  デバッグ: 第1 CT の全フィールド名をログ出力
 // ══════════════════════════════════════════════════════════════════
 async function fetchList(){
   if(!S.dvToken){alert('COMPASSにログインしてください');return;}
@@ -265,14 +262,26 @@ async function fetchList(){
   try{
     flog('📋 COMPASS 自主検査コンテナ照会中...','info');
     const filter=`crcf9_inspection eq true and crcf9_work_date ge ${dateFrom}T00:00:00Z and crcf9_work_date le ${dateTo}T23:59:59Z`;
-    // CT → booking + purchase_contract の両方を取得
-    const ctData=await dvGet(
-      `${DV_API}/crcf9_container_informations`+
-      `?$filter=${encodeURIComponent(filter)}`+
-      `&$select=crcf9_container_informationid,crcf9_container_no,crcf9_partial_no,crcf9_work_date,crcf9_seal_no,`+
-      `_crcf9_booking_id_value,_crcf9_purchase_contract_id_value`+
-      `&$orderby=crcf9_work_date asc&$top=200`
-    );
+
+    // STEP 1: CT 取得 — $select に _crcf9_purchase_contract_id_value を含む
+    // 400エラー時は $select なしで再試行
+    let ctData;
+    try{
+      ctData=await dvGet(
+        `${DV_API}/crcf9_container_informations`+
+        `?$filter=${encodeURIComponent(filter)}`+
+        `&$select=crcf9_container_informationid,crcf9_container_no,crcf9_partial_no,crcf9_work_date,crcf9_seal_no,_crcf9_booking_id_value,_crcf9_purchase_contract_id_value`+
+        `&$orderby=crcf9_work_date asc&$top=200`
+      );
+    }catch(e1){
+      flog(`  ⚠️ $select付きで失敗(${e1.message.slice(0,40)})、$select なしで再試行...`,'warn');
+      ctData=await dvGet(
+        `${DV_API}/crcf9_container_informations`+
+        `?$filter=${encodeURIComponent(filter)}`+
+        `&$orderby=crcf9_work_date asc&$top=200`
+      );
+    }
+
     if(!ctData.value?.length){
       flog('⚠️ 指定期間の自主検査コンテナなし','warn');
       document.getElementById('listBody').innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--text2);padding:20px;">指定期間に自主検査対象がありません</td></tr>';
@@ -280,34 +289,55 @@ async function fetchList(){
     }
     flog(`  CT ${ctData.value.length}件取得`,'info');
 
+    // デバッグ: 第1 CT の全フィールド名を確認
+    const ct0=ctData.value[0];
+    const ct0Keys=Object.keys(ct0).filter(k=>!k.startsWith('@'));
+    flog(`  [debug] CT1 fields: ${ct0Keys.join(', ')}`,'info');
+    flog(`  [debug] bkg_val=${ct0['_crcf9_booking_id_value']||'(null)'} | pc_val=${ct0['_crcf9_purchase_contract_id_value']||'(null)'} | partial=${ct0.crcf9_partial_no||'(null)'}`,'info');
+
     // STEP 2: BKG fetch
     const bkgGuids=[...new Set(ctData.value.map(c=>c['_crcf9_booking_id_value']).filter(Boolean))];
     flog(`  BKG ${bkgGuids.length}件 fetch中...`,'info');
     const bkgMap={};
     await Promise.all(bkgGuids.map(async g=>{
       try{bkgMap[g]=await dvGet(`${DV_API}/cr49f_bookings(${g})?$select=cr49f_bookingid,cr49f_invoice_no,cr49f_booking_no,_cr49f_region_japan_id_value,_cr49f_sale_contract_id_value`);}
-      catch(e){flog(`  ⚠️ BKG err: ${e.message}`,'warn');}
+      catch(e){flog(`  ⚠️ BKG ${g.slice(0,8)}: ${e.message.slice(0,40)}`,'warn');}
     }));
     flog(`  BKG ${Object.keys(bkgMap).length}件完了`,'ok');
 
-    // STEP 3: purchase_contract fetch → Packer取得
-    // CT ごとに purchase_contract_id が異なる → Partial 単位で Packer が変わる
-    const pcGuids=[...new Set(ctData.value.map(c=>c['_crcf9_purchase_contract_id_value']).filter(Boolean))];
-    flog(`  PurchaseContract ${pcGuids.length}件 fetch中...`,'info');
+    // デバッグ: BKG 第1件のフィールド確認
+    const bkg0=Object.values(bkgMap)[0];
+    if(bkg0){
+      flog(`  [debug] BKG1 region=${bkg0['_cr49f_region_japan_id_value']||'(null)'} | sc=${bkg0['_cr49f_sale_contract_id_value']||'(null)'}`,'info');
+    }
+
+    // STEP 3: purchase_contract fetch
+    // PC ID を CT から取得 (複数パターン試行)
+    const pcGuids=[...new Set(ctData.value.map(c=>
+      c['_crcf9_purchase_contract_id_value']   // _value suffix パターン
+      || c['crcf9_purchase_contract_id']        // plain GUID パターン
+    ).filter(Boolean))];
+    flog(`  PC ${pcGuids.length}件 fetch中...`,'info');
     const pcMap={};
     await Promise.all(pcGuids.map(async g=>{
-      try{pcMap[g]=await dvGet(`${DV_API}/cr49f_purchase_contracts(${g})?$select=cr49f_packer_name,_cr49f_packer_id_value`);}
-      catch(e){}
+      try{
+        // purchase_contract: _cr49f_packer_id_value のみ取得
+        pcMap[g]=await dvGet(`${DV_API}/cr49f_purchase_contracts(${g})?$select=cr49f_purchase_contractid,_cr49f_packer_id_value`);
+      }catch(e){flog(`  ⚠️ PC ${g.slice(0,8)}: ${e.message.slice(0,40)}`,'warn');}
     }));
-    // Packer マスタ
+    flog(`  PC ${Object.keys(pcMap).length}件完了`,'ok');
+
+    // STEP 4: packer マスタ fetch
     const packerGuids=[...new Set(Object.values(pcMap).map(p=>p['_cr49f_packer_id_value']).filter(Boolean))];
+    flog(`  Packer ${packerGuids.length}件 fetch中...`,'info');
     const packerMap={};
     await Promise.all(packerGuids.map(async g=>{
       try{packerMap[g]=await dvGet(`${DV_API}/cr49f_packers(${g})?$select=cr49f_packer,cr49f_packer_name`);}
       catch(e){}
     }));
+    flog(`  Packer ${Object.keys(packerMap).length}件完了`,'ok');
 
-    // STEP 4: sale_contract → VO No用
+    // STEP 5: sale_contract
     const scGuids=[...new Set(Object.values(bkgMap).map(b=>b['_cr49f_sale_contract_id_value']).filter(Boolean))];
     const scMap={};
     await Promise.all(scGuids.map(async g=>{
@@ -315,8 +345,8 @@ async function fetchList(){
       catch(e){}
     }));
 
-    // STEP 5: S/I → VO No (crcf9_vo_no)
-    flog(`  S/I VO No 取得中...`,'info');
+    // STEP 6: S/I → VO No
+    flog(`  S/I VO No 取得中 (${scGuids.length}件)...`,'info');
     const siVoMap={};
     await Promise.all(scGuids.map(async g=>{
       try{const d=await dvGet(`${DV_API}/cr49f_s_is?$filter=_cr49f_sale_contract_id_value eq ${g}&$select=crcf9_vo_no&$top=1`);if(d.value?.length&&d.value[0].crcf9_vo_no)siVoMap[g]=d.value[0].crcf9_vo_no;}
@@ -324,42 +354,44 @@ async function fetchList(){
     }));
     flog(`  VO No: ${Object.keys(siVoMap).length}件`,'ok');
 
-    // STEP 6: region_japan → POL
+    // STEP 7: region_japan → POL
     const polGuids=[...new Set(Object.values(bkgMap).map(b=>b['_cr49f_region_japan_id_value']).filter(Boolean))];
+    flog(`  POL ${polGuids.length}件 fetch中...`,'info');
     const polMap={};
     await Promise.all(polGuids.map(async g=>{
       try{const d=await dvGet(`${DV_API}/crcf9_region_japans(${g})?$select=crcf9_pol,cr49f_name`);polMap[g]=d.crcf9_pol||d.cr49f_name||'—';}
-      catch(e){}
+      catch(e){flog(`  ⚠️ POL ${g.slice(0,8)}: ${e.message.slice(0,40)}`,'warn');}
     }));
+    flog(`  POL ${Object.keys(polMap).length}件完了`,'ok');
 
     // ──────────────────────────────────────────────
-    // STEP 7: グループ化 — キー = ivNo + '::' + partial
+    // STEP 8: グループ化 — キー = ivNo + '::' + partial
     // ──────────────────────────────────────────────
-    const groupMap={};  // key → group object
+    const groupMap={};
     const localIvSet=new Set(S.photoFiles.map(f=>f.webkitRelativePath.split('/')[1]).filter(Boolean));
 
     for(const ct of ctData.value){
       const bkgGuid=ct['_crcf9_booking_id_value'];
       const bkg=bkgMap[bkgGuid];if(!bkg)continue;
       const ivNo=bkg.cr49f_invoice_no||bkgGuid;
-      const partial=ct.crcf9_partial_no||'';  // 空文字=Partial無し
-      const groupKey=`${ivNo}::${partial}`;   // グループキー
+      const partial=ct.crcf9_partial_no||'';
+      const groupKey=`${ivNo}::${partial}`;
 
       if(!groupMap[groupKey]){
         const scId=bkg['_cr49f_sale_contract_id_value'];
         const sc=scMap[scId]||{};
         const pol=polMap[bkg['_cr49f_region_japan_id_value']]||'—';
 
-        // VO No: S/I 優先 → sale_contract_no fallback
+        // VO No
         const rawVo=(siVoMap[scId]||sc.cr49f_sale_contract_no||'').replace(/^VO\s*NO\.?\s*/i,'').trim();
         const vm=rawVo.match(/X\.(\d+\.\d+)/i);
         const voNo=vm?`X.${vm[1]}`:(rawVo||'—');
 
-        // Packer: CT の purchase_contract から直接取得
-        const pcId=ct['_crcf9_purchase_contract_id_value'];
+        // Packer: CT → PC (_value or plain) → packer マスター
+        const pcId=ct['_crcf9_purchase_contract_id_value']||ct['crcf9_purchase_contract_id'];
         const pc=pcMap[pcId]||{};
         const pk=packerMap[pc['_cr49f_packer_id_value']];
-        const packer=pk?.cr49f_packer||pc.cr49f_packer_name||'—';
+        const packer=pk?.cr49f_packer||pk?.cr49f_packer_name||'—';
 
         groupMap[groupKey]={
           groupKey, ivNo, voNo,
@@ -378,7 +410,6 @@ async function fetchList(){
 
     const list=Object.values(groupMap);
     list.forEach(r=>r.workDates.sort());
-    // 並び順: 検査日 → IV No → Partial No
     list.sort((a,b)=>{
       const da=(a.workDates[0]||''),db=(b.workDates[0]||'');
       if(da!==db)return da.localeCompare(db);
@@ -403,7 +434,7 @@ function renderTable(){
     tr.innerHTML=`
       <td><input type="checkbox" class="row-chk" data-key="${row.groupKey}" onchange="onChkChange()"></td>
       <td>${dateDisp}</td>
-      <td class="iv-link" onclick="toggleDetail('${row.groupKey.replace(/:/g,'_')}')">${row.ivNo}</td>
+      <td class="iv-link" onclick="toggleDetail('${row.groupKey.replace(/[^a-z0-9]/gi,'_')}')">${row.ivNo}</td>
       <td style="font-weight:600;">${row.voNo}</td>
       <td style="color:var(--text2);font-weight:600;">${row.partial}</td>
       <td><span class="sbadge ${pkClass}">${row.packer}</span></td>
@@ -411,13 +442,10 @@ function renderTable(){
       <td style="text-align:center;font-weight:700;">${row.ctList.length}</td>
       <td style="text-align:center;">${row.photoStatus}</td>`;
     tbody.appendChild(tr);
-    const det=document.createElement('tr');
-    const safeId=row.groupKey.replace(/:/g,'_');
-    det.id=`detail-${safeId}`;det.style.display='none';
+    const safeId=row.groupKey.replace(/[^a-z0-9]/gi,'_');
+    const det=document.createElement('tr');det.id=`detail-${safeId}`;det.style.display='none';
     det.innerHTML=`<td colspan="9" style="background:var(--surface2);padding:6px 14px 10px;">
-      <div style="font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;margin-bottom:4px;">
-        CTリスト (${row.ivNo} / ${row.partial})
-      </div>
+      <div style="font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;margin-bottom:4px;">CT リスト (${row.ivNo} / Partial:${row.partial} / Packer:${row.packer})</div>
       <div style="display:flex;flex-wrap:wrap;gap:4px;">
         ${row.ctList.map(c=>`<span style="font-size:11px;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:2px 8px;">${c.ctNo}${c.seal?` <span style='color:var(--text3)'>${c.seal}</span>`:''} <span style='color:var(--text3);font-size:10px;'>${c.date}</span></span>`).join('')}
       </div></td>`;
@@ -428,20 +456,13 @@ function renderTable(){
 }
 function toggleDetail(safeId){const el=document.getElementById(`detail-${safeId}`);if(el)el.style.display=el.style.display==='none'?'':'none';}
 function selectAll(v){document.querySelectorAll('.row-chk').forEach(c=>c.checked=v);onChkChange();}
-function onChkChange(){
-  S.selectedKeys=[...document.querySelectorAll('.row-chk:checked')].map(c=>c.dataset.key);
-  const btn=document.getElementById('proceedBtn');
-  btn.disabled=!S.selectedKeys.length;
-  btn.textContent=S.selectedKeys.length?`▶ 選択 ${S.selectedKeys.length}件 のレポート生成開始`:'▶ 選択件のレポート生成開始';
-}
+function onChkChange(){S.selectedKeys=[...document.querySelectorAll('.row-chk:checked')].map(c=>c.dataset.key);const btn=document.getElementById('proceedBtn');btn.disabled=!S.selectedKeys.length;btn.textContent=S.selectedKeys.length?`▶ 選択 ${S.selectedKeys.length}件 のレポート生成開始`:'▶ 選択件のレポート生成開始';}
 
 async function proceedSelected(){
-  if(!S.selectedKeys.length)return;
-  S.apiKey=document.getElementById('apiKey').value.trim();if(!S.apiKey)return alert('APIキーを入力してください');
+  if(!S.selectedKeys.length)return;S.apiKey=document.getElementById('apiKey').value.trim();if(!S.apiKey)return alert('APIキーを入力してください');
   document.getElementById('proceedBtn').disabled=true;
   const step3=document.getElementById('step3');step3.classList.add('active','open');step3.scrollIntoView({behavior:'smooth'});
-  document.getElementById('resultSection').style.display='none';
-  const allDl=[];
+  document.getElementById('resultSection').style.display='none';const allDl=[];
   for(const key of S.selectedKeys){
     const row=S.inspList.find(r=>r.groupKey===key);if(!row)continue;
     document.getElementById('jobCard').style.display='block';
@@ -452,72 +473,17 @@ async function proceedSelected(){
       setPhase(1);setProgress(5,'写真読込中...');await loadPhotosLocal(row);
       setPhase(2);setProgress(45,'AI分類中...');S.logoB64=DEFAULT_LOGO_B64;await classifyAll();
       setPhase(3);setProgress(88,'VAN FORM 生成中...');const van=buildVanDocx();setProgress(95,'BALING FORM 生成中...');const bal=buildBalingDocx();
-      setProgress(100,`✅ ${row.ivNo}/${row.partial} 完了`);setAllDone();log(`🎉 ${row.ivNo}/${row.partial} 完了`,'ok');
+      setProgress(100,`✅ ${row.ivNo}/${row.partial} 完了`);setAllDone();log(`🎉 完了`,'ok');
       const voSafe=S.voNo?S.voNo.replace(/[^a-zA-Z0-9._-]/g,'_'):`${row.ivNo}_${row.partial}`.replace(/[^a-zA-Z0-9._-]/g,'_');
-      allDl.push(
-        {buf:van,name:`[${voSafe}]_VAN.docx`,icon:'📄',label:`${row.ivNo}/${row.partial} VAN`},
-        {buf:bal,name:`[${voSafe}]_BALING.docx`,icon:'📋',label:`${row.ivNo}/${row.partial} BALING`}
-      );
-    }catch(e){log(`❌ ${row.ivNo}/${row.partial}: ${e.message}`,'err');console.error(e);}
+      allDl.push({buf:van,name:`[${voSafe}]_VAN.docx`,icon:'📄',label:`${row.ivNo}/${row.partial} VAN`},{buf:bal,name:`[${voSafe}]_BALING.docx`,icon:'📋',label:`${row.ivNo}/${row.partial} BALING`});
+    }catch(e){log(`❌ ${e.message}`,'err');console.error(e);}
   }
   showResults(allDl);document.getElementById('proceedBtn').disabled=false;
   document.getElementById('step2').classList.remove('active');document.getElementById('step2').classList.add('done');step3.classList.add('done');
 }
-
-function resetJobState(row){
-  S.mode='folder';S.groups={};
-  S.containers=row.ctList.map((ct,i)=>({no:i+1,container:ct.ctNo,seal:ct.seal}));
-  S.vanPhotos={};S.baraPhotos={};S.pressPhotos={};
-  S.classifiedVan={};S.classifiedBaling={goods_yard:null,inspector:null,open_bales:[],rebales:[]};
-  S.logoB64=null;
-  // VO No + Partial No でファイル名生成
-  S.voNo=(row.voNo&&row.voNo!=='—'&&row.partial&&row.partial!=='—')
-    ?`${row.voNo}-${row.partial}`
-    :(row.voNo&&row.voNo!=='—'?row.voNo:'');
-  const fd=row.workDates[0]||'';
-  S.reportDate=fd?(()=>{const d=new Date(fd);return ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][d.getMonth()]+`. ${d.getDate()}, ${d.getFullYear()}`})():'';
-  S.inspPlace=row.pol||'';S.baleCount=0;S.rootName=row.ivNo;S.fileList=[];
-}
-
-// 写真読込: IV No フォルダを使用 (Partial 混在の場合も IV フォルダごと読む)
-async function loadPhotosLocal(row){
-  const ivNo=row.ivNo;const ext=/\.(jpe?g|png)$/i;
-  const ivFiles=S.photoFiles.filter(f=>f.webkitRelativePath.split('/')[1]===ivNo);
-  if(!ivFiles.length){log(` ⚠️ ローカルに ${ivNo} なし`,'warn');return;}
-  // CT番号リストでフィルタ (同じ IV 内の他 Partial の CT を除外)
-  const ctNos=new Set(row.ctList.map(c=>c.ctNo));
-  const ctSet=new Set();
-  for(const f of ivFiles){
-    const p=f.webkitRelativePath.split('/');
-    if(p.length>=4&&!p[2].startsWith('_')&&p[2]!=='搬入票'){
-      // CT番号リストに含まれるフォルダのみ対象
-      if(ctNos.size===0||ctNos.has(p[2]))ctSet.add(p[2]);
-    }
-  }
-  const ctFolders=[...ctSet].sort();
-  log(`   CTフォルダ ${ctFolders.length}件 (対象Partial=${row.partial}): ${ctFolders.join(', ')}`,'info');
-  if(!ctFolders.length){log(' ⚠️ CTフォルダなし','warn');return;}
-  let ci=0;
-  for(const cf of ctFolders){
-    let cont=S.containers.find(c=>c.container===cf);if(!cont){cont=S.containers[ci];ci++;}if(!cont)continue;
-    const no=cont.no;
-    const imgs=ivFiles.filter(f=>{const p=f.webkitRelativePath.split('/');return p[2]===cf&&ext.test(p[p.length-1]);}).sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true}));
-    if(!imgs.length){log(`    ⚠️ ${cf} 写真なし`,'warn');continue;}
-    S.vanPhotos[no]={};S.groups[no]=imgs;
-    for(let i=0;i<imgs.length;i+=5){
-      const batch=imgs.slice(i,i+5);
-      await Promise.all(batch.map(async(f,bi)=>{
-        try{const seq=i+bi+1;S.vanPhotos[no][seq]=await fileToB64(f);S.vanPhotos[no][`_name_${seq}`]=f.name;}
-        catch(e){log(`    ⚠️ ${f.name}`,'warn');}
-      }));
-      setProgress(5+Math.round(((ci||1)/ctFolders.length)*35),`写真読込: ${cf}`);
-    }
-    log(`    ✅ CT${no} (${cf}): ${Object.keys(S.vanPhotos[no]).filter(k=>!k.startsWith('_')).length}枚`,'ok');
-  }
-  log(`✅ 写真読込完了`,'ok');setProgress(40,'写真読込完了');
-}
+function resetJobState(row){S.mode='folder';S.groups={};S.containers=row.ctList.map((ct,i)=>({no:i+1,container:ct.ctNo,seal:ct.seal}));S.vanPhotos={};S.baraPhotos={};S.pressPhotos={};S.classifiedVan={};S.classifiedBaling={goods_yard:null,inspector:null,open_bales:[],rebales:[]};S.logoB64=null;S.voNo=(row.voNo&&row.voNo!=='—'&&row.partial&&row.partial!=='—')?`${row.voNo}-${row.partial}`:(row.voNo&&row.voNo!=='—'?row.voNo:'');const fd=row.workDates[0]||'';S.reportDate=fd?(()=>{const d=new Date(fd);return ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][d.getMonth()]+`. ${d.getDate()}, ${d.getFullYear()}`})():'';S.inspPlace=row.pol||'';S.baleCount=0;S.rootName=row.ivNo;S.fileList=[];}
+async function loadPhotosLocal(row){const ivNo=row.ivNo;const ext=/\.(jpe?g|png)$/i;const ivFiles=S.photoFiles.filter(f=>f.webkitRelativePath.split('/')[1]===ivNo);if(!ivFiles.length){log(` ⚠️ ローカルに ${ivNo} なし`,'warn');return;}const ctNos=new Set(row.ctList.map(c=>c.ctNo));const ctSet=new Set();for(const f of ivFiles){const p=f.webkitRelativePath.split('/');if(p.length>=4&&!p[2].startsWith('_')&&p[2]!=='搬入票'){if(ctNos.size===0||ctNos.has(p[2]))ctSet.add(p[2]);}}const ctFolders=[...ctSet].sort();log(`   CTフォルダ ${ctFolders.length}件 (Partial=${row.partial}): ${ctFolders.join(', ')}`,'info');if(!ctFolders.length){log(' ⚠️ CTフォルダなし','warn');return;}let ci=0;for(const cf of ctFolders){let cont=S.containers.find(c=>c.container===cf);if(!cont){cont=S.containers[ci];ci++;}if(!cont)continue;const no=cont.no;const imgs=ivFiles.filter(f=>{const p=f.webkitRelativePath.split('/');return p[2]===cf&&ext.test(p[p.length-1]);}).sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true}));if(!imgs.length){log(`    ⚠️ ${cf} 写真なし`,'warn');continue;}S.vanPhotos[no]={};S.groups[no]=imgs;for(let i=0;i<imgs.length;i+=5){const batch=imgs.slice(i,i+5);await Promise.all(batch.map(async(f,bi)=>{try{const seq=i+bi+1;S.vanPhotos[no][seq]=await fileToB64(f);S.vanPhotos[no][`_name_${seq}`]=f.name;}catch(e){log(`    ⚠️ ${f.name}`,'warn');}}));setProgress(5+Math.round(((ci||1)/ctFolders.length)*35),`写真読込: ${cf}`);}log(`    ✅ CT${no} (${cf}): ${Object.keys(S.vanPhotos[no]).filter(k=>!k.startsWith('_')).length}枚`,'ok');}log(`✅ 写真読込完了`,'ok');setProgress(40,'写真読込完了');}
 function fileToB64(f){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(f);});}
-
 async function classifyAll(){S.classifiedVan={};S.classifiedBaling={goods_yard:null,inspector:null,open_bales:[],rebales:[]};const nos=Object.keys(S.vanPhotos).map(Number).sort((a,b)=>a-b);if(!nos.length){log('⚠️ 写真なし','warn');for(const c of S.containers)S.classifiedVan[c.no]={};return;}const fp=S.vanPhotos[nos[0]];const seqs=Object.keys(fp).filter(k=>!k.startsWith('_')).map(Number).sort((a,b)=>a-b);log(`  🤖 CT1 分類中 (${seqs.length}枚)...`,'info');const res=await Promise.all(seqs.map(async seq=>({seq,label:await classifyOne(fp[seq],VAN_PROMPT).catch(()=>'unknown')})));res.forEach(({seq,label})=>log(`    seq${seq} [${fp[`_name_${seq}`]||''}] → ${label}`,'info'));const cands={};for(const{seq,label}of res)if(SLOT_ORDER.includes(label)){if(!cands[label])cands[label]=[];cands[label].push(seq);}const sm={};if(cands['cotecna_seal']?.length>1){const chk=await Promise.all(cands['cotecna_seal'].map(async seq=>{try{const a=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:fp[seq]}},{type:'text',text:`「COTECNA」と「JP-」で始まるシリアル番号が見える写真か「yes」`}],10);return{seq,ok:a.toLowerCase().includes('yes')};}catch(e){return{seq,ok:false};}}));sm['cotecna_seal']=(chk.find(r=>r.ok)??chk[0]).seq;}else if(cands['cotecna_seal']?.length===1)sm['cotecna_seal']=cands['cotecna_seal'][0];if(cands['right_door']?.length>1){const chk=await Promise.all(cands['right_door'].map(async seq=>{try{const a=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:fp[seq]}},{type:'text',text:`左側に荷物、右側に右ドアが写る写真か「yes」`}],10);return{seq,ok:a.toLowerCase().includes('yes')};}catch(e){return{seq,ok:false};}}));sm['right_door']=(chk.find(r=>r.ok)??chk[0]).seq;}else if(cands['right_door']?.length===1)sm['right_door']=cands['right_door'][0];const ai=[...(cands['full']||[]),...(cands['half']||[])].sort((a,b)=>a-b);if(ai.length>=2){const sc=await Promise.all(ai.map(async seq=>{try{const a=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:fp[seq]}},{type:'text',text:`荷物の積載率を1〜10。数字のみ`}],5);return{seq,score:parseInt(a)||0};}catch(e){return{seq,score:0};}}));sc.sort((a,b)=>b.score-a.score);cands['full']=[sc[0].seq];cands['half']=sc[1]?[sc[1].seq]:[];}else if(ai.length===1)cands['full']=ai;for(const s of SLOT_ORDER){if(s==='cotecna_seal'||s==='right_door')continue;if(cands[s]?.length&&!sm[s])sm[s]=cands[s][0];}const miss=SLOT_ORDER.filter(s=>!sm[s]);if(miss.length)log(` ⚠️ 未分類: ${miss.join(', ')}`,'warn');log(` ✅ マッチ: ${JSON.stringify(sm)}`,'ok');showClassifyPreview(fp,sm);for(const no of nos){S.classifiedVan[no]={};const p=S.vanPhotos[no]||{};for(const[s,seq]of Object.entries(sm))if(p[seq])S.classifiedVan[no][s]=p[seq];}const nc=S.containers.some(c=>!c.container||c.container==='—'||c.container.match(/^\d+$/));const ns=S.containers.some(c=>!c.seal);if((nc&&sm['right_door'])||(ns&&sm['cotecna_seal'])){log(' 🔍 OCR処理中...','info');await Promise.all(nos.map(async no=>{const cont=S.containers.find(c=>c.no===no);if(!cont)return;const t=[];if(nc&&S.classifiedVan[no]?.right_door)t.push(callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:S.classifiedVan[no].right_door}},{type:'text',text:`コンテナ番号（英字4桁+数字7桁）番号のみ`}],30).then(v=>{const m=v.trim().match(/[A-Z]{4}\d{7}/i);if(m){cont.container=m[0].toUpperCase();log(`    CT${no}: ${cont.container}`,'ok');}}).catch(()=>{}));if(ns&&S.classifiedVan[no]?.cotecna_seal)t.push(callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:S.classifiedVan[no].cotecna_seal}},{type:'text',text:`「JP-XXXXXXXX」形式で番号のみ`}],20).then(v=>{const m=v.trim().match(/JP-?\d{4,8}/i);if(m){cont.seal=m[0].toUpperCase().replace(/^JP([^-])/,'JP-$1');log(`    CT${no} Seal: ${cont.seal}`,'ok');}}).catch(()=>{}));await Promise.all(t);}));}if(sm['inspector'])S.classifiedBaling.inspector=fp[sm['inspector']];if(sm['full'])S.classifiedBaling.goods_yard=fp[sm['full']];setProgress(80,'AI分類完了');log(`✅ AI分類完了`,'ok');}
 async function callAI(content,maxTokens=20,_retry=0){const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':S.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:maxTokens,messages:[{role:'user',content}]})});if(r.status===429&&_retry<4){await new Promise(res=>setTimeout(res,5000*Math.pow(2,_retry)));return callAI(content,maxTokens,_retry+1);}if(!r.ok)throw new Error(`API ${r.status}`);const d=await r.json();return d.content?.[0]?.text?.trim()||'';}
 async function classifyOne(b64,prompt){return callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:prompt}],20);}

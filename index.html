@@ -3,99 +3,139 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>COTECNA Report Generator v6.4</title>
+<title>COTECNA Report Generator v6.5</title>
 <style>
+/* ─── CSS 변수 (다크 고정) ─── */
 :root{
   --bg:#0a0d14;--surface:#12151f;--surface2:#1a1e2e;--surface3:#222840;
   --border:#2a2f4a;--border2:#3a4060;
   --accent:#3b82f6;--accent2:#6366f1;--accent3:#8b5cf6;
   --ok:#22c55e;--ng:#ef4444;--warn:#f59e0b;--info:#06b6d4;
-  --text:#e2e8f0;--sub:#8892b0;--sub2:#5a6484;
+  --text:#e2e8f0;--sub:#8892b0;--sub2:#5a6484;--text2:#cbd5e1;--text3:#64748b;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;}
-.header{background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 100%);border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;gap:14px;}
-.header-logo{width:38px;height:38px;background:linear-gradient(135deg,var(--accent),var(--accent3));border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;}
-.header-title{font-size:1.1rem;font-weight:700;}
-.header-sub{font-size:.72rem;color:var(--sub);margin-top:2px;}
-.header-badge{margin-left:auto;background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.3);color:#a5b4fc;font-size:.65rem;font-weight:700;padding:4px 10px;border-radius:20px;}
-.main{max-width:860px;margin:0 auto;padding:24px 16px;}
-.step-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:16px;position:relative;overflow:hidden;}
-.step-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent3));}
-.step-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
-.step-num{width:26px;height:26px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:800;flex-shrink:0;}
-.step-title{font-size:.9rem;font-weight:700;}
-.step-desc{font-size:.72rem;color:var(--sub);margin-left:auto;}
-.btn{padding:10px 18px;border:none;border-radius:8px;font-size:.8rem;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap;}
+
+/* ─── 헤더 ─── */
+.header{background:linear-gradient(135deg,#0f172a,#1e1b4b);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;gap:14px;}
+.header-logo{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),var(--accent3));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;}
+.header-title{font-size:1rem;font-weight:700;}
+.header-sub{font-size:.7rem;color:var(--sub);margin-top:2px;}
+.header-badge{margin-left:auto;background:rgba(99,102,241,.15);border:1px solid rgba(99,102,241,.3);color:#a5b4fc;font-size:.62rem;font-weight:700;padding:3px 10px;border-radius:20px;}
+
+/* ─── 카드 ─── */
+.main{max-width:900px;margin:0 auto;padding:20px 16px;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px;position:relative;overflow:hidden;}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),var(--accent3));}
+.card-title{display:flex;align-items:center;gap:8px;margin-bottom:12px;}
+.badge{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:50%;font-size:.68rem;font-weight:800;color:#fff;}
+.card-label{font-size:.88rem;font-weight:700;}
+.card-desc{font-size:.7rem;color:var(--sub);margin-left:auto;}
+
+/* ─── 버튼 ─── */
+.btn{padding:9px 16px;border:none;border-radius:7px;font-size:.78rem;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap;}
 .btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;}
-.btn-primary:hover{opacity:.88;transform:translateY(-1px);}
-.btn-primary:disabled{opacity:.35;cursor:not-allowed;transform:none;}
+.btn-primary:hover{opacity:.88;}
+.btn-primary:disabled{opacity:.35;cursor:not-allowed;}
 .btn-secondary{background:var(--surface2);color:var(--sub);border:1px solid var(--border);}
 .btn-secondary:hover{border-color:var(--accent);color:var(--text);}
 .btn-success{background:linear-gradient(135deg,#059669,#10b981);color:#fff;}
-.btn-success:hover{opacity:.88;transform:translateY(-1px);}
-.btn-success:disabled{opacity:.35;cursor:not-allowed;transform:none;}
-.btn-full{width:100%;padding:12px;}
-.api-section{background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:12px;margin-bottom:12px;}
-.api-section label{font-size:.7rem;color:var(--sub);font-weight:600;display:block;margin-bottom:6px;}
-.api-row{display:flex;gap:8px;}
-.api-row input{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:8px 10px;font-size:.8rem;outline:none;font-family:monospace;}
+.btn-success:hover{opacity:.88;}
+.btn-success:disabled{opacity:.35;cursor:not-allowed;}
+.btn-full{width:100%;padding:11px;}
+
+/* ─── API 입력 ─── */
+.api-row{display:flex;gap:8px;margin-top:6px;}
+.api-row input{flex:1;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:8px 10px;font-size:.78rem;outline:none;font-family:monospace;}
 .api-row input:focus{border-color:var(--accent);}
-.api-hint{font-size:.65rem;color:var(--sub2);margin-top:5px;}
-/* 인증 패널 */
-.auth-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
-.auth-item{background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:12px;}
-.auth-item label{font-size:.68rem;color:var(--sub);font-weight:600;display:block;margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em;}
-.auth-status{font-size:.75rem;margin-top:6px;display:flex;align-items:center;gap:5px;}
+.hint{font-size:.63rem;color:var(--sub2);margin-top:4px;}
+
+/* ─── 폴더 선택 ─── */
+.folder-row{display:flex;gap:8px;align-items:stretch;margin-bottom:6px;}
+.folder-display{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:7px;color:var(--sub);padding:9px 12px;font-size:.8rem;display:flex;align-items:center;gap:8px;cursor:pointer;transition:border-color .2s;min-height:40px;}
+.folder-display:hover{border-color:var(--accent);}
+.folder-display.loaded{border-color:var(--ok);color:var(--ok);}
+
+/* ─── 로그인 ─── */
+.login-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.login-status{font-size:.75rem;display:flex;align-items:center;gap:5px;}
 .dot{width:7px;height:7px;border-radius:50%;background:var(--sub2);}
 .dot-ok{background:var(--ok);}
-.dot-warn{background:var(--warn);}
-/* 테이블 */
-.progress-bar{height:6px;background:var(--surface2);border-radius:3px;overflow:hidden;}
+
+/* ─── 필터/날짜 ─── */
+.filter-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px;}
+.filter-row label{font-size:.7rem;color:var(--sub);font-weight:600;}
+.filter-row input[type=date]{background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:6px 9px;font-size:.76rem;outline:none;}
+.filter-row input[type=date]:focus{border-color:var(--accent);}
+
+/* ─── 리스트 테이블 ─── */
+.insp-table{width:100%;border-collapse:collapse;font-size:.75rem;}
+.insp-table th{background:var(--surface2);color:var(--sub);font-weight:600;text-align:left;padding:7px 10px;border-bottom:1px solid var(--border);white-space:nowrap;}
+.insp-table td{padding:7px 10px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.insp-table tr:last-child td{border-bottom:none;}
+.insp-table tr:hover td{background:rgba(59,130,246,.06);}
+.insp-table td input[type=checkbox]{cursor:pointer;width:14px;height:14px;}
+.iv-link{color:var(--info);font-weight:700;cursor:pointer;}
+.iv-link:hover{text-decoration:underline;}
+.tag{display:inline-block;padding:2px 7px;border-radius:8px;font-size:.63rem;font-weight:700;}
+.tag-oomoto{background:rgba(245,158,11,.15);color:#fcd34d;}
+.tag-kaneko{background:rgba(34,197,94,.15);color:#86efac;}
+.tag-other{background:rgba(99,102,241,.15);color:#a5b4fc;}
+.date-range{font-size:.72rem;color:var(--text2);}
+
+/* ─── 진행 ─── */
+.progress-bar{height:5px;background:var(--surface2);border-radius:3px;overflow:hidden;margin-bottom:8px;}
 .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent3));border-radius:3px;transition:width .4s ease;}
-.log-box{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 12px;max-height:200px;overflow-y:auto;font-size:.72rem;font-family:'Consolas',monospace;line-height:1.6;}
+.phase-bar{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
+.phase-chip{padding:4px 10px;border-radius:20px;border:1px solid var(--border);color:var(--sub2);background:var(--surface2);font-size:.68rem;font-weight:700;transition:all .3s;}
+.phase-chip.active{border-color:var(--accent);color:var(--accent);background:rgba(59,130,246,.1);animation:pulse 1.5s infinite;}
+.phase-chip.done{border-color:var(--ok);color:var(--ok);background:rgba(34,197,94,.1);}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{display:inline-block;width:13px;height:13px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:5px;}
+
+/* ─── 로그 ─── */
+.log-box{background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:9px 11px;max-height:200px;overflow-y:auto;font-size:.7rem;font-family:'Consolas',monospace;line-height:1.6;}
 .log-ok{color:var(--ok);}
 .log-err{color:var(--ng);}
 .log-info{color:var(--info);}
 .log-warn{color:var(--warn);}
-.phase-chip{padding:4px 10px;border-radius:20px;border:1px solid var(--border);color:var(--sub2);background:var(--surface2);transition:all .3s;font-size:.7rem;font-weight:700;}
-.phase-chip.active{border-color:var(--accent);color:var(--accent);background:rgba(59,130,246,.1);animation:pulse 1.5s infinite;}
-.phase-chip.done{border-color:var(--ok);color:var(--ok);background:rgba(34,197,94,.1);}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
-.result-section{display:none;}
-.result-card{background:var(--surface);border:1px solid var(--ok);border-radius:14px;padding:18px;margin-bottom:12px;position:relative;overflow:hidden;}
-.result-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--ok),#10b981);}
-.result-title{font-size:.9rem;font-weight:700;color:var(--ok);margin-bottom:12px;}
-.download-row{display:flex;gap:8px;flex-wrap:wrap;}
-.dl-btn{display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;cursor:pointer;transition:all .2s;text-decoration:none;color:var(--text);}
-.dl-btn:hover{border-color:var(--ok);}
-.dl-btn .dl-icon{font-size:1.2rem;}
-.dl-btn .dl-info{font-size:.75rem;}
-.dl-btn .dl-name{font-weight:700;display:block;}
-.dl-btn .dl-size{color:var(--sub);font-size:.68rem;}
-.status-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
-.status-chip{display:flex;align-items:center;gap:5px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:4px 10px;font-size:.7rem;}
-.chip-dot{width:7px;height:7px;border-radius:50%;}
-.chip-ok{background:var(--ok);}
-.class-title{font-size:.75rem;font-weight:700;color:var(--sub);margin-bottom:8px;}
-.class-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;}
-.class-slot{background:var(--surface2);border:1px solid var(--border);border-radius:7px;overflow:hidden;text-align:center;}
-.class-slot img{width:100%;height:70px;object-fit:cover;display:block;}
-.class-slot .slot-name{font-size:.6rem;padding:3px;color:var(--sub);font-weight:600;}
+
+/* ─── 분류 미리보기 ─── */
+.class-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin-top:8px;}
+.class-slot{background:var(--surface2);border:1px solid var(--border);border-radius:6px;overflow:hidden;text-align:center;}
+.class-slot img{width:100%;height:65px;object-fit:cover;display:block;}
+.class-slot .slot-name{font-size:.58rem;padding:2px;color:var(--sub);font-weight:600;}
 .class-slot.slot-ok{border-color:var(--ok);}
 .class-slot.slot-ok .slot-name{color:var(--ok);}
-.class-slot .slot-img-placeholder{height:70px;display:flex;align-items:center;justify-content:center;color:var(--sub2);font-size:.8rem;}
-.insp-table{width:100%;border-collapse:collapse;font-size:.76rem;margin-bottom:10px;}
-.insp-table th{background:var(--surface2);color:var(--sub);font-weight:600;text-align:left;padding:7px 10px;border-bottom:1px solid var(--border);}
-.insp-table td{padding:7px 10px;border-bottom:1px solid var(--border);}
-.insp-table tr:last-child td{border-bottom:none;}
-.badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:.65rem;font-weight:700;}
-@keyframes spin{to{transform:rotate(360deg)}}
-.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px;}
+.slot-empty{height:65px;display:flex;align-items:center;justify-content:center;color:var(--sub2);font-size:.75rem;}
+
+/* ─── 결과 ─── */
+.result-card{background:var(--surface);border:1px solid var(--ok);border-radius:12px;padding:16px;position:relative;overflow:hidden;margin-bottom:12px;}
+.result-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--ok),#10b981);}
+.result-title{font-size:.88rem;font-weight:700;color:var(--ok);margin-bottom:10px;}
+.dl-row{display:flex;gap:8px;flex-wrap:wrap;}
+.dl-btn{display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:9px 13px;text-decoration:none;color:var(--text);transition:all .2s;font-size:.75rem;}
+.dl-btn:hover{border-color:var(--ok);}
+.dl-btn .dl-icon{font-size:1.1rem;}
+.dl-btn .dl-name{font-weight:700;display:block;}
+.dl-btn .dl-size{color:var(--sub);font-size:.65rem;}
+.chip-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;}
+.chip{display:flex;align-items:center;gap:4px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:3px 9px;font-size:.68rem;}
+.chip-dot{width:6px;height:6px;border-radius:50%;background:var(--ok);}
+
+/* ─── 현재 처리 건 ─── */
+.job-info{background:var(--surface2);border:1px solid var(--border);border-radius:7px;padding:9px 13px;margin-bottom:10px;}
+.job-info-title{font-size:.85rem;font-weight:700;color:var(--info);}
+.job-info-sub{font-size:.7rem;color:var(--sub);margin-top:2px;}
+
+/* ─── 푸터 ─── */
+.powered{text-align:center;font-size:.65rem;color:var(--text3);padding:14px 0;letter-spacing:.4px;}
+
 @media(max-width:600px){
-  .auth-grid{grid-template-columns:1fr;}
   .class-grid{grid-template-columns:repeat(3,1fr);}
-  .download-row{flex-direction:column;}
+  .dl-row{flex-direction:column;}
+  .filter-row{flex-direction:column;align-items:flex-start;}
 }
 </style>
 </head>
@@ -105,7 +145,7 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
   <div class="header-logo">📋</div>
   <div>
     <div class="header-title">COTECNA Report Generator</div>
-    <div class="header-sub">LEENEAR CORPORATION — AI 자동화 Tool v6.4 (2026.06.09)</div>
+    <div class="header-sub">LEENEAR CORPORATION — AI 자동화 Tool v6.5 (2026.06.09)</div>
   </div>
   <div class="header-badge">LEENAI</div>
 </div>
@@ -113,87 +153,92 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
 <div class="main">
 
   <!-- STEP 1: API 키 -->
-  <div class="step-card">
-    <div class="step-header">
-      <div class="step-num">1</div>
-      <div class="step-title">API 키 설정</div>
-      <div class="step-desc">최초 1회만 입력</div>
+  <div class="card">
+    <div class="card-title">
+      <span class="badge">1</span>
+      <span class="card-label">API 키 설정</span>
+      <span class="card-desc">최초 1회만 입력</span>
     </div>
-    <div class="api-section">
-      <label>🔑 Anthropic API Key</label>
-      <div class="api-row">
-        <input type="password" id="apiKey" placeholder="sk-ant-..." autocomplete="off">
-        <button class="btn btn-secondary" onclick="toggleApiKey()">표시</button>
-        <button class="btn btn-secondary" onclick="saveApiKey()">저장</button>
-      </div>
-      <div class="api-hint">※ 키는 브라우저 로컬에만 저장됩니다.</div>
+    <label style="font-size:.68rem;color:var(--sub);font-weight:600;">🔑 Anthropic API Key</label>
+    <div class="api-row">
+      <input type="password" id="apiKey" placeholder="sk-ant-..." autocomplete="off">
+      <button class="btn btn-secondary" onclick="toggleApiKey()">표시</button>
+      <button class="btn btn-secondary" onclick="saveApiKey()">저장</button>
     </div>
+    <div class="hint">※ 키는 브라우저 로컬(localStorage)에만 저장됩니다.</div>
   </div>
 
-  <!-- STEP 2: 로그인 (DV / Graph 독립) -->
-  <div class="step-card">
-    <div class="step-header">
-      <div class="step-num">2</div>
-      <div class="step-title">로그인</div>
-      <div class="step-desc">COMPASS + SharePoint 각각 1회</div>
+  <!-- STEP 2: COMPASS 로그인 -->
+  <div class="card">
+    <div class="card-title">
+      <span class="badge">2</span>
+      <span class="card-label">COMPASS 로그인</span>
+      <span class="card-desc">자주검사 리스트 조회용</span>
     </div>
-
-    <div class="auth-grid">
-      <!-- DV 로그인 -->
-      <div class="auth-item">
-        <label>① COMPASS (Dataverse)</label>
-        <button class="btn btn-primary" id="dvLoginBtn" onclick="doLoginDV()" style="width:100%;">🔐 COMPASS 로그인</button>
-        <div class="auth-status">
-          <div class="dot" id="dvDot"></div>
-          <span id="dvStatus">미로그인</span>
-        </div>
-      </div>
-      <!-- Graph 로그인 -->
-      <div class="auth-item">
-        <label>② SharePoint (Graph)</label>
-        <button class="btn btn-secondary" id="spLoginBtn" onclick="doLoginGraph()" style="width:100%;">🔐 SharePoint 로그인</button>
-        <div class="auth-status">
-          <div class="dot" id="spDot"></div>
-          <span id="spStatus">미로그인</span>
-        </div>
+    <div class="login-row">
+      <button class="btn btn-primary" id="loginBtn" onclick="doLogin()">🔐 COMPASS 로그인</button>
+      <div class="login-status">
+        <div class="dot" id="loginDot"></div>
+        <span id="loginStatusTxt" style="font-size:.75rem;color:var(--sub);">미로그인</span>
       </div>
     </div>
-    <div style="font-size:.68rem;color:var(--sub2);">※ ①②를 순서대로 로그인 후 리스트 조회가 가능합니다.</div>
+    <div class="hint">※ Dataverse 인증만 사용합니다 (SharePoint 로그인 불필요)</div>
   </div>
 
-  <!-- STEP 3: 리스트 조회 -->
-  <div class="step-card">
-    <div class="step-header">
-      <div class="step-num">3</div>
-      <div class="step-title">자주검사 리스트</div>
-      <div class="step-desc">인도네시아향 자주검사 대상 조회</div>
+  <!-- STEP 3: PHOTO 폴더 선택 + 날짜 범위 + 리스트 조회 -->
+  <div class="card">
+    <div class="card-title">
+      <span class="badge">3</span>
+      <span class="card-label">자주검사 리스트 조회</span>
+      <span class="card-desc">PHOTO 폴더 지정 후 조회</span>
     </div>
 
-    <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;flex-wrap:wrap;">
-      <label style="font-size:.72rem;color:var(--sub);font-weight:600;">검사일:</label>
-      <input type="date" id="dateFrom" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:6px 10px;font-size:.78rem;">
+    <!-- PHOTO 폴더 선택 -->
+    <div style="margin-bottom:10px;">
+      <label style="font-size:.68rem;color:var(--sub);font-weight:600;display:block;margin-bottom:5px;">📁 PHOTO 폴더 선택 (OneDrive → leenearsite1 → PHOTO)</label>
+      <div class="folder-row">
+        <label class="folder-display" id="folderDisplay" for="folderInput">
+          <span>📁</span>
+          <span id="folderName">클릭하여 PHOTO 폴더 선택...</span>
+        </label>
+        <input type="file" id="folderInput" webkitdirectory style="display:none" onchange="onFolderSelected(this)">
+      </div>
+      <div class="hint">※ OneDrive 동기화된 PHOTO 폴더를 선택하면 하위 폴더가 자동으로 읽힙니다</div>
+    </div>
+
+    <!-- 날짜 범위 -->
+    <div class="filter-row">
+      <label>검사일:</label>
+      <input type="date" id="dateFrom">
       <span style="color:var(--sub);">~</span>
-      <input type="date" id="dateTo" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:6px 10px;font-size:.78rem;">
-      <button class="btn btn-secondary" id="fetchBtn" onclick="fetchInspectionList()" disabled style="padding:8px 14px;">📋 리스트 조회</button>
+      <input type="date" id="dateTo">
+      <button class="btn btn-secondary" id="fetchBtn" onclick="fetchList()" disabled style="padding:7px 13px;">📋 리스트 조회</button>
     </div>
 
     <!-- 조회 로그 -->
-    <div id="fetchLogBox" style="display:none;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:.72rem;font-family:'Consolas',monospace;max-height:120px;overflow-y:auto;line-height:1.6;"></div>
+    <div id="fetchLog" style="display:none;" class="log-box" style="max-height:100px;margin-bottom:10px;"></div>
 
+    <!-- 리스트 -->
     <div id="listArea" style="display:none;">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-        <span id="listCount" style="font-size:.76rem;color:var(--sub);"></span>
-        <div style="display:flex;gap:6px;">
-          <button class="btn btn-secondary" onclick="selectAll(true)"  style="padding:5px 10px;font-size:.72rem;">전체선택</button>
-          <button class="btn btn-secondary" onclick="selectAll(false)" style="padding:5px 10px;font-size:.72rem;">전체해제</button>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;">
+        <span id="listCount" style="font-size:.74rem;color:var(--sub);"></span>
+        <div style="display:flex;gap:5px;">
+          <button class="btn btn-secondary" onclick="selectAll(true)"  style="padding:4px 9px;font-size:.7rem;">전체선택</button>
+          <button class="btn btn-secondary" onclick="selectAll(false)" style="padding:4px 9px;font-size:.7rem;">전체해제</button>
         </div>
       </div>
       <div style="overflow-x:auto;">
         <table class="insp-table">
           <thead><tr>
-            <th style="width:32px;"></th>
-            <th>IV No</th><th>VO No / Partial</th>
-            <th>검사일</th><th>압축장</th><th>PORT</th><th>CT 수</th>
+            <th style="width:28px;"></th>
+            <th>검사일</th>
+            <th>IV No</th>
+            <th>VO No</th>
+            <th>Partial</th>
+            <th>압축장</th>
+            <th>PORT</th>
+            <th>CT 수</th>
+            <th>사진</th>
           </tr></thead>
           <tbody id="listBody"></tbody>
         </table>
@@ -206,63 +251,61 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
 
   <!-- STEP 4: 처리 진행 -->
   <div id="processSection" style="display:none;">
-    <div class="step-card">
-      <div class="step-header">
-        <div class="step-num">4</div>
-        <div class="step-title">자동 처리</div>
-        <div class="step-desc">사진 취득 → AI 분류 → 리포트 생성</div>
+    <div class="card">
+      <div class="card-title">
+        <span class="badge">4</span>
+        <span class="card-label">자동 처리</span>
+        <span class="card-desc">사진 로드 → AI 분류 → 리포트 생성</span>
       </div>
-      <div id="curJobInfo" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 14px;margin-bottom:12px;display:none;">
-        <div style="font-size:.7rem;color:var(--sub);margin-bottom:4px;">현재 처리 중</div>
-        <div id="curJobTitle" style="font-size:.88rem;font-weight:700;"></div>
-        <div id="curJobSub" style="font-size:.72rem;color:var(--sub);margin-top:2px;"></div>
+      <div class="job-info" id="jobInfo" style="display:none;">
+        <div class="job-info-title" id="jobTitle"></div>
+        <div class="job-info-sub"  id="jobSub"></div>
       </div>
-      <div id="phaseBar" style="display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;">
-        <div class="phase-chip" id="ph1">📷 사진 취득</div>
-        <div style="color:var(--sub2);align-self:center;">→</div>
+      <div class="phase-bar">
+        <div class="phase-chip" id="ph1">📷 사진 로드</div>
+        <div style="color:var(--sub2);align-self:center;font-size:.8rem;">→</div>
         <div class="phase-chip" id="ph2">🤖 AI 분류</div>
-        <div style="color:var(--sub2);align-self:center;">→</div>
+        <div style="color:var(--sub2);align-self:center;font-size:.8rem;">→</div>
         <div class="phase-chip" id="ph3">📄 리포트 생성</div>
       </div>
-      <div class="progress-bar" style="margin-bottom:10px;">
+      <div class="progress-bar">
         <div class="progress-fill" id="progressFill" style="width:0%;"></div>
       </div>
-      <div style="display:flex;justify-content:space-between;font-size:.72rem;color:var(--sub);margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;font-size:.7rem;color:var(--sub);margin-bottom:8px;">
         <span id="progressLabel">대기 중...</span>
         <span id="progressPct">0%</span>
       </div>
-      <div class="log-box" id="logBox" style="max-height:240px;"></div>
-      <div id="classifyPreview" style="display:none;margin-top:10px;">
-        <div class="class-title">📷 AI 분류 결과 (컨테이너 1번)</div>
+      <div class="log-box" id="logBox" style="max-height:220px;"></div>
+      <div id="classPreview" style="display:none;margin-top:8px;">
+        <div style="font-size:.72rem;font-weight:700;color:var(--sub);margin-bottom:5px;">📷 AI 분류 결과 (CT 1번)</div>
         <div class="class-grid" id="classGrid"></div>
       </div>
     </div>
   </div>
 
-  <!-- 결과 다운로드 -->
-  <div class="result-section" id="resultSection">
+  <!-- 결과 -->
+  <div id="resultSection" style="display:none;">
     <div class="result-card">
       <div class="result-title">✅ 리포트 생성 완료!</div>
-      <div class="download-row" id="downloadRow"></div>
-      <div class="status-row" id="statusRow"></div>
+      <div class="dl-row" id="dlRow"></div>
+      <div class="chip-row" id="chipRow"></div>
     </div>
   </div>
 
+  <div class="powered">✦ Powered by LEENAI Automation System</div>
 </div>
 
 <script>
 'use strict';
-// ═══════════════════════════════════════
+// ═══════════════════════════════════════════════
 //  CONSTANTS
-// ═══════════════════════════════════════
+// ═══════════════════════════════════════════════
 const CLIENT_ID    = 'f071a165-5e9b-44bf-b6a1-baba654524db';
 const TENANT_ID    = 'a56988ff-c2b8-4df8-9727-889ad4205198';
 const REDIRECT_URI = location.href.split('?')[0].split('#')[0];
-const DV_SCOPE     = 'https://orgde512c6f.crm7.dynamics.com/user_impersonation offline_access';
-const GRAPH_SCOPE  = 'https://graph.microsoft.com/Sites.ReadWrite.All offline_access';
-const DV_BASE      = 'https://orgde512c6f.crm7.dynamics.com/api/data/v9.2';
-const SP_DRIVE_ID  = 'b!ZK58_9YllU-vETQD3Xz0TbOInXbVCXJHnQ2280KJBArFLeM_18EgRbSeoO-TW__U';
-const SP_PHOTO_ID  = '01P6A72OX3JYO5I2N4WBGZG233QKK2F75A';
+const DV_URL       = 'https://orgde512c6f.crm7.dynamics.com';
+const DV_API       = `${DV_URL}/api/data/v9.2`;
+const SCOPE        = `${DV_URL}/user_impersonation offline_access`;
 
 const SLOT_ORDER    = ['empty','half','full','right_door','inspector','cotecna_seal'];
 const SLOT_CAPTIONS = {
@@ -279,226 +322,230 @@ empty        - コンテナ内部の写真。荷物が一切なく完全に空�
 half         - コンテナ内部の写真。奥行きの約半分程度まで廃紙ベールが積まれており、手前側に空きスペースが残っている
 full         - コンテナ内部の写真。廃紙ベールがコンテナの大部分を占め、halfよりも明らかに多く積まれている
 right_door   - 写真の左側に廃紙ベール（荷物）が見え、かつ写真の右側にコンテナドアの重量表記（TARE・MAX.GROSS・KGS・LBS・PAYLOADなどの文字と数字）が見える写真
-inspector    - 安全ヘルメット・安全ベストを着用した検査員が写っている写真。人物が写真の主役として写っている（背景の人物は不可）
-cotecna_seal - シールのクローズアップ写真。上部に「COTECNA」の文字、下部に「JP-」で始まる番号が書かれている。色は黄色が多いが、「COTECNA」と「JP-」の両方が確認できることが必須
+inspector    - 安全ヘルメット・安全ベストを着用した検査員が写っている写真。人物が写真の主役として写っている
+cotecna_seal - シールのクローズアップ写真。上部に「COTECNA」の文字、下部に「JP-」で始まる番号が書かれている
 
 必ず上記6つのいずれか1つのみ答えてください。`;
 
 const BALING_PROMPT = `この写真は廃紙ベール(bale)検査の写真です。以下のうち最も当てはまるものを1単語だけ答えてください:
 
 goods_yard  - ベールが倉庫・ヤードに複数積まれている全景写真
-person_bale - ヘルメット着用の検査員が検査カードを持ってベールの前に立っている写真（人物あり）
+person_bale - ヘルメット着用の検査員が検査カードを持ってベールの前に立っている写真
 open_bale   - ベールが解体・開梱されて紙・雑誌が床に散らばっている写真
 rebale      - COTECNAのテープ・ラベル・番号が貼られた再圧縮済みのベールの写真
 
 必ず上記4つのいずれか1つのみ答えてください。`;
 
-// ═══════════════════════════════════════
+// IndexedDB: leenai_cotecna_v1 / Store: settings
+const IDB_NAME = 'leenai_cotecna_v1';
+
+// ═══════════════════════════════════════════════
 //  STATE
-// ═══════════════════════════════════════
+// ═══════════════════════════════════════════════
 const S = {
-  apiKey:'', dvToken:null, graphToken:null,
-  inspectionList:[], selectedRows:[],
-  // v5.3 재활용
-  mode:'folder', groups:{}, containers:[],
-  vanPhotos:{}, baraPhotos:{}, pressPhotos:{},
-  classifiedVan:{}, classifiedBaling:{},
-  logoB64:null, voNo:'', reportDate:'', inspPlace:'', baleCount:0,
-  rootName:'', fileList:[],
+  apiKey: '',
+  dvToken: null,
+  // PHOTO 폴더 관련
+  photoFiles: [],        // 선택된 전체 File[]
+  photoFolderName: '',   // 선택된 폴더명
+  // COMPASS 리스트
+  inspList: [],          // [{ivNo, voNo, partial, workDates:[], packer, pol, ctList:[], photoStatus}]
+  selectedIvNos: [],
+  // v5.3 재활용 (처리 중 per-job 상태)
+  mode: 'folder', groups: {}, containers: [],
+  vanPhotos: {}, baraPhotos: {}, pressPhotos: {},
+  classifiedVan: {}, classifiedBaling: {},
+  logoB64: null, voNo: '', reportDate: '', inspPlace: '', baleCount: 0,
+  rootName: '', fileList: [],
 };
 
-// ═══════════════════════════════════════
-//  PKCE 유틸
-// ═══════════════════════════════════════
+// ═══════════════════════════════════════════════
+//  PKCE 유틸 (Dataverse 전용)
+// ═══════════════════════════════════════════════
 function b64url(buf){ return btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,''); }
 async function sha256b64(str){ return b64url(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str))); }
 
-async function startPKCE(scope, stateKey) {
+async function doLogin() {
   const verifier  = b64url(crypto.getRandomValues(new Uint8Array(32)));
   const challenge = await sha256b64(verifier);
   sessionStorage.setItem('pkce_v', verifier);
-  sessionStorage.setItem('pkce_state', stateKey);
+  sessionStorage.setItem('pkce_scope', 'dv');
   const p = new URLSearchParams({
     client_id: CLIENT_ID, response_type: 'code',
-    redirect_uri: REDIRECT_URI, scope,
+    redirect_uri: REDIRECT_URI, scope: SCOPE,
     code_challenge: challenge, code_challenge_method: 'S256',
     response_mode: 'query',
   });
   location.href = `https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/authorize?${p}`;
 }
 
-async function exchangeCode(code, scope) {
-  const r = await fetch(`https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/token`, {
-    method:'POST',
-    headers:{'Content-Type':'application/x-www-form-urlencoded'},
-    body: new URLSearchParams({
-      grant_type:'authorization_code', client_id: CLIENT_ID,
-      code, redirect_uri: REDIRECT_URI,
-      code_verifier: sessionStorage.getItem('pkce_v'), scope,
-    }),
-  });
-  if (!r.ok) throw new Error(await r.text());
-  return r.json();
+async function handleCallback() {
+  const params = new URLSearchParams(location.search);
+  const code   = params.get('code');
+  const verifier = sessionStorage.getItem('pkce_v');
+  if (!code || !verifier) return;
+  history.replaceState({}, '', location.pathname);
+  try {
+    const r = await fetch(`https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/token`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        grant_type: 'authorization_code', client_id: CLIENT_ID,
+        code, redirect_uri: REDIRECT_URI, code_verifier: verifier, scope: SCOPE,
+      }),
+    });
+    const data = await r.json();
+    if (data.error) throw new Error(data.error_description || data.error);
+    S.dvToken = data.access_token;
+    sessionStorage.setItem('cotecna_dv_token', S.dvToken);
+    sessionStorage.removeItem('pkce_v');
+    sessionStorage.removeItem('pkce_scope');
+    updateLoginUI();
+    log('✅ COMPASS 로그인 완료', 'ok');
+  } catch(e) {
+    alert('로그인 실패: ' + e.message);
+  }
 }
 
-// ═══════════════════════════════════════
+function updateLoginUI() {
+  if (S.dvToken) {
+    document.getElementById('loginDot').className = 'dot dot-ok';
+    document.getElementById('loginStatusTxt').textContent = '✅ 로그인 완료';
+    document.getElementById('loginStatusTxt').style.color = 'var(--ok)';
+    document.getElementById('loginBtn').textContent = '🔄 재로그인';
+  }
+  checkFetchReady();
+}
+
+function checkFetchReady() {
+  document.getElementById('fetchBtn').disabled = !(S.dvToken && S.photoFiles.length);
+}
+
+// ═══════════════════════════════════════════════
 //  INIT
-// ═══════════════════════════════════════
+// ═══════════════════════════════════════════════
 window.onload = async () => {
   // API 키 복원
-  const saved = localStorage.getItem('cotecna_api_key');
-  if (saved) { S.apiKey = saved; document.getElementById('apiKey').value = saved; }
+  const savedKey = localStorage.getItem('cotecna_api_key');
+  if (savedKey) { S.apiKey = savedKey; document.getElementById('apiKey').value = savedKey; }
 
-  // 날짜 기본값: 오늘 ~ 7일 전
+  // 날짜 기본값 (오늘 ~ 7일 전)
   const now  = new Date();
   const from = new Date(now); from.setDate(from.getDate() - 7);
   document.getElementById('dateTo').value   = now.toISOString().slice(0,10);
   document.getElementById('dateFrom').value = from.toISOString().slice(0,10);
 
-  // 토큰 세션 복원
-  const dvSaved    = sessionStorage.getItem('cotecna_dv_token');
-  const graphSaved = sessionStorage.getItem('cotecna_graph_token');
-  if (dvSaved)    { S.dvToken    = dvSaved;    updateAuthUI(); }
-  if (graphSaved) { S.graphToken = graphSaved; updateAuthUI(); }
+  // DV 토큰 세션 복원
+  const saved = sessionStorage.getItem('cotecna_dv_token');
+  if (saved) { S.dvToken = saved; updateLoginUI(); }
 
-  // OAuth callback 처리
-  if (location.search.includes('code=')) {
-    await handleCallback();
-  }
+  // OAuth callback
+  if (location.search.includes('code=')) await handleCallback();
 };
 
-// ═══════════════════════════════════════
-//  로그인 버튼
-// ═══════════════════════════════════════
-function doLoginDV()    { startPKCE(DV_SCOPE,    'dv'); }
-function doLoginGraph() { startPKCE(GRAPH_SCOPE, 'graph'); }
-
-async function handleCallback() {
-  const params   = new URLSearchParams(location.search);
-  const code     = params.get('code');
-  const stateKey = sessionStorage.getItem('pkce_state');
-  if (!code || !stateKey) return;
-
-  history.replaceState({}, '', location.pathname);
-
-  try {
-    const scope = stateKey === 'dv' ? DV_SCOPE : GRAPH_SCOPE;
-    const data  = await exchangeCode(code, scope);
-    if (data.error) throw new Error(data.error_description || data.error);
-
-    if (stateKey === 'dv') {
-      S.dvToken = data.access_token;
-      sessionStorage.setItem('cotecna_dv_token', S.dvToken);
-      log('✅ COMPASS 로그인 완료', 'ok');
-    } else {
-      S.graphToken = data.access_token;
-      sessionStorage.setItem('cotecna_graph_token', S.graphToken);
-      log('✅ SharePoint 로그인 완료', 'ok');
-    }
-    sessionStorage.removeItem('pkce_v');
-    sessionStorage.removeItem('pkce_state');
-  } catch(e) {
-    alert('로그인 실패: ' + e.message);
-  }
-  updateAuthUI();
+// ═══════════════════════════════════════════════
+//  API 키
+// ═══════════════════════════════════════════════
+function toggleApiKey() { const i=document.getElementById('apiKey'); i.type=i.type==='password'?'text':'password'; }
+function saveApiKey() {
+  const v = document.getElementById('apiKey').value.trim();
+  if (!v) return alert('API 키를 입력하세요');
+  S.apiKey = v; localStorage.setItem('cotecna_api_key', v);
+  log('✅ API 키 저장됨', 'ok');
 }
 
-function updateAuthUI() {
-  // DV
-  const dvDot    = document.getElementById('dvDot');
-  const dvStatus = document.getElementById('dvStatus');
-  if (S.dvToken) {
-    dvDot.className    = 'dot dot-ok';
-    dvStatus.textContent = '✅ 로그인 완료';
-    dvStatus.style.color = 'var(--ok)';
-    document.getElementById('dvLoginBtn').textContent = '🔄 재로그인';
-  }
-  // Graph
-  const spDot    = document.getElementById('spDot');
-  const spStatus = document.getElementById('spStatus');
-  if (S.graphToken) {
-    spDot.className    = 'dot dot-ok';
-    spStatus.textContent = '✅ 로그인 완료';
-    spStatus.style.color = 'var(--ok)';
-    document.getElementById('spLoginBtn').className = 'btn btn-primary';
-    document.getElementById('spLoginBtn').textContent = '🔄 재로그인';
-  }
-  // 리스트 조회 버튼
-  document.getElementById('fetchBtn').disabled = !(S.dvToken && S.graphToken);
+// ═══════════════════════════════════════════════
+//  PHOTO 폴더 선택
+// ═══════════════════════════════════════════════
+function onFolderSelected(input) {
+  const files = Array.from(input.files);
+  if (!files.length) return;
+  S.photoFiles = files;
+  S.photoFolderName = files[0].webkitRelativePath.split('/')[0];
+  const disp = document.getElementById('folderDisplay');
+  const nm   = document.getElementById('folderName');
+  // PHOTO 폴더 하위 IV No 폴더 목록 확인
+  const ivFolders = new Set(files.map(f => f.webkitRelativePath.split('/')[1]).filter(Boolean));
+  nm.textContent = `${S.photoFolderName}  (${ivFolders.size}개 IV 폴더 / 파일 ${files.length}개)`;
+  nm.style.color = 'var(--ok)';
+  disp.classList.add('loaded');
+  checkFetchReady();
 }
 
-// ═══════════════════════════════════════
-//  STEP 1 — API 키
-// ═══════════════════════════════════════
-function toggleApiKey(){
-  const i=document.getElementById('apiKey');
-  i.type=i.type==='password'?'text':'password';
-}
-function saveApiKey(){
-  const v=document.getElementById('apiKey').value.trim();
-  if(!v) return alert('API 키를 입력하세요');
-  S.apiKey=v;
-  localStorage.setItem('cotecna_api_key',v);
-  log('✅ API 키 저장됨','ok');
-}
-
-// ═══════════════════════════════════════
+// ═══════════════════════════════════════════════
 //  COMPASS OData
-// ═══════════════════════════════════════
+// ═══════════════════════════════════════════════
 async function dvGet(url) {
   const r = await fetch(url, {
-    headers:{ Authorization:`Bearer ${S.dvToken}`,
-      'OData-MaxVersion':'4.0','OData-Version':'4.0',
-      Accept:'application/json;odata.metadata=minimal' }
+    headers: { Authorization: `Bearer ${S.dvToken}`,
+      'OData-MaxVersion':'4.0', 'OData-Version':'4.0',
+      Accept: 'application/json;odata.metadata=minimal' }
   });
   if (!r.ok) {
-    // 토큰 만료 감지
-    if (r.status === 401) { S.dvToken=null; sessionStorage.removeItem('cotecna_dv_token'); updateAuthUI(); }
-    throw new Error(`DV ${r.status}`);
+    if (r.status === 401) { S.dvToken=null; sessionStorage.removeItem('cotecna_dv_token'); updateLoginUI(); }
+    const txt = await r.text();
+    throw new Error(`DV ${r.status}: ${txt.slice(0,150)}`);
   }
   return r.json();
 }
 
-async function fetchInspectionList() {
-  if (!S.dvToken)    { alert('COMPASS에 로그인하세요'); return; }
-  if (!S.graphToken) { alert('SharePoint에 로그인하세요'); return; }
+// ═══════════════════════════════════════════════
+//  STEP 3: 리스트 조회 (COMPASS + 로컬 폴더 매칭)
+// ═══════════════════════════════════════════════
+async function fetchList() {
+  if (!S.dvToken)           { alert('COMPASS에 로그인하세요'); return; }
+  if (!S.photoFiles.length) { alert('PHOTO 폴더를 선택하세요'); return; }
 
   const dateFrom = document.getElementById('dateFrom').value;
   const dateTo   = document.getElementById('dateTo').value;
   if (!dateFrom || !dateTo) { alert('날짜를 입력하세요'); return; }
 
+  const fetchLogEl = document.getElementById('fetchLog');
+  fetchLogEl.style.display = 'block';
+  fetchLogEl.innerHTML = '';
+
+  function flog(msg, type='') {
+    const div = document.createElement('div');
+    div.className = type ? `log-${type}` : '';
+    div.textContent = msg;
+    fetchLogEl.appendChild(div);
+    fetchLogEl.scrollTop = fetchLogEl.scrollHeight;
+  }
+
   document.getElementById('fetchBtn').disabled = true;
   document.getElementById('fetchBtn').innerHTML = '<span class="spinner"></span>조회 중...';
   document.getElementById('listArea').style.display = 'none';
-  S.inspectionList = [];
+  S.inspList = [];
 
   try {
-    log('📋 COMPASS 자주검사 대상 조회 중...', 'info');
+    flog('📋 COMPASS 자주검사 대상 조회 중...', 'info');
+
     const fromISO = dateFrom + 'T00:00:00Z';
     const toISO   = dateTo   + 'T23:59:59Z';
     const filter  = `crcf9_inspection eq true and crcf9_work_date ge ${fromISO} and crcf9_work_date le ${toISO}`;
-    const ctUrl   = `${DV_BASE}/crcf9_container_informations?$filter=${encodeURIComponent(filter)}`
-                  + `&$select=crcf9_container_informationid,crcf9_container_no,crcf9_partial_no,crcf9_work_date,_crcf9_booking_id_value,crcf9_seal_no`
-                  + `&$orderby=crcf9_work_date desc&$top=200`;
+    const url = `${DV_API}/crcf9_container_informations?$filter=${encodeURIComponent(filter)}`
+              + `&$select=crcf9_container_informationid,crcf9_container_no,crcf9_partial_no,crcf9_work_date,_crcf9_booking_id_value,crcf9_seal_no`
+              + `&$orderby=crcf9_work_date asc&$top=200`;
 
-    const ctData = await dvGet(ctUrl);
+    const ctData = await dvGet(url);
     if (!ctData.value?.length) {
-      log('ℹ️ 해당 기간 자주검사 대상 없음', 'warn');
+      flog('ℹ️ 해당 기간 자주검사 대상 없음', 'warn');
       document.getElementById('listBody').innerHTML =
-        '<tr><td colspan="7" style="text-align:center;color:var(--sub);padding:20px;">해당 기간에 자주검사 대상이 없습니다</td></tr>';
+        '<tr><td colspan="9" style="text-align:center;color:var(--sub);padding:16px;">해당 기간에 자주검사 대상이 없습니다</td></tr>';
       document.getElementById('listArea').style.display = 'block';
       return;
     }
-    log(`  CT ${ctData.value.length}건 취득`, 'info');
+    flog(`  CT ${ctData.value.length}건 취득`, 'info');
 
     // BKG 병렬 fetch
     const bkgGuids = [...new Set(ctData.value.map(c=>c._crcf9_booking_id_value).filter(Boolean))];
+    flog(`  BKG ${bkgGuids.length}건 fetch 중...`, 'info');
     const bkgMap = {};
     await Promise.all(bkgGuids.map(async guid => {
       try {
-        const d = await dvGet(`${DV_BASE}/cr49f_bookings(${guid})?$select=cr49f_bookingid,cr49f_invoice_no,cr49f_booking_no,_cr49f_region_japan_id_value,_cr49f_sale_contract_id_value`);
+        const d = await dvGet(`${DV_API}/cr49f_bookings(${guid})?$select=cr49f_bookingid,cr49f_invoice_no,cr49f_booking_no,_cr49f_region_japan_id_value,_cr49f_sale_contract_id_value`);
         bkgMap[guid] = d;
-      } catch(e){}
+      } catch(e) { flog(`  ⚠️ BKG ${guid.slice(0,8)} fetch 실패`, 'warn'); }
     }));
 
     // sale_contract → VO No
@@ -506,9 +553,9 @@ async function fetchInspectionList() {
     const scMap = {};
     await Promise.all(scGuids.map(async guid => {
       try {
-        const d = await dvGet(`${DV_BASE}/cr49f_sale_contracts(${guid})?$select=cr49f_sale_contractid,crcf9_vo_no`);
+        const d = await dvGet(`${DV_API}/cr49f_sale_contracts(${guid})?$select=cr49f_sale_contractid,crcf9_vo_no`);
         scMap[guid] = d;
-      } catch(e){}
+      } catch(e) {}
     }));
 
     // POL
@@ -516,357 +563,469 @@ async function fetchInspectionList() {
     const polMap = {};
     await Promise.all(polGuids.map(async guid => {
       try {
-        const d = await dvGet(`${DV_BASE}/cr49f_region_japans(${guid})?$select=cr49f_name`);
+        const d = await dvGet(`${DV_API}/cr49f_region_japans(${guid})?$select=cr49f_name`);
         polMap[guid] = d.cr49f_name || '—';
-      } catch(e){}
+      } catch(e) {}
     }));
 
     // booking_detail → packer
     const bkgDetailMap = {};
     await Promise.all(bkgGuids.map(async guid => {
       try {
-        const d = await dvGet(`${DV_BASE}/cr49f_purchase_details?$filter=_cr49f_booking_id_value eq ${guid}&$select=cr49f_purchase_detailid,_cr49f_purchase_contract_id_value,cr49f_packer_name&$top=5`);
+        const d = await dvGet(`${DV_API}/cr49f_purchase_details?$filter=_cr49f_booking_id_value eq ${guid}&$select=cr49f_purchase_detailid,_cr49f_purchase_contract_id_value,cr49f_packer_name&$top=3`);
         bkgDetailMap[guid] = d.value || [];
-      } catch(e){ bkgDetailMap[guid]=[]; }
+      } catch(e) { bkgDetailMap[guid] = []; }
     }));
-
-    const pcGuids = [...new Set(
-      Object.values(bkgDetailMap).flat().map(d=>d._cr49f_purchase_contract_id_value).filter(Boolean)
-    )];
+    const pcGuids = [...new Set(Object.values(bkgDetailMap).flat().map(d=>d._cr49f_purchase_contract_id_value).filter(Boolean))];
     const pcMap = {};
     await Promise.all(pcGuids.map(async guid => {
       try {
-        const d = await dvGet(`${DV_BASE}/cr49f_purchase_contracts(${guid})?$select=cr49f_packer_name`);
+        const d = await dvGet(`${DV_API}/cr49f_purchase_contracts(${guid})?$select=cr49f_packer_name`);
         pcMap[guid] = d;
-      } catch(e){}
+      } catch(e) {}
     }));
 
-    // IV 단위 그룹핑
+    // ─── IV No 단위 그룹핑 ───
     const ivMap = {};
     for (const ct of ctData.value) {
       const bkg = bkgMap[ct._crcf9_booking_id_value];
       if (!bkg) continue;
       const ivNo = bkg.cr49f_invoice_no || ct._crcf9_booking_id_value;
+
       if (!ivMap[ivNo]) {
         const sc  = scMap[bkg._cr49f_sale_contract_id_value] || {};
         const pol = polMap[bkg._cr49f_region_japan_id_value] || '—';
         const details = bkgDetailMap[ct._crcf9_booking_id_value] || [];
-        let packerName = '—';
+        let packer = '—';
         for (const det of details) {
           const pc = pcMap[det._cr49f_purchase_contract_id_value];
-          if (pc?.cr49f_packer_name){ packerName=pc.cr49f_packer_name; break; }
-          if (det.cr49f_packer_name){ packerName=det.cr49f_packer_name; break; }
+          if (pc?.cr49f_packer_name){ packer=pc.cr49f_packer_name; break; }
+          if (det.cr49f_packer_name){ packer=det.cr49f_packer_name; break; }
         }
         const rawVo   = sc.crcf9_vo_no || '';
         const voMatch = rawVo.match(/X\.(\d+\.\d+)-?P(\d+)/i);
-        const voNo    = voMatch ? `X.${voMatch[1]}` : rawVo;
+        const voNo    = voMatch ? `X.${voMatch[1]}` : (rawVo || '—');
         const partial = voMatch ? `P${voMatch[2]}` : (ct.crcf9_partial_no || '—');
-        ivMap[ivNo] = { ivNo, voNo, partial, bkgNo:bkg.cr49f_booking_no||'—',
-          packer:packerName, pol, workDate:ct.crcf9_work_date?.slice(0,10)||'—', ctList:[] };
+        ivMap[ivNo] = { ivNo, voNo, partial, bkgNo: bkg.cr49f_booking_no||'—',
+          packer, pol, workDates: [], ctList: [] };
       }
-      ivMap[ivNo].ctList.push({ ctNo:ct.crcf9_container_no||'—', seal:ct.crcf9_seal_no||'', date:ct.crcf9_work_date?.slice(0,10)||'—' });
+      const dateStr = ct.crcf9_work_date?.slice(0,10) || '';
+      if (dateStr && !ivMap[ivNo].workDates.includes(dateStr)) ivMap[ivNo].workDates.push(dateStr);
+      ivMap[ivNo].ctList.push({ ctNo: ct.crcf9_container_no||'—', seal: ct.crcf9_seal_no||'', date: dateStr });
     }
 
-    S.inspectionList = Object.values(ivMap);
-    renderInspectionTable();
-    log(`✅ ${S.inspectionList.length}件 리스트업 완료`, 'ok');
+    // 검사일 오름차순 정렬
+    const ivList = Object.values(ivMap);
+    ivList.forEach(row => row.workDates.sort());
+    ivList.sort((a,b) => (a.workDates[0]||'').localeCompare(b.workDates[0]||''));
+
+    // ─── 로컬 폴더 IV No 매칭 ───
+    const localIvSet = new Set(S.photoFiles.map(f => f.webkitRelativePath.split('/')[1]).filter(Boolean));
+    ivList.forEach(row => {
+      row.photoStatus = localIvSet.has(row.ivNo) ? '📁' : '❌';
+    });
+
+    S.inspList = ivList;
+    renderTable();
+    flog(`✅ ${ivList.length}件 리스트업 완료`, 'ok');
 
   } catch(e) {
-    log(`❌ COMPASS 조회 실패: ${e.message}`, 'err');
+    flog(`❌ 조회 실패: ${e.message}`, 'err');
+    console.error(e);
   } finally {
     document.getElementById('fetchBtn').disabled = false;
     document.getElementById('fetchBtn').textContent = '📋 리스트 조회';
   }
 }
 
-function renderInspectionTable() {
+function renderTable() {
   const tbody = document.getElementById('listBody');
   tbody.innerHTML = '';
-  for (const row of S.inspectionList) {
+  for (const row of S.inspList) {
+    const dateDisp = row.workDates.length > 1
+      ? `<span class="date-range">${row.workDates[0]}<br>~ ${row.workDates[row.workDates.length-1]}</span>`
+      : `<span>${row.workDates[0]||'—'}</span>`;
+    const pkLower = row.packer.toLowerCase();
+    const pkClass = pkLower.includes('大本')||pkLower.includes('oomoto') ? 'tag-oomoto'
+                  : pkLower.includes('兼子')||pkLower.includes('kaneko') ? 'tag-kaneko' : 'tag-other';
     const tr = document.createElement('tr');
     tr.dataset.ivno = row.ivNo;
     tr.innerHTML = `
       <td><input type="checkbox" class="row-chk" data-ivno="${row.ivNo}" onchange="onChkChange()"></td>
-      <td style="font-weight:700;color:var(--info);">${row.ivNo}</td>
-      <td><span style="font-weight:600;">${row.voNo}</span><span style="color:var(--sub);margin-left:4px;">${row.partial}</span></td>
-      <td>${row.workDate}</td>
-      <td><span class="badge" style="background:rgba(34,197,94,.12);color:#86efac;">${row.packer}</span></td>
-      <td>${row.pol}</td>
-      <td style="text-align:center;font-weight:700;">${row.ctList.length}</td>`;
+      <td>${dateDisp}</td>
+      <td class="iv-link" onclick="toggleDetail('${row.ivNo}')">${row.ivNo}</td>
+      <td style="font-weight:600;color:var(--text2);">${row.voNo}</td>
+      <td style="color:var(--sub);">${row.partial}</td>
+      <td><span class="tag ${pkClass}">${row.packer}</span></td>
+      <td style="font-size:.72rem;">${row.pol}</td>
+      <td style="text-align:center;font-weight:700;">${row.ctList.length}</td>
+      <td style="text-align:center;font-size:.9rem;">${row.photoStatus}</td>`;
     tbody.appendChild(tr);
+    // 상세 행 (접힘)
+    const detail = document.createElement('tr');
+    detail.id = `detail-${row.ivNo}`;
+    detail.style.display = 'none';
+    detail.innerHTML = `<td colspan="9" style="background:var(--surface2);padding:6px 12px;">
+      <div style="font-size:.7rem;color:var(--sub);margin-bottom:4px;">CT 목록 (${row.ctList.length}본)</div>
+      <div style="display:flex;flex-wrap:wrap;gap:4px;">
+        ${row.ctList.map(c=>`<span style="font-size:.7rem;background:var(--surface3);border:1px solid var(--border);border-radius:4px;padding:2px 7px;">${c.ctNo} ${c.seal?`<span style='color:var(--sub)'>${c.seal}</span>`:''}</span>`).join('')}
+      </div></td>`;
+    tbody.appendChild(detail);
   }
-  document.getElementById('listCount').textContent = `${S.inspectionList.length}件`;
+  document.getElementById('listCount').textContent = `${S.inspList.length}件`;
   document.getElementById('listArea').style.display = 'block';
+}
+
+function toggleDetail(ivNo) {
+  const el = document.getElementById(`detail-${ivNo}`);
+  if (el) el.style.display = el.style.display === 'none' ? '' : 'none';
 }
 
 function selectAll(v){ document.querySelectorAll('.row-chk').forEach(c=>c.checked=v); onChkChange(); }
 function onChkChange(){
-  S.selectedRows=[...document.querySelectorAll('.row-chk:checked')].map(c=>c.dataset.ivno);
-  const btn=document.getElementById('proceedBtn');
-  btn.disabled=!S.selectedRows.length;
-  btn.textContent=S.selectedRows.length?`▶ 선택 ${S.selectedRows.length}건 리포트 생성 시작`:'▶ 선택 건 리포트 생성 시작';
+  S.selectedIvNos = [...document.querySelectorAll('.row-chk:checked')].map(c=>c.dataset.ivno);
+  const btn = document.getElementById('proceedBtn');
+  btn.disabled = !S.selectedIvNos.length;
+  btn.textContent = S.selectedIvNos.length ? `▶ 선택 ${S.selectedIvNos.length}건 리포트 생성 시작` : '▶ 선택 건 리포트 생성 시작';
 }
 
-// ═══════════════════════════════════════
-//  처리 진행
-// ═══════════════════════════════════════
+// ═══════════════════════════════════════════════
+//  STEP 4: 처리 진행
+// ═══════════════════════════════════════════════
 async function proceedSelected() {
-  if (!S.selectedRows.length) return;
+  if (!S.selectedIvNos.length) return;
   S.apiKey = document.getElementById('apiKey').value.trim();
-  if (!S.apiKey)      return alert('Anthropic API 키를 입력하세요');
-  if (!S.graphToken)  return alert('SharePoint 로그인이 필요합니다');
+  if (!S.apiKey) return alert('Anthropic API 키를 입력하세요');
 
   document.getElementById('proceedBtn').disabled = true;
   document.getElementById('processSection').style.display = 'block';
-  document.getElementById('resultSection').style.display  = 'none';
+  document.getElementById('resultSection').style.display = 'none';
   document.getElementById('processSection').scrollIntoView({behavior:'smooth'});
 
   const allDownloads = [];
 
-  for (const ivNo of S.selectedRows) {
-    const row = S.inspectionList.find(r=>r.ivNo===ivNo);
+  for (const ivNo of S.selectedIvNos) {
+    const row = S.inspList.find(r=>r.ivNo===ivNo);
     if (!row) continue;
-    document.getElementById('curJobInfo').style.display = 'block';
-    document.getElementById('curJobTitle').textContent  = `${row.ivNo}  (${row.voNo}-${row.partial})`;
-    document.getElementById('curJobSub').textContent    = `${row.packer}  /  ${row.pol}  /  CT ${row.ctList.length}본`;
+    document.getElementById('jobInfo').style.display = 'block';
+    document.getElementById('jobTitle').textContent = `${row.ivNo}  (${row.voNo} ${row.partial})`;
+    document.getElementById('jobSub').textContent   = `${row.packer}  /  ${row.pol}  /  CT ${row.ctList.length}본  /  검사일: ${row.workDates.join(' ~ ')}`;
     clearLog();
-    resetState(row);
+    resetJobState(row);
+
     try {
+      // PHASE 1: 로컬 폴더에서 사진 로드
       setPhase(1);
-      setProgress(5,'SharePoint 사진 취득 중...');
-      await loadPhotosFromSharePoint(row);
+      setProgress(5, '사진 로드 중...');
+      await loadPhotosLocal(row);
+
+      // PHASE 2: AI 분류
       setPhase(2);
-      setProgress(45,'AI 분류 중...');
+      setProgress(45, 'AI 분류 중...');
       S.logoB64 = DEFAULT_LOGO_B64;
       await classifyAll();
+
+      // PHASE 3: 리포트 생성
       setPhase(3);
-      setProgress(88,'VAN FORM 생성 중...');
+      setProgress(88, 'VAN FORM 생성 중...');
       const vanDocx    = buildVanDocx();
-      setProgress(95,'BALING FORM 생성 중...');
+      setProgress(95, 'BALING FORM 생성 중...');
       const balingDocx = buildBalingDocx();
-      setProgress(100,`✅ ${ivNo} 완료`);
+
+      setProgress(100, `✅ ${ivNo} 완료`);
       setAllDone();
-      log(`🎉 ${ivNo} 리포트 생성 완료`,'ok');
-      const voSafe=(S.voNo||ivNo).replace(/[^a-zA-Z0-9._-]/g,'_');
+      log(`🎉 ${ivNo} 리포트 생성 완료`, 'ok');
+
+      const voSafe = (S.voNo||ivNo).replace(/[^a-zA-Z0-9._-]/g,'_');
       allDownloads.push(
         {buf:vanDocx,    name:`${voSafe}_VAN.docx`,    icon:'📦', label:`${ivNo} VAN`},
         {buf:balingDocx, name:`${voSafe}_BALING.docx`, icon:'📋', label:`${ivNo} BALING`},
       );
-    } catch(e){
-      log(`❌ ${ivNo} 실패: ${e.message}`,'err');
+    } catch(e) {
+      log(`❌ ${ivNo} 실패: ${e.message}`, 'err');
       console.error(e);
     }
   }
+
   showResults(allDownloads);
   document.getElementById('proceedBtn').disabled = false;
 }
 
-function resetState(row) {
+function resetJobState(row) {
   S.mode='folder'; S.groups={};
-  S.containers = row.ctList.map((ct,i)=>({no:i+1,container:ct.ctNo,seal:ct.seal}));
+  S.containers = row.ctList.map((ct,i)=>({no:i+1, container:ct.ctNo, seal:ct.seal}));
   S.vanPhotos={}; S.baraPhotos={}; S.pressPhotos={};
   S.classifiedVan={}; S.classifiedBaling={goods_yard:null,inspector:null,open_bales:[],rebales:[]};
   S.logoB64=null;
-  S.voNo = row.voNo&&row.partial ? `${row.voNo}-${row.partial}` : row.voNo||'';
-  S.reportDate = row.workDate ? (()=>{
-    const d=new Date(row.workDate);
+  S.voNo = (row.voNo && row.voNo!=='—' && row.partial && row.partial!=='—')
+    ? `${row.voNo}-${row.partial}` : (row.voNo||'');
+  // 검사일: 복수인 경우 최초일 기준
+  const firstDate = row.workDates[0] || '';
+  S.reportDate = firstDate ? (()=>{
+    const d=new Date(firstDate);
     const m=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
     return `${m[d.getMonth()]}. ${d.getDate()}, ${d.getFullYear()}`;
   })() : '';
-  S.inspPlace=row.pol||''; S.baleCount=0;
+  S.inspPlace = row.pol||''; S.baleCount=0;
   S.rootName=row.ivNo; S.fileList=[];
 }
 
-// ═══════════════════════════════════════
-//  SharePoint 사진 취득
-// ═══════════════════════════════════════
-async function graphGet(url) {
-  const r = await fetch(url,{headers:{Authorization:`Bearer ${S.graphToken}`}});
-  if (!r.ok) {
-    if (r.status===401){ S.graphToken=null; sessionStorage.removeItem('cotecna_graph_token'); updateAuthUI(); }
-    throw new Error(`Graph ${r.status}`);
+// ═══════════════════════════════════════════════
+//  로컬 폴더에서 사진 로드
+//  구조: PHOTO/{IV No}/{CT번호}/{사진들}
+// ═══════════════════════════════════════════════
+async function loadPhotosLocal(row) {
+  const ivNo    = row.ivNo;
+  const imgExts = /\.(jpe?g|png)$/i;
+
+  // IV No 폴더 하위 파일만 추출
+  const ivFiles = S.photoFiles.filter(f => {
+    const parts = f.webkitRelativePath.split('/');
+    return parts[1] === ivNo;
+  });
+
+  if (!ivFiles.length) {
+    log(`  ⚠️ 로컬 폴더에 ${ivNo} 없음 — 빈 리포트로 진행`, 'warn');
+    return;
   }
-  return r.json();
-}
 
-async function loadPhotosFromSharePoint(row) {
-  const ivNo = row.ivNo;
-  log(`📂 SharePoint PHOTO/${ivNo} 탐색 중...`,'info');
-  const children = await graphGet(`https://graph.microsoft.com/v1.0/drives/${SP_DRIVE_ID}/items/${SP_PHOTO_ID}/children`);
-  const ivFolder  = children.value?.find(f=>f.name===ivNo&&f.folder);
-  if (!ivFolder) { log(`  ⚠️ ${ivNo} 폴더 없음 — 빈 리포트로 진행`,'warn'); return; }
-  log(`  ✅ ${ivNo} 폴더 발견`,'ok');
-
-  const ivChildren = await graphGet(`https://graph.microsoft.com/v1.0/drives/${SP_DRIVE_ID}/items/${ivFolder.id}/children`);
-  const ctFolders  = ivChildren.value?.filter(f=>f.folder&&!f.name.startsWith('_')&&f.name!=='搬入票') || [];
-  log(`  CT 폴더 ${ctFolders.length}개: ${ctFolders.map(f=>f.name).join(', ')}`,'info');
-  if (!ctFolders.length) { log('  ⚠️ CT 폴더 없음','warn'); return; }
-
-  let ctIdx = 0;
-  for (const ctFolder of ctFolders.sort((a,b)=>a.name.localeCompare(b.name))) {
-    let cont = S.containers.find(c=>c.container===ctFolder.name);
-    if (!cont) { cont=S.containers[ctIdx]; ctIdx++; }
-    if (!cont) continue;
-    const no = cont.no;
-    log(`  📁 ${ctFolder.name} → CN${no} 로드 중...`,'info');
-
-    const ctFiles  = await graphGet(`https://graph.microsoft.com/v1.0/drives/${SP_DRIVE_ID}/items/${ctFolder.id}/children`);
-    const imgFiles = ctFiles.value?.filter(f=>f.file&&f.name.match(/\.(jpe?g|png)$/i)) || [];
-    if (!imgFiles.length){ log(`    ⚠️ 사진 없음`,'warn'); continue; }
-
-    S.vanPhotos[no]={};
-    const sorted = imgFiles.sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true}));
-    for (let i=0;i<sorted.length;i+=5){
-      const batch=sorted.slice(i,i+5);
-      await Promise.all(batch.map(async(file,bIdx)=>{
-        try{
-          const seq=i+bIdx+1;
-          const dlUrl=file['@microsoft.graph.downloadUrl'];
-          const buf=await fetch(dlUrl).then(r=>r.arrayBuffer());
-          S.vanPhotos[no][seq]=ab2b64(buf);
-          S.vanPhotos[no][`_name_${seq}`]=file.name;
-        }catch(e){ log(`    ⚠️ ${file.name} 실패`,'warn'); }
-      }));
-      setProgress(5+Math.round((Object.keys(S.vanPhotos).length/ctFolders.length)*35),`사진 로드 중... ${ctFolder.name}`);
+  // CT 폴더 목록 (하위 직속 폴더 = index 2, 파일은 직속이 아닌 것)
+  // 경로: PHOTO/NA2604-05/CMAU3896019/4 (1).JPG → parts[2]=CT폴더
+  const ctFolderSet = new Set();
+  for (const f of ivFiles) {
+    const parts = f.webkitRelativePath.split('/');
+    if (parts.length >= 4 && !parts[2].startsWith('_') && parts[2] !== '搬入票') {
+      ctFolderSet.add(parts[2]);
     }
-    S.groups[no]=sorted;
-    log(`    ✅ CN${no}: ${Object.keys(S.vanPhotos[no]).filter(k=>!k.startsWith('_')).length}장`,'ok');
   }
-  log(`✅ 사진 로드 완료 (${Object.keys(S.vanPhotos).length}개 CT)`,'ok');
-  setProgress(40,'사진 로드 완료');
+
+  const ctFolders = [...ctFolderSet].sort();
+  log(`  CT 폴더 ${ctFolders.length}개: ${ctFolders.join(', ')}`, 'info');
+
+  if (!ctFolders.length) {
+    log('  ⚠️ CT 폴더 없음 — 빈 리포트로 진행', 'warn');
+    return;
+  }
+
+  // CT 폴더 ↔ containers 매핑
+  let ctIdx = 0;
+  for (const ctFolder of ctFolders) {
+    let cont = S.containers.find(c => c.container === ctFolder);
+    if (!cont) { cont = S.containers[ctIdx]; ctIdx++; }
+    if (!cont) continue;
+
+    const no = cont.no;
+    const imgs = ivFiles.filter(f => {
+      const parts = f.webkitRelativePath.split('/');
+      return parts[2] === ctFolder && imgExts.test(parts[parts.length-1]);
+    }).sort((a,b) => a.name.localeCompare(b.name, undefined, {numeric:true}));
+
+    if (!imgs.length) { log(`    ⚠️ ${ctFolder} 사진 없음`, 'warn'); continue; }
+
+    S.vanPhotos[no] = {};
+    S.groups[no] = imgs;
+
+    for (let i=0; i<imgs.length; i+=5) {
+      const batch = imgs.slice(i,i+5);
+      await Promise.all(batch.map(async (f, bi) => {
+        try {
+          const seq = i+bi+1;
+          const b64 = await fileToB64(f);
+          S.vanPhotos[no][seq] = b64;
+          S.vanPhotos[no][`_name_${seq}`] = f.name;
+        } catch(e) { log(`    ⚠️ ${f.name} 로드 실패`, 'warn'); }
+      }));
+      setProgress(5 + Math.round(((ctIdx||1)/ctFolders.length)*35), `사진 로드: ${ctFolder}`);
+    }
+    log(`    ✅ CN${no} (${ctFolder}): ${Object.keys(S.vanPhotos[no]).filter(k=>!k.startsWith('_')).length}장`, 'ok');
+  }
+
+  log(`✅ 사진 로드 완료 (${Object.keys(S.vanPhotos).length}개 CT)`, 'ok');
+  setProgress(40, '사진 로드 완료');
 }
 
-// ═══════════════════════════════════════
+function fileToB64(file) {
+  return new Promise((res,rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result.split(',')[1]);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+
+// ═══════════════════════════════════════════════
 //  AI 분류 (v5.3 재활용)
-// ═══════════════════════════════════════
+// ═══════════════════════════════════════════════
 async function classifyAll() {
   S.classifiedVan={}; S.classifiedBaling={goods_yard:null,inspector:null,open_bales:[],rebales:[]};
-  const contNos=Object.keys(S.vanPhotos).map(Number).sort((a,b)=>a-b);
-  if(!contNos.length){ log('⚠️ 사진 없음 — 빈 리포트 생성','warn'); for(const c of S.containers) S.classifiedVan[c.no]={}; return; }
-  const first=contNos[0], firstPhotos=S.vanPhotos[first];
-  const seqKeys=Object.keys(firstPhotos).filter(k=>!k.startsWith('_')).map(Number).sort((a,b)=>a-b);
-  log(`  🤖 CN1 AI 분류 중 (${seqKeys.length}장)...`,'info');
-  const results=await Promise.all(seqKeys.map(async seq=>{
-    const label=await classifyOne(firstPhotos[seq],VAN_PROMPT).catch(()=>'unknown');
-    log(`    seq${seq} [${firstPhotos[`_name_${seq}`]||''}] → ${label}`,'info');
-    return{seq,label};
+  const contNos = Object.keys(S.vanPhotos).map(Number).sort((a,b)=>a-b);
+  if (!contNos.length) {
+    log('⚠️ 사진 없음 — 빈 리포트 생성', 'warn');
+    for (const c of S.containers) S.classifiedVan[c.no] = {};
+    return;
+  }
+  const first=contNos[0], fp=S.vanPhotos[first];
+  const seqKeys=Object.keys(fp).filter(k=>!k.startsWith('_')).map(Number).sort((a,b)=>a-b);
+  log(`  🤖 CN1 AI 분류 중 (${seqKeys.length}장)...`, 'info');
+
+  const results = await Promise.all(seqKeys.map(async seq => {
+    const label = await classifyOne(fp[seq], VAN_PROMPT).catch(()=>'unknown');
+    log(`    seq${seq} [${fp[`_name_${seq}`]||''}] → ${label}`, 'info');
+    return {seq, label};
   }));
-  const slotCandidates={};
-  for(const{seq,label}of results) if(SLOT_ORDER.includes(label)){ if(!slotCandidates[label]) slotCandidates[label]=[]; slotCandidates[label].push(seq); }
-  let slotMap={};
-  // cotecna_seal
-  if(slotCandidates['cotecna_seal']?.length>1){
-    const checks=await Promise.all(slotCandidates['cotecna_seal'].map(async seq=>{
-      try{ const a=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:firstPhotos[seq]}},{type:'text',text:`この写真を見て「yes」か「no」だけ答えてください。条件：「COTECNA」と「JP-」両方確認できる場合「yes」。`}],10); return{seq,ok:a.toLowerCase().includes('yes')}; }catch(e){ return{seq,ok:false}; }
+
+  const cands = {};
+  for (const {seq,label} of results) if (SLOT_ORDER.includes(label)) { if (!cands[label]) cands[label]=[]; cands[label].push(seq); }
+  const slotMap = {};
+
+  // cotecna_seal 중복 처리
+  if (cands['cotecna_seal']?.length > 1) {
+    const checks = await Promise.all(cands['cotecna_seal'].map(async seq => {
+      try { const a=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:fp[seq]}},{type:'text',text:`「COTECNA」と「JP-」両方確認できる場合「yes」、そうでなければ「no」。`}],10);
+        return {seq, ok:a.toLowerCase().includes('yes')}; }
+      catch(e){ return {seq,ok:false}; }
     }));
-    slotMap['cotecna_seal']=(checks.find(r=>r.ok)??checks[0]).seq;
-  } else if(slotCandidates['cotecna_seal']?.length===1) slotMap['cotecna_seal']=slotCandidates['cotecna_seal'][0];
-  // right_door
-  if(slotCandidates['right_door']?.length>1){
-    const checks=await Promise.all(slotCandidates['right_door'].map(async seq=>{
-      try{ const a=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:firstPhotos[seq]}},{type:'text',text:`左側に廃紙ベールがあり右側にTARE・MAX.GROSSなど重量表記が見える場合「yes」。`}],10); return{seq,ok:a.toLowerCase().includes('yes')}; }catch(e){ return{seq,ok:false}; }
+    slotMap['cotecna_seal'] = (checks.find(r=>r.ok)??checks[0]).seq;
+  } else if (cands['cotecna_seal']?.length===1) slotMap['cotecna_seal']=cands['cotecna_seal'][0];
+
+  // right_door 중복 처리
+  if (cands['right_door']?.length > 1) {
+    const checks = await Promise.all(cands['right_door'].map(async seq => {
+      try { const a=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:fp[seq]}},{type:'text',text:`左側に廃紙ベールがあり右側に重量表記が見える場合「yes」。`}],10);
+        return {seq,ok:a.toLowerCase().includes('yes')}; }
+      catch(e){ return {seq,ok:false}; }
     }));
-    slotMap['right_door']=(checks.find(r=>r.ok)??checks[0]).seq;
-  } else if(slotCandidates['right_door']?.length===1) slotMap['right_door']=slotCandidates['right_door'][0];
-  // full/half
-  const allInternal=[...(slotCandidates['full']||[]),...(slotCandidates['half']||[])].sort((a,b)=>a-b);
-  if(allInternal.length>=2){
-    const scores=await Promise.all(allInternal.map(async seq=>{ try{ const a=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:firstPhotos[seq]}},{type:'text',text:`積載量を1〜10で評価。数字のみ。`}],5); return{seq,score:parseInt(a)||0}; }catch(e){ return{seq,score:0}; } }));
+    slotMap['right_door'] = (checks.find(r=>r.ok)??checks[0]).seq;
+  } else if (cands['right_door']?.length===1) slotMap['right_door']=cands['right_door'][0];
+
+  // full/half 점수 비교
+  const allInt = [...(cands['full']||[]),...(cands['half']||[])].sort((a,b)=>a-b);
+  if (allInt.length >= 2) {
+    const scores = await Promise.all(allInt.map(async seq => {
+      try { const a=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:fp[seq]}},{type:'text',text:`積載量を1〜10で評価。数字のみ。`}],5);
+        return {seq,score:parseInt(a)||0}; }
+      catch(e){ return {seq,score:0}; }
+    }));
     scores.sort((a,b)=>b.score-a.score);
-    slotCandidates['full']=[scores[0].seq];
-    slotCandidates['half']=scores[1]?[scores[1].seq]:[];
-  } else if(allInternal.length===1) slotCandidates['full']=allInternal;
-  for(const slot of SLOT_ORDER){ if(slot==='cotecna_seal'||slot==='right_door') continue; if(slotCandidates[slot]?.length&&!slotMap[slot]) slotMap[slot]=slotCandidates[slot][0]; }
-  log(`  ✅ 패턴: ${JSON.stringify(slotMap)}`,'ok');
-  showClassifyPreview(firstPhotos,slotMap);
-  for(const no of contNos){ S.classifiedVan[no]={}; const p=S.vanPhotos[no]||{}; for(const[slot,seq]of Object.entries(slotMap)) if(p[seq]) S.classifiedVan[no][slot]=p[seq]; }
-  // OCR
-  const needsCT=S.containers.some(c=>!c.container||c.container==='—'||c.container.match(/^\d+$/));
-  const needsSeal=S.containers.some(c=>!c.seal);
-  if((needsCT&&slotMap['right_door'])||(needsSeal&&slotMap['cotecna_seal'])){
-    log('  🔍 OCR 중...','info');
-    await Promise.all(contNos.map(async no=>{
-      const cont=S.containers.find(c=>c.no===no); if(!cont) return; const tasks=[];
-      if(needsCT&&S.classifiedVan[no]?.right_door) tasks.push(callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:S.classifiedVan[no].right_door}},{type:'text',text:`コンテナ番号（英字4文字+数字7桁）を読み取って番号だけ答えてください。`}],30).then(v=>{ const m=v.trim().match(/[A-Z]{4}\d{7}/i); if(m){ cont.container=m[0].toUpperCase(); log(`    CN${no}: CT → ${cont.container}`,'ok'); } }).catch(()=>{}));
-      if(needsSeal&&S.classifiedVan[no]?.cotecna_seal) tasks.push(callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:S.classifiedVan[no].cotecna_seal}},{type:'text',text:`シールの「JP-XXXXXXX」形式で番号のみ答えてください。`}],20).then(v=>{ const m=v.trim().match(/JP-?\d{4,8}/i); if(m){ cont.seal=m[0].toUpperCase().replace(/^JP([^-])/,'JP-$1'); log(`    CN${no}: Seal → ${cont.seal}`,'ok'); } }).catch(()=>{}));
+    cands['full']=[scores[0].seq]; cands['half']=scores[1]?[scores[1].seq]:[];
+    log(`  full=seq${scores[0].seq}(${scores[0].score}点) half=${scores[1]?`seq${scores[1].seq}(${scores[1].score}点)`:'なし'}`, 'info');
+  } else if (allInt.length===1) cands['full']=allInt;
+
+  for (const slot of SLOT_ORDER) {
+    if (slot==='cotecna_seal'||slot==='right_door') continue;
+    if (cands[slot]?.length && !slotMap[slot]) slotMap[slot]=cands[slot][0];
+  }
+
+  const missing = SLOT_ORDER.filter(s=>!slotMap[s]);
+  if (missing.length) log(`  ⚠️ 미분류: ${missing.join(', ')}`, 'warn');
+  log(`  ✅ 패턴: ${JSON.stringify(slotMap)}`, 'ok');
+  showClassifyPreview(fp, slotMap);
+
+  // 전체 CT에 패턴 적용
+  for (const no of contNos) {
+    S.classifiedVan[no]={};
+    const p=S.vanPhotos[no]||{};
+    for (const [slot,seq] of Object.entries(slotMap)) if(p[seq]) S.classifiedVan[no][slot]=p[seq];
+  }
+
+  // OCR 보완
+  const needsCT   = S.containers.some(c=>!c.container||c.container==='—'||c.container.match(/^\d+$/));
+  const needsSeal = S.containers.some(c=>!c.seal);
+  if ((needsCT&&slotMap['right_door'])||(needsSeal&&slotMap['cotecna_seal'])) {
+    log('  🔍 OCR 중...', 'info');
+    await Promise.all(contNos.map(async no => {
+      const cont=S.containers.find(c=>c.no===no); if(!cont) return;
+      const tasks=[];
+      if (needsCT && S.classifiedVan[no]?.right_door)
+        tasks.push(callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:S.classifiedVan[no].right_door}},{type:'text',text:`コンテナ番号（英字4文字+数字7桁）を番号のみ答えてください。`}],30)
+          .then(v=>{ const m=v.trim().match(/[A-Z]{4}\d{7}/i); if(m){cont.container=m[0].toUpperCase(); log(`    CN${no}: CT → ${cont.container}`,'ok');} }).catch(()=>{}));
+      if (needsSeal && S.classifiedVan[no]?.cotecna_seal)
+        tasks.push(callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:S.classifiedVan[no].cotecna_seal}},{type:'text',text:`「JP-XXXXXXX」形式で番号のみ。`}],20)
+          .then(v=>{ const m=v.trim().match(/JP-?\d{4,8}/i); if(m){cont.seal=m[0].toUpperCase().replace(/^JP([^-])/,'JP-$1'); log(`    CN${no}: Seal → ${cont.seal}`,'ok');} }).catch(()=>{}));
       await Promise.all(tasks);
     }));
   }
-  if(slotMap['inspector']) S.classifiedBaling.inspector=firstPhotos[slotMap['inspector']];
-  if(slotMap['full'])      S.classifiedBaling.goods_yard=firstPhotos[slotMap['full']];
-  setProgress(80,`AI 분류 완료`);
-  log(`✅ AI 분류 완료 (${contNos.length}CT)`,'ok');
+
+  if (slotMap['inspector']) S.classifiedBaling.inspector = fp[slotMap['inspector']];
+  if (slotMap['full'])      S.classifiedBaling.goods_yard = fp[slotMap['full']];
+  setProgress(80, `AI 분류 완료 (${contNos.length}CT)`);
+  log(`✅ AI 분류 완료 (${contNos.length}CT)`, 'ok');
 }
 
-// ═══════════════════════════════════════
-//  API 호출 (v5.3 재활용)
-// ═══════════════════════════════════════
-async function callAI(content,maxTokens=20,_retry=0){
-  const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':S.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:maxTokens,messages:[{role:'user',content}]})});
-  if(r.status===429&&_retry<4){ await new Promise(res=>setTimeout(res,5000*Math.pow(2,_retry))); return callAI(content,maxTokens,_retry+1); }
-  if(!r.ok) throw new Error(`API ${r.status}`);
+// ═══════════════════════════════════════════════
+//  AI API (v5.3 재활용)
+// ═══════════════════════════════════════════════
+async function callAI(content, maxTokens=20, _retry=0) {
+  const r = await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':S.apiKey,
+      'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:maxTokens,messages:[{role:'user',content}]}),
+  });
+  if (r.status===429&&_retry<4){ await new Promise(res=>setTimeout(res,5000*Math.pow(2,_retry))); return callAI(content,maxTokens,_retry+1); }
+  if (!r.ok) throw new Error(`API ${r.status}`);
   const d=await r.json(); return d.content?.[0]?.text?.trim()||'';
 }
 async function classifyOne(b64,prompt){ return callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:prompt}],20); }
 
-// ═══════════════════════════════════════
+// ═══════════════════════════════════════════════
 //  Word 생성 (v5.3 재활용)
-// ═══════════════════════════════════════
+// ═══════════════════════════════════════════════
 function xmlEsc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function imgXml(rid,pid){ return `<w:drawing><wp:inline><wp:extent cx="${IMG_CX}" cy="${IMG_CY}"/><wp:effectExtent l="0" t="0" r="0" b="0"/><wp:docPr id="${pid}" name="img${pid}"/><wp:cNvGraphicFramePr><a:graphicFrameLocks noChangeAspect="1"/></wp:cNvGraphicFramePr><a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic><pic:nvPicPr><pic:cNvPr id="0" name="img${pid}"/><pic:cNvPicPr><a:picLocks noChangeAspect="1"/></pic:cNvPicPr></pic:nvPicPr><pic:blipFill><a:blip r:embed="${rid}"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${IMG_CX}" cy="${IMG_CY}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing>`; }
-function cellXml(text,b64,rid,pid){ const img=b64&&rid?`<w:p><w:r><w:rPr/>${imgXml(rid,pid)}</w:r></w:p>`:`<w:p/>`; const cap=`<w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:sz w:val="14"/><w:b/></w:rPr><w:t>${xmlEsc(text)}</w:t></w:r></w:p>`; return `<w:tc><w:tcPr><w:tcW w:w="5316" w:type="dxa"/></w:tcPr>${img}${cap}</w:tc>`; }
+function imgXml(rid,pid){return `<w:drawing><wp:inline><wp:extent cx="${IMG_CX}" cy="${IMG_CY}"/><wp:effectExtent l="0" t="0" r="0" b="0"/><wp:docPr id="${pid}" name="img${pid}"/><wp:cNvGraphicFramePr><a:graphicFrameLocks noChangeAspect="1"/></wp:cNvGraphicFramePr><a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic><pic:nvPicPr><pic:cNvPr id="0" name="img${pid}"/><pic:cNvPicPr><a:picLocks noChangeAspect="1"/></pic:cNvPicPr></pic:nvPicPr><pic:blipFill><a:blip r:embed="${rid}"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${IMG_CX}" cy="${IMG_CY}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing>`;}
+function cellXml(text,b64,rid,pid){const img=b64&&rid?`<w:p><w:r><w:rPr/>${imgXml(rid,pid)}</w:r></w:p>`:`<w:p/>`;const cap=`<w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:sz w:val="14"/><w:b/></w:rPr><w:t>${xmlEsc(text)}</w:t></w:r></w:p>`;return `<w:tc><w:tcPr><w:tcW w:w="5316" w:type="dxa"/></w:tcPr>${img}${cap}</w:tc>`;}
 const SECT_PR=`<w:sectPr><w:headerReference w:type="default" r:id="rId3"/><w:footerReference w:type="default" r:id="rId4"/><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="567" w:right="720" w:bottom="340" w:left="720" w:header="360" w:footer="280"/></w:sectPr>`;
 function buildVanDocx(){
-  const imageRels={};let ridCounter=10,pidCounter=100,docXml='';
-  const contNos=S.containers.map(c=>c.no).filter(n=>S.classifiedVan[n]);
-  for(let idx=0;idx<contNos.length;idx++){
-    const no=contNos[idx],cont=S.containers.find(c=>c.no===no),classified=S.classifiedVan[no]||{},isLast=idx===contNos.length-1;
-    const hdrRow=`<w:tr><w:tc><w:tcPr><w:tcW w:w="5316" w:type="dxa"/></w:tcPr><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:sz w:val="20"/><w:b/></w:rPr><w:t>CONTAINER NO: ${xmlEsc(cont?.container||'')}</w:t></w:r></w:p></w:tc><w:tc><w:tcPr><w:tcW w:w="5316" w:type="dxa"/></w:tcPr><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:sz w:val="20"/><w:b/></w:rPr><w:t>CONTAINER SEAL NO: ${xmlEsc(cont?.seal||'')}</w:t></w:r></w:p></w:tc></w:tr>`;
-    let rowsXml=hdrRow;
+  const imageRels={};let rc=10,pc=100,xml='';
+  const nos=S.containers.map(c=>c.no).filter(n=>S.classifiedVan[n]);
+  for(let i=0;i<nos.length;i++){
+    const no=nos[i],cont=S.containers.find(c=>c.no===no),cl=S.classifiedVan[no]||{},last=i===nos.length-1;
+    const hdr=`<w:tr><w:tc><w:tcPr><w:tcW w:w="5316" w:type="dxa"/></w:tcPr><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:sz w:val="20"/><w:b/></w:rPr><w:t>CONTAINER NO: ${xmlEsc(cont?.container||'')}</w:t></w:r></w:p></w:tc><w:tc><w:tcPr><w:tcW w:w="5316" w:type="dxa"/></w:tcPr><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:sz w:val="20"/><w:b/></w:rPr><w:t>CONTAINER SEAL NO: ${xmlEsc(cont?.seal||'')}</w:t></w:r></w:p></w:tc></w:tr>`;
+    let rows=hdr;
     for(const[s1,s2]of[['empty','half'],['full','right_door'],['inspector','cotecna_seal']]){
-      const b1=classified[s1],b2=classified[s2];
-      const rid1=b1?`rId${ridCounter++}`:null,rid2=b2?`rId${ridCounter++}`:null;
-      if(b1&&rid1)imageRels[rid1]={name:`van_${no}_${s1}.jpg`,b64:b1};
-      if(b2&&rid2)imageRels[rid2]={name:`van_${no}_${s2}.jpg`,b64:b2};
-      rowsXml+=`<w:tr>${cellXml(SLOT_CAPTIONS[s1],b1,rid1,pidCounter++)}${cellXml(SLOT_CAPTIONS[s2],b2,rid2,pidCounter++)}</w:tr>`;
+      const b1=cl[s1],b2=cl[s2],r1=b1?`rId${rc++}`:null,r2=b2?`rId${rc++}`:null;
+      if(b1&&r1)imageRels[r1]={name:`van_${no}_${s1}.jpg`,b64:b1};
+      if(b2&&r2)imageRels[r2]={name:`van_${no}_${s2}.jpg`,b64:b2};
+      rows+=`<w:tr>${cellXml(SLOT_CAPTIONS[s1],b1,r1,pc++)}${cellXml(SLOT_CAPTIONS[s2],b2,r2,pc++)}</w:tr>`;
     }
-    const tbl=`<w:tbl><w:tblPr><w:tblW w:w="10632" w:type="dxa"/><w:tblBorders><w:top w:val="single" w:sz="4" w:color="000000"/><w:left w:val="single" w:sz="4" w:color="000000"/><w:bottom w:val="single" w:sz="4" w:color="000000"/><w:right w:val="single" w:sz="4" w:color="000000"/><w:insideH w:val="single" w:sz="4" w:color="000000"/><w:insideV w:val="single" w:sz="4" w:color="000000"/></w:tblBorders></w:tblPr>${rowsXml}</w:tbl>`;
-    docXml+=tbl; if(!isLast) docXml+=`<w:p><w:pPr><w:pageBreakBefore/></w:pPr></w:p>`;
+    xml+=`<w:tbl><w:tblPr><w:tblW w:w="10632" w:type="dxa"/><w:tblBorders><w:top w:val="single" w:sz="4" w:color="000000"/><w:left w:val="single" w:sz="4" w:color="000000"/><w:bottom w:val="single" w:sz="4" w:color="000000"/><w:right w:val="single" w:sz="4" w:color="000000"/><w:insideH w:val="single" w:sz="4" w:color="000000"/><w:insideV w:val="single" w:sz="4" w:color="000000"/></w:tblBorders></w:tblPr>${rows}</w:tbl>`;
+    if(!last) xml+=`<w:p><w:pPr><w:pageBreakBefore/></w:pPr></w:p>`;
   }
-  return buildDocxZip(docXml,imageRels,'van');
+  return buildDocxZip(xml,imageRels,'van');
 }
 function buildBalingDocx(){
-  const imageRels={};let ridCounter=10,pidCounter=200,docXml='';
-  function addRow(c1,b1,c2,b2){ const r1=b1?`rId${ridCounter++}`:null,r2=b2?`rId${ridCounter++}`:null; if(b1&&r1)imageRels[r1]={name:`baling_${ridCounter}_l.jpg`,b64:b1}; if(b2&&r2)imageRels[r2]={name:`baling_${ridCounter}_r.jpg`,b64:b2}; docXml+=`<w:tr>${cellXml(c1,b1,r1,pidCounter++)}${cellXml(c2,b2,r2,pidCounter++)}</w:tr>`; }
+  const imageRels={};let rc=10,pc=200,xml='';
+  const addRow=(c1,b1,c2,b2)=>{const r1=b1?`rId${rc++}`:null,r2=b2?`rId${rc++}`:null;if(b1&&r1)imageRels[r1]={name:`bl_${rc}_l.jpg`,b64:b1};if(b2&&r2)imageRels[r2]={name:`bl_${rc}_r.jpg`,b64:b2};xml+=`<w:tr>${cellXml(c1,b1,r1,pc++)}${cellXml(c2,b2,r2,pc++)}</w:tr>`;};
   const b=S.classifiedBaling;
-  docXml+=`<w:tbl><w:tblPr><w:tblW w:w="10632" w:type="dxa"/><w:tblBorders><w:top w:val="single" w:sz="4" w:color="000000"/><w:left w:val="single" w:sz="4" w:color="000000"/><w:bottom w:val="single" w:sz="4" w:color="000000"/><w:right w:val="single" w:sz="4" w:color="000000"/><w:insideH w:val="single" w:sz="4" w:color="000000"/><w:insideV w:val="single" w:sz="4" w:color="000000"/></w:tblBorders></w:tblPr>`;
+  xml+=`<w:tbl><w:tblPr><w:tblW w:w="10632" w:type="dxa"/><w:tblBorders><w:top w:val="single" w:sz="4" w:color="000000"/><w:left w:val="single" w:sz="4" w:color="000000"/><w:bottom w:val="single" w:sz="4" w:color="000000"/><w:right w:val="single" w:sz="4" w:color="000000"/><w:insideH w:val="single" w:sz="4" w:color="000000"/><w:insideV w:val="single" w:sz="4" w:color="000000"/></w:tblBorders></w:tblPr>`;
   addRow('Goods in yard / store',b.goods_yard,'Inspector performing sampling',b.inspector);
   for(let i=0;i<Math.max(b.open_bales.length,b.rebales.length,1);i++) addRow('Open bale for inspection',b.open_bales[i]||null,'Re-baled and sealed bale',b.rebales[i]||null);
-  docXml+=`</w:tbl>`; return buildDocxZip(docXml,imageRels,'baling');
+  xml+=`</w:tbl>`;
+  return buildDocxZip(xml,imageRels,'baling');
 }
 function makeHeaderXml(mode){
   const vo=xmlEsc(S.voNo||''),dt=xmlEsc(S.reportDate||'');
-  const inspLine=mode==='van'?`<w:p><w:pPr><w:spacing w:line="180" w:lineRule="auto"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:sz w:val="22"/><w:b/></w:rPr><w:t>VAN INSPECTION REPORT</w:t></w:r></w:p>`:`<w:p><w:pPr><w:spacing w:line="180" w:lineRule="auto"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:sz w:val="22"/><w:b/></w:rPr><w:t>BALING INSPECTION REPORT</w:t></w:r></w:p>`;
-  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:hdr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><w:p><w:r><w:rPr><w:noProof/></w:rPr><w:drawing><wp:inline><wp:extent cx="2030095" cy="267970"/><wp:effectExtent l="0" t="0" r="0" b="0"/><wp:docPr id="9001" name="Logo"/><wp:cNvGraphicFramePr><a:graphicFrameLocks noChangeAspect="1"/></wp:cNvGraphicFramePr><a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic><pic:nvPicPr><pic:cNvPr id="0" name="Logo"/><pic:cNvPicPr><a:picLocks noChangeAspect="1"/></pic:cNvPicPr></pic:nvPicPr><pic:blipFill><a:blip r:embed="rId1"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="2030095" cy="267970"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r></w:p><w:p><w:pPr><w:spacing w:line="180" w:lineRule="auto"/><w:tabs><w:tab w:val="right" w:pos="10466"/></w:tabs></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/><w:sz w:val="20"/></w:rPr><w:t>${vo}</w:t></w:r><w:r><w:tab/></w:r><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/><w:sz w:val="20"/></w:rPr><w:t>Date: ${dt}</w:t></w:r></w:p>${inspLine}</w:hdr>`;
+  const il=mode==='van'?`<w:p><w:pPr><w:spacing w:line="180" w:lineRule="auto"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:sz w:val="22"/><w:b/></w:rPr><w:t>VAN INSPECTION REPORT</w:t></w:r></w:p>`:`<w:p><w:pPr><w:spacing w:line="180" w:lineRule="auto"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:sz w:val="22"/><w:b/></w:rPr><w:t>BALING INSPECTION REPORT</w:t></w:r></w:p>`;
+  return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:hdr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><w:p><w:r><w:rPr><w:noProof/></w:rPr><w:drawing><wp:inline><wp:extent cx="2030095" cy="267970"/><wp:effectExtent l="0" t="0" r="0" b="0"/><wp:docPr id="9001" name="Logo"/><wp:cNvGraphicFramePr><a:graphicFrameLocks noChangeAspect="1"/></wp:cNvGraphicFramePr><a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic><pic:nvPicPr><pic:cNvPr id="0" name="Logo"/><pic:cNvPicPr><a:picLocks noChangeAspect="1"/></pic:cNvPicPr></pic:nvPicPr><pic:blipFill><a:blip r:embed="rId1"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="2030095" cy="267970"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r></w:p><w:p><w:pPr><w:spacing w:line="180" w:lineRule="auto"/><w:tabs><w:tab w:val="right" w:pos="10466"/></w:tabs></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/><w:sz w:val="20"/></w:rPr><w:t>${vo}</w:t></w:r><w:r><w:tab/></w:r><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/><w:sz w:val="20"/></w:rPr><w:t>Date: ${dt}</w:t></w:r></w:p>${il}</w:hdr>`;
 }
-function makeFooterXml(){ return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:ftr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/><w:sz w:val="15"/></w:rPr><w:t>COTECNA INSPECTION JAPAN Co., Ltd. / Rokko Dai Ni Bldg. 5th Floor, 1-3-7 Shinkawa, Chuo-ku, Tokyo 104-0033 JAPAN</w:t></w:r></w:p><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/><w:sz w:val="15"/></w:rPr><w:t>T +81 (0)3 6262 8290 / F +81 (0)3 6262 8293</w:t></w:r></w:p><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/><w:sz w:val="15"/><w:color w:val="0563C1"/><w:u w:val="single"/></w:rPr><w:t>www.cotecna.com</w:t></w:r></w:p><w:p><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/><w:sz w:val="16"/></w:rPr><w:t>Form COTECNA WP (26-02)</w:t></w:r></w:p></w:ftr>`; }
-function makeStylesXml(){ return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/><w:sz w:val="22"/></w:rPr></w:rPrDefault></w:docDefaults></w:styles>`; }
-function buildDocxZip(docXml,imageRelsMap,mode){
+function makeFooterXml(){return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:ftr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/><w:sz w:val="15"/></w:rPr><w:t>COTECNA INSPECTION JAPAN Co., Ltd. / Rokko Dai Ni Bldg. 5th Floor, 1-3-7 Shinkawa, Chuo-ku, Tokyo 104-0033 JAPAN</w:t></w:r></w:p><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/><w:sz w:val="15"/></w:rPr><w:t>T +81 (0)3 6262 8290 / F +81 (0)3 6262 8293</w:t></w:r></w:p><w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/><w:sz w:val="15"/><w:color w:val="0563C1"/><w:u w:val="single"/></w:rPr><w:t>www.cotecna.com</w:t></w:r></w:p><w:p><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/><w:sz w:val="16"/></w:rPr><w:t>Form COTECNA WP (26-02) ✦ Powered by LEENAI Automation System</w:t></w:r></w:p></w:ftr>`;}
+function makeStylesXml(){return `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/><w:sz w:val="22"/></w:rPr></w:rPrDefault></w:docDefaults></w:styles>`;}
+function buildDocxZip(docXml,iRels,mode){
   const enc=new TextEncoder();
-  const logoBytes=S.logoB64?b64ToUint8(S.logoB64):new Uint8Array([137,80,78,71,13,10,26,10,0,0,0,13,73,72,68,82,0,0,0,1,0,0,0,1,8,2,0,0,0,144,119,83,222,0,0,0,12,73,68,65,84,8,215,99,248,207,192,0,0,0,2,0,1,226,33,188,51,0,0,0,0,73,69,78,68,174,66,96,130]);
-  const files={};const relEntries=[];
-  files['word/media/logo.png']=logoBytes;
-  for(const[rid,{name,b64}]of Object.entries(imageRelsMap)){ files[`word/media/${name}`]=b64ToUint8(b64); relEntries.push(`<Relationship Id="${rid}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/${name}"/>`); }
-  const wordRels=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings" Target="settings.xml"/><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header1.xml"/><Relationship Id="rId4" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" Target="footer1.xml"/><Relationship Id="rId5" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/logo.png"/>${relEntries.join('')}</Relationships>`;
-  const contentTypes=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="jpeg" ContentType="image/jpeg"/><Default Extension="jpg" ContentType="image/jpeg"/><Default Extension="png" ContentType="image/png"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/><Override PartName="/word/settings.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml"/><Override PartName="/word/header1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml"/><Override PartName="/word/footer1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/></Types>`;
-  const docFull=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><w:body>${docXml}${SECT_PR}</w:body></w:document>`;
-  const settings=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:settings xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"></w:settings>`;
-  files['[Content_Types].xml']=enc.encode(contentTypes);
+  const lb=S.logoB64?b64ToUint8(S.logoB64):new Uint8Array([137,80,78,71,13,10,26,10,0,0,0,13,73,72,68,82,0,0,0,1,0,0,0,1,8,2,0,0,0,144,119,83,222,0,0,0,12,73,68,65,84,8,215,99,248,207,192,0,0,0,2,0,1,226,33,188,51,0,0,0,0,73,69,78,68,174,66,96,130]);
+  const files={};const re=[];
+  files['word/media/logo.png']=lb;
+  for(const[rid,{name,b64}]of Object.entries(iRels)){files[`word/media/${name}`]=b64ToUint8(b64);re.push(`<Relationship Id="${rid}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/${name}"/>`);}
+  const wr=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings" Target="settings.xml"/><Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header1.xml"/><Relationship Id="rId4" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" Target="footer1.xml"/><Relationship Id="rId5" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/logo.png"/>${re.join('')}</Relationships>`;
+  const ct=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="jpeg" ContentType="image/jpeg"/><Default Extension="jpg" ContentType="image/jpeg"/><Default Extension="png" ContentType="image/png"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/><Override PartName="/word/settings.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml"/><Override PartName="/word/header1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml"/><Override PartName="/word/footer1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/></Types>`;
+  const df=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing" xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture"><w:body>${docXml}${SECT_PR}</w:body></w:document>`;
+  const st=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:settings xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"></w:settings>`;
+  files['[Content_Types].xml']=enc.encode(ct);
   files['_rels/.rels']=enc.encode(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>`);
-  files['word/document.xml']=enc.encode(docFull);
-  files['word/_rels/document.xml.rels']=enc.encode(wordRels);
+  files['word/document.xml']=enc.encode(df);
+  files['word/_rels/document.xml.rels']=enc.encode(wr);
   files['word/styles.xml']=enc.encode(makeStylesXml());
-  files['word/settings.xml']=enc.encode(settings);
+  files['word/settings.xml']=enc.encode(st);
   files['word/header1.xml']=enc.encode(makeHeaderXml(mode));
   files['word/_rels/header1.xml.rels']=enc.encode(`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/logo.png"/></Relationships>`);
   files['word/footer1.xml']=enc.encode(makeFooterXml());
@@ -889,45 +1048,42 @@ function makeZipStore(files){
   return cat(...lhs,cdb,eocd);
 }
 
-// ═══════════════════════════════════════
-//  로고
-// ═══════════════════════════════════════
+// ═══════════════════════════════════════════════
+//  로고 (내장)
+// ═══════════════════════════════════════════════
 const DEFAULT_LOGO_B64="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";
 
-// ═══════════════════════════════════════
+// ═══════════════════════════════════════════════
 //  유틸
-// ═══════════════════════════════════════
-function ab2b64(buf){ const b=new Uint8Array(buf);let s='',c=8192; for(let i=0;i<b.length;i+=c) s+=String.fromCharCode(...b.slice(i,i+c)); return btoa(s); }
-function b64ToUint8(b64){ const b=atob(b64),a=new Uint8Array(b.length); for(let i=0;i<b.length;i++) a[i]=b.charCodeAt(i); return a; }
+// ═══════════════════════════════════════════════
+function ab2b64(buf){const b=new Uint8Array(buf);let s='',c=8192;for(let i=0;i<b.length;i+=c)s+=String.fromCharCode(...b.slice(i,i+c));return btoa(s);}
+function b64ToUint8(b64){const b=atob(b64),a=new Uint8Array(b.length);for(let i=0;i<b.length;i++)a[i]=b.charCodeAt(i);return a;}
 function log(msg,type=''){
-  // processSection 로그박스
-  const box=document.getElementById('logBox');
-  if(box){ const div=document.createElement('div'); div.className=type?`log-${type}`:''; div.textContent=msg; box.appendChild(div); box.scrollTop=box.scrollHeight; }
-  // fetchLogBox (STEP 3 조회 로그)
-  const fbox=document.getElementById('fetchLogBox');
-  if(fbox){ fbox.style.display='block'; const div=document.createElement('div'); div.className=type?`log-${type}`:''; div.textContent=msg; fbox.appendChild(div); fbox.scrollTop=fbox.scrollHeight; }
+  const box=document.getElementById('logBox'); if(!box) return;
+  const div=document.createElement('div'); div.className=type?`log-${type}`:'';
+  div.textContent=msg; box.appendChild(div); box.scrollTop=box.scrollHeight;
 }
-function clearLog(){
-  const b=document.getElementById('logBox'); if(b) b.innerHTML='';
-  const f=document.getElementById('fetchLogBox'); if(f){ f.innerHTML=''; f.style.display='none'; }
-}
+function clearLog(){const b=document.getElementById('logBox');if(b)b.innerHTML='';}
 function setProgress(pct,label){
-  const fill=document.getElementById('progressFill'),lbl=document.getElementById('progressLabel'),pctEl=document.getElementById('progressPct');
-  if(fill) fill.style.width=pct+'%'; if(lbl) lbl.textContent=label; if(pctEl) pctEl.textContent=pct+'%';
+  const f=document.getElementById('progressFill'),l=document.getElementById('progressLabel'),p=document.getElementById('progressPct');
+  if(f)f.style.width=pct+'%'; if(l)l.textContent=label; if(p)p.textContent=pct+'%';
 }
-function setPhase(n){ for(let i=1;i<=3;i++){ const el=document.getElementById(`ph${i}`); if(!el) continue; el.className='phase-chip'+(i<n?' done':i===n?' active':''); } }
-function setAllDone(){ for(let i=1;i<=3;i++){ const el=document.getElementById(`ph${i}`); if(el) el.className='phase-chip done'; } }
-function showClassifyPreview(photos,slotMap){
-  const wrap=document.getElementById('classifyPreview'),grid=document.getElementById('classGrid'); if(!wrap||!grid) return;
-  grid.innerHTML=''; wrap.style.display='block';
-  for(const slot of SLOT_ORDER){ const seq=slotMap[slot]; const div=document.createElement('div'); div.className='class-slot'+(seq?' slot-ok':''); if(seq&&photos[seq]) div.innerHTML=`<img src="data:image/jpeg;base64,${photos[seq]}" alt="${slot}">`; else div.innerHTML=`<div class="slot-img-placeholder">없음</div>`; div.innerHTML+=`<div class="slot-name">${slot}</div>`; grid.appendChild(div); }
+function setPhase(n){for(let i=1;i<=3;i++){const el=document.getElementById(`ph${i}`);if(!el)continue;el.className='phase-chip'+(i<n?' done':i===n?' active':'');}}
+function setAllDone(){for(let i=1;i<=3;i++){const el=document.getElementById(`ph${i}`);if(el)el.className='phase-chip done';}}
+function showClassifyPreview(fp,sm){
+  const w=document.getElementById('classPreview'),g=document.getElementById('classGrid');if(!w||!g)return;
+  g.innerHTML='';w.style.display='block';
+  for(const slot of SLOT_ORDER){const seq=sm[slot];const d=document.createElement('div');d.className='class-slot'+(seq?' slot-ok':'');
+    if(seq&&fp[seq])d.innerHTML=`<img src="data:image/jpeg;base64,${fp[seq]}" alt="${slot}">`;
+    else d.innerHTML=`<div class="slot-empty">없음</div>`;
+    d.innerHTML+=`<div class="slot-name">${slot}</div>`;g.appendChild(d);}
 }
 function showResults(downloads){
-  const section=document.getElementById('resultSection'),row=document.getElementById('downloadRow'),statusRow=document.getElementById('statusRow');
-  section.style.display='block';
-  row.innerHTML=downloads.map(d=>{ const blob=new Blob([d.buf],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'}); const url=URL.createObjectURL(blob); return `<a class="dl-btn" href="${url}" download="${d.name}"><div class="dl-icon">${d.icon}</div><div class="dl-info"><span class="dl-name">${d.label}</span><span class="dl-size">${(d.buf.length/1024).toFixed(0)}KB · ${d.name}</span></div></a>`; }).join('');
-  statusRow.innerHTML=`<div class="status-chip"><div class="chip-dot chip-ok"></div>생성 ${Math.floor(downloads.length/2)}건</div><div class="status-chip"><div class="chip-dot chip-ok"></div>AI 분류 ✅</div>`;
-  section.scrollIntoView({behavior:'smooth'});
+  const s=document.getElementById('resultSection'),r=document.getElementById('dlRow'),c=document.getElementById('chipRow');
+  s.style.display='block';
+  r.innerHTML=downloads.map(d=>{const blob=new Blob([d.buf],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});const url=URL.createObjectURL(blob);return `<a class="dl-btn" href="${url}" download="${d.name}"><div class="dl-icon">${d.icon}</div><div class="dl-info"><span class="dl-name">${d.label}</span><span class="dl-size">${(d.buf.length/1024).toFixed(0)}KB · ${d.name}</span></div></a>`;}).join('');
+  c.innerHTML=`<div class="chip"><div class="chip-dot"></div>${Math.floor(downloads.length/2)}건 완료</div><div class="chip"><div class="chip-dot"></div>AI 분류 ✅</div>`;
+  s.scrollIntoView({behavior:'smooth'});
 }
 </script>
 </body>

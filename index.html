@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>COTECNA Report Generator v6.2</title>
+<title>COTECNA Report Generator v6.3</title>
 <style>
 :root{
   --bg:#0a0d14;--surface:#12151f;--surface2:#1a1e2e;--surface3:#222840;
@@ -105,7 +105,7 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
   <div class="header-logo">📋</div>
   <div>
     <div class="header-title">COTECNA Report Generator</div>
-    <div class="header-sub">LEENEAR CORPORATION — AI 자동화 Tool v6.2 (2026.06.09)</div>
+    <div class="header-sub">LEENEAR CORPORATION — AI 자동화 Tool v6.3 (2026.06.09)</div>
   </div>
   <div class="header-badge">LEENAI</div>
 </div>
@@ -176,6 +176,9 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
       <input type="date" id="dateTo" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:6px 10px;font-size:.78rem;">
       <button class="btn btn-secondary" id="fetchBtn" onclick="fetchInspectionList()" disabled style="padding:8px 14px;">📋 리스트 조회</button>
     </div>
+
+    <!-- 조회 로그 -->
+    <div id="fetchLogBox" style="display:none;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;margin-bottom:10px;font-size:.72rem;font-family:'Consolas',monospace;max-height:120px;overflow-y:auto;line-height:1.6;"></div>
 
     <div id="listArea" style="display:none;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
@@ -897,11 +900,17 @@ const DEFAULT_LOGO_B64="iVBORw0KGgoAAAANSUhEUgAAAU0AAAAsCAMAAAGh9iorAAAAAXNSR0IA
 function ab2b64(buf){ const b=new Uint8Array(buf);let s='',c=8192; for(let i=0;i<b.length;i+=c) s+=String.fromCharCode(...b.slice(i,i+c)); return btoa(s); }
 function b64ToUint8(b64){ const b=atob(b64),a=new Uint8Array(b.length); for(let i=0;i<b.length;i++) a[i]=b.charCodeAt(i); return a; }
 function log(msg,type=''){
-  const box=document.getElementById('logBox'); if(!box) return;
-  const div=document.createElement('div'); div.className=type?`log-${type}`:''; div.textContent=msg;
-  box.appendChild(div); box.scrollTop=box.scrollHeight;
+  // processSection 로그박스
+  const box=document.getElementById('logBox');
+  if(box){ const div=document.createElement('div'); div.className=type?`log-${type}`:''; div.textContent=msg; box.appendChild(div); box.scrollTop=box.scrollHeight; }
+  // fetchLogBox (STEP 3 조회 로그)
+  const fbox=document.getElementById('fetchLogBox');
+  if(fbox){ fbox.style.display='block'; const div=document.createElement('div'); div.className=type?`log-${type}`:''; div.textContent=msg; fbox.appendChild(div); fbox.scrollTop=fbox.scrollHeight; }
 }
-function clearLog(){ const b=document.getElementById('logBox'); if(b) b.innerHTML=''; }
+function clearLog(){
+  const b=document.getElementById('logBox'); if(b) b.innerHTML='';
+  const f=document.getElementById('fetchLogBox'); if(f){ f.innerHTML=''; f.style.display='none'; }
+}
 function setProgress(pct,label){
   const fill=document.getElementById('progressFill'),lbl=document.getElementById('progressLabel'),pctEl=document.getElementById('progressPct');
   if(fill) fill.style.width=pct+'%'; if(lbl) lbl.textContent=label; if(pctEl) pctEl.textContent=pct+'%';

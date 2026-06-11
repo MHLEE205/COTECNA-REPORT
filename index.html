@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LEENAI COTECNAレポートツール v7.5</title>
+<title>LEENAI COTECNAレポートツール v7.6</title>
 <style>
 :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3350;--accent:#4f8ef7;--ok:#22c55e;--warn:#f59e0b;--error:#ef4444;--info:#38bdf8;--text:#e2e8f0;--text2:#8892a4;--text3:#4a5568;}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -93,7 +93,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 <body>
 <header>
   <div class="logo">LEAN<span>AI</span></div>
-  <div class="version">COTECNAレポートツール v7.5 (2026-06-11)</div>
+  <div class="version">COTECNAレポートツール v7.6 (2026-06-11)</div>
   <div class="api-mini">
     <span style="color:var(--text2);font-size:11px;">API KEY</span>
     <div class="api-dot" id="apiDot"></div>
@@ -223,7 +223,7 @@ const SCOPE=`${DV_URL}/user_impersonation offline_access`;
 const SLOT_ORDER=['empty','half','full','right_door','inspector','cotecna_seal'];
 const SLOT_CAPTIONS={empty:'Empty container',half:'Half load container',full:'Full load container',right_door:'Right door closed, with Container No.',inspector:'Inspector with closed container',cotecna_seal:'Cotecna container seal, closed up'};
 const IMG_CX=3303270,IMG_CY=2477135;
-const VAN_PROMPT=`この写真はコンテナ梱包の検査写真です。以下の説明の一番よく当てはまるものを1つのみ答えてください:\n\nempty         - コンテナ空積みの写真（両扉を大きく開いた状態で内部を撮影、貨物が全くなくコルゲートが見える検査前カット。貨物がある写真をemptyと答えてはならない）\nhalf          - コンテナ半積みの写真\nfull          - コンテナ満積みの写真\nright_door    - 右ドア閉まり写真（コンテナNo.付き）\ninspector     - 検査員が写る写真\ncotecna_seal  - COTECNAシール写真（JP-番号付き）。必ず黄色のシールであること。ただし黄色いシールであってもCOTECNAシールとは限らない。必ず「COTECNA」という文字が写真に印字されていること。「COTECNA」の文字がない場合はcotecna_sealと答えてはならない\n\n当てはまる答え6つのうち1つのみ答えてください`;
+const VAN_PROMPT=`この写真はコンテナ梱包の検査写真です。以下の説明の一番よく当てはまるものを1つのみ答えてください:\n\nempty         - コンテナ空積みの写真（両扉を大きく開いた状態で内部を撮影、貨物が全くなくコルゲートが見える検査前カット。貨物がある写真をemptyと答えてはならない）\nhalf          - コンテナ半積みの写真\nfull          - コンテナ満積みの写真\nright_door    - 右ドア閉まり写真（コンテナNo.付き）\ninspector     - 検査員が写る写真\ncotecna_seal  - COTECNAシール写真（JP-番号付き）。必ず黄色のシールであること。ただし黄色いシールであってもCOTECNAシールとは限らない。必ず「COTECNA」という文字が写真に印字されていること。「COTECNA」の文字がない場合はcotecna_sealと答えてはならない\n\n必ず以下のリストにある単語をそのまま1つだけ返してください。説明不要。\n\nempty / half / full / right_door / inspector / cotecna_seal`;
 const BALING_PROMPT=`この写真は梱包（bale）検査の写真です。以下の説明の一番よく当てはまるものを1つのみ答えてください:\n\ngoods_yard  - ベールが倉庫・ヤードに積まれている写真\nperson_bale - 検査員が梱包カードを手に持つ写真\nopen_bale   - ベールが開封されている写真\nrebale      - COTECNAテープで封印された梱包の写真\n\n当てはまる答え4つのうち1つのみ答えてください`;
 const S={apiKey:'',dvToken:null,photoFiles:[],photoFolderName:'',inspList:[],selectedKeys:[],mode:'folder',groups:{},containers:[],vanPhotos:{},baraPhotos:{},pressPhotos:{},classifiedVan:{},classifiedBaling:{},logoB64:null,voNo:'',reportDate:'',inspPlace:'',baleCount:0,rootName:'',fileList:[]};
 

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LEENAI COTECNAレポートツール v7.8</title>
+<title>LEENAI COTECNAレポートツール v7.9</title>
 <style>
 :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3350;--accent:#4f8ef7;--ok:#22c55e;--warn:#f59e0b;--error:#ef4444;--info:#38bdf8;--text:#e2e8f0;--text2:#8892a4;--text3:#4a5568;}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -93,7 +93,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 <body>
 <header>
   <div class="logo">LEAN<span>AI</span></div>
-  <div class="version">COTECNAレポートツール v7.8 (2026-06-11)</div>
+  <div class="version">COTECNAレポートツール v7.9 (2026-06-11)</div>
   <div class="api-mini">
     <span style="color:var(--text2);font-size:11px;">API KEY</span>
     <div class="api-dot" id="apiDot"></div>
@@ -593,16 +593,16 @@ async function classifyAll(){S.classifiedVan={};S.classifiedBaling={goods_yard:n
       // inspector
       else if(/検査員/.test(n)){byName.inspector=b64;log(`    検査員 → inspector`,'ok');}
       // re_bale: 検査済みベールN
-      else if(/検査済みベール(\d+|[一二三四五六七八九十]+)/.test(n)){
-        const mN=n.match(/検査済みベール(\d+)/)||n.match(/検査済みベール([一二三四五六七八九十]+)/);
+      else if(/検査済みベール([\d０-９]+|[一二三四五六七八九十]+)/.test(n)){
+        const mN=n.match(/検査済みベール([\d０-９]+)/)||n.match(/検査済みベール([一二三四五六七八九十]+)/);
         const num=mN?kanjiToNum(mN[1]):byName._rebale_count||1;
         if(!byName.rebales)byName.rebales=[];
         byName.rebales.push({num,b64});
         log(`    ${name} → re_bale#${num}`,'ok');
       }
       // open_bale: 開梱されたベールN
-      else if(/開梱されたベール(\d+|[一二三四五六七八九十]+)/.test(n)){
-        const mN=n.match(/開梱されたベール(\d+)/)||n.match(/開梱されたベール([一二三四五六七八九十]+)/);
+      else if(/開梱されたベール([\d０-９]+|[一二三四五六七八九十]+)/.test(n)){
+        const mN=n.match(/開梱されたベール([\d０-９]+)/)||n.match(/開梱されたベール([一二三四五六七八九十]+)/);
         const num=mN?kanjiToNum(mN[1]):byName._open_count||1;
         if(!byName.open_bales)byName.open_bales=[];
         byName.open_bales.push({num,b64});
@@ -685,7 +685,7 @@ const nos=Object.keys(S.vanPhotos).map(Number).sort((a,b)=>a-b);if(!nos.length){
   log(`  📋 ファイル名マッピング不足(${mappedSlots}/6) → AI分類に切替`,'info');
   const fp=S.vanPhotos[nos[0]];const seqs=Object.keys(fp).filter(k=>!k.startsWith('_')).map(Number).sort((a,b)=>a-b);log(`  🤖 CT1 分類中 (${seqs.length}枚)...`,'info');const res=await Promise.all(seqs.map(async seq=>({seq,label:await classifyOne(fp[seq],VAN_PROMPT).catch(()=>'unknown')})));res.forEach(({seq,label})=>log(`    seq${seq} [${fp[`_name_${seq}`]||''}] → ${label}`,'info'));const cands={};for(const{seq,label}of res)if(SLOT_ORDER.includes(label)){if(!cands[label])cands[label]=[];cands[label].push(seq);}const sm={};if(cands['cotecna_seal']?.length>1){const chk=await Promise.all(cands['cotecna_seal'].map(async seq=>{try{const a=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:fp[seq]}},{type:'text',text:`「COTECNA」と「JP-」で始まるシリアル番号が見える写真か「yes」`}],10);return{seq,ok:a.toLowerCase().includes('yes')};}catch(e){return{seq,ok:false};}}));sm['cotecna_seal']=(chk.find(r=>r.ok)??chk[0]).seq;}else if(cands['cotecna_seal']?.length===1)sm['cotecna_seal']=cands['cotecna_seal'][0];if(cands['right_door']?.length>1){const chk=await Promise.all(cands['right_door'].map(async seq=>{try{const a=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:fp[seq]}},{type:'text',text:`左側に荷物、右側に右ドアが写る写真か「yes」`}],10);return{seq,ok:a.toLowerCase().includes('yes')};}catch(e){return{seq,ok:false};}}));sm['right_door']=(chk.find(r=>r.ok)??chk[0]).seq;}else if(cands['right_door']?.length===1)sm['right_door']=cands['right_door'][0];const ai=[...(cands['full']||[]),...(cands['half']||[])].sort((a,b)=>a-b);if(ai.length>=2){const sc=await Promise.all(ai.map(async seq=>{try{const a=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:fp[seq]}},{type:'text',text:`荷物の積載率を1〜10。数字のみ`}],5);return{seq,score:parseInt(a)||0};}catch(e){return{seq,score:0};}}));sc.sort((a,b)=>b.score-a.score);cands['full']=[sc[0].seq];cands['half']=sc[1]?[sc[1].seq]:[];}else if(ai.length===1)cands['full']=ai;for(const s of SLOT_ORDER){if(s==='cotecna_seal'||s==='right_door')continue;if(cands[s]?.length&&!sm[s])sm[s]=cands[s][0];}const miss=SLOT_ORDER.filter(s=>!sm[s]);if(miss.length)log(` ⚠️ 未分類: ${miss.join(', ')}`,'warn');log(` ✅ マッチ: ${JSON.stringify(sm)}`,'ok');showClassifyPreview(fp,sm);for(const no of nos){S.classifiedVan[no]={};const p=S.vanPhotos[no]||{};for(const[s,seq]of Object.entries(sm))if(p[seq])S.classifiedVan[no][s]=p[seq];}const nc=S.containers.some(c=>!c.container||c.container==='—'||c.container.match(/^\d+$/));const ns=S.containers.some(c=>!c.seal);if((nc&&sm['right_door'])||(ns&&sm['cotecna_seal'])){log(' 🔍 OCR処理中...','info');await Promise.all(nos.map(async no=>{const cont=S.containers.find(c=>c.no===no);if(!cont)return;const t=[];if(nc&&S.classifiedVan[no]?.right_door)t.push(callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:S.classifiedVan[no].right_door}},{type:'text',text:`コンテナ番号（英字4桁+数字7桁）番号のみ`}],30).then(v=>{const m=v.trim().match(/[A-Z]{4}\d{7}/i);if(m){cont.container=m[0].toUpperCase();log(`    CT${no}: ${cont.container}`,'ok');}}).catch(()=>{}));if(ns&&S.classifiedVan[no]?.cotecna_seal)t.push(callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:S.classifiedVan[no].cotecna_seal}},{type:'text',text:`「JP-XXXXXXXX」形式で番号のみ`}],20).then(v=>{const m=v.trim().match(/JP-?\d{4,8}/i);if(m){cont.seal=m[0].toUpperCase().replace(/^JP([^-])/,'JP-$1');log(`    CT${no} Seal: ${cont.seal}`,'ok');}}).catch(()=>{}));await Promise.all(t);}));}if(sm['inspector']&&!S.classifiedBaling.inspector)S.classifiedBaling.inspector=fp[sm['inspector']];if(sm['full']&&!S.classifiedBaling.goods_yard)S.classifiedBaling.goods_yard=fp[sm['full']];setProgress(80,'AI分類完了');log(`✅ AI分類完了`,'ok');}
 async function callAI(content,maxTokens=20,_retry=0){const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':S.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:maxTokens,messages:[{role:'user',content}]})});if(r.status===429&&_retry<4){await new Promise(res=>setTimeout(res,5000*Math.pow(2,_retry)));return callAI(content,maxTokens,_retry+1);}if(!r.ok)throw new Error(`API ${r.status}`);const d=await r.json();return d.content?.[0]?.text?.trim()||'';}
-function kanjiToNum(s){const m={'一':1,'二':2,'三':3,'四':4,'五':5,'六':6,'七':7,'八':8,'九':9,'十':10};if(/^\d+$/.test(s))return parseInt(s);let r=0;for(const c of s){if(m[c])r+=m[c];}return r||1;}
+function kanjiToNum(s){const m={'一':1,'二':2,'三':3,'四':4,'五':5,'六':6,'七':7,'八':8,'九':9,'十':10,'１':1,'２':2,'３':3,'４':4,'５':5,'６':6,'７':7,'８':8,'９':9};if(/^\d+$/.test(s))return parseInt(s);let r=0;for(const c of s){if(m[c])r+=m[c];}return r||1;}
 async function classifyOne(b64,prompt){return callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:prompt}],20);}
 function xmlEsc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function imgXml(rid,pid){return `<w:drawing><wp:inline><wp:extent cx="${IMG_CX}" cy="${IMG_CY}"/><wp:effectExtent l="0" t="0" r="0" b="0"/><wp:docPr id="${pid}" name="img${pid}"/><wp:cNvGraphicFramePr><a:graphicFrameLocks noChangeAspect="1"/></wp:cNvGraphicFramePr><a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic><pic:nvPicPr><pic:cNvPr id="0" name="img${pid}"/><pic:cNvPicPr><a:picLocks noChangeAspect="1"/></pic:cNvPicPr></pic:nvPicPr><pic:blipFill><a:blip r:embed="${rid}"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${IMG_CX}" cy="${IMG_CY}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing>`;}

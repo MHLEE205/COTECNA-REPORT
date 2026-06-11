@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LEENAI COTECNAレポートツール v7.4</title>
+<title>LEENAI COTECNAレポートツール v7.5</title>
 <style>
 :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3350;--accent:#4f8ef7;--ok:#22c55e;--warn:#f59e0b;--error:#ef4444;--info:#38bdf8;--text:#e2e8f0;--text2:#8892a4;--text3:#4a5568;}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -93,7 +93,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 <body>
 <header>
   <div class="logo">LEAN<span>AI</span></div>
-  <div class="version">COTECNAレポートツール v7.4 (2026-06-11)</div>
+  <div class="version">COTECNAレポートツール v7.5 (2026-06-11)</div>
   <div class="api-mini">
     <span style="color:var(--text2);font-size:11px;">API KEY</span>
     <div class="api-dot" id="apiDot"></div>
@@ -359,7 +359,7 @@ async function fetchList(){
     flog(`  POL ${polGuids.length}件 fetch中...`,'info');
     const polMap={};
     await Promise.all(polGuids.map(async g=>{
-      try{const d=await dvGet(`${DV_API}/crcf9_region_japans(${g})?$select=crcf9_pol,crcf9_name`);polMap[g]=d.crcf9_pol||d.crcf9_name||'—';}
+      try{const d=await dvGet(`${DV_API}/crcf9_region_japans(${g})?$select=crcf9_pol,crcf9_region_japan`);polMap[g]=d.crcf9_pol||d.crcf9_region_japan||'—';}
       catch(e){flog(`  ⚠️ POL ${g.slice(0,8)}: ${e.message.slice(0,40)}`,'warn');}
     }));
     flog(`  POL ${Object.keys(polMap).length}件完了`,'ok');

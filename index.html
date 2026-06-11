@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LEENAI COTECNAレポートツール v7.7</title>
+<title>LEENAI COTECNAレポートツール v7.8</title>
 <style>
 :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3350;--accent:#4f8ef7;--ok:#22c55e;--warn:#f59e0b;--error:#ef4444;--info:#38bdf8;--text:#e2e8f0;--text2:#8892a4;--text3:#4a5568;}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -93,7 +93,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 <body>
 <header>
   <div class="logo">LEAN<span>AI</span></div>
-  <div class="version">COTECNAレポートツール v7.7 (2026-06-11)</div>
+  <div class="version">COTECNAレポートツール v7.8 (2026-06-11)</div>
   <div class="api-mini">
     <span style="color:var(--text2);font-size:11px;">API KEY</span>
     <div class="api-dot" id="apiDot"></div>
@@ -482,7 +482,94 @@ async function proceedSelected(){
   document.getElementById('step2').classList.remove('active');document.getElementById('step2').classList.add('done');step3.classList.add('done');
 }
 function resetJobState(row){S.mode='folder';S.groups={};S.containers=row.ctList.map((ct,i)=>({no:i+1,container:ct.ctNo,seal:ct.seal}));S.vanPhotos={};S.baraPhotos={};S.pressPhotos={};S.balingRawFiles=[];S.classifiedVan={};S.classifiedBaling={goods_yard:null,inspector:null,open_bales:[],rebales:[]};S.logoB64=null;S.voNo=(row.voNo&&row.voNo!=='—'&&row.partial&&row.partial!=='—')?`${row.voNo}-${row.partial}`:(row.voNo&&row.voNo!=='—'?row.voNo:'');const fd=row.workDates[0]||'';S.reportDate=fd?(()=>{const d=new Date(fd);return ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'][d.getMonth()]+`. ${d.getDate()}, ${d.getFullYear()}`})():'';S.inspPlace=row.pol||'';S.baleCount=0;S.rootName=row.ivNo;S.fileList=[];}
-async function loadPhotosLocal(row){const ivNo=row.ivNo;const ext=/\.(jpe?g|png)$/i;const ivFiles=S.photoFiles.filter(f=>f.webkitRelativePath.split('/')[1]===ivNo);if(!ivFiles.length){log(` ⚠️ ローカルに ${ivNo} なし`,'warn');return;}const ctNos=new Set(row.ctList.map(c=>c.ctNo));const ctSet=new Set();for(const f of ivFiles){const p=f.webkitRelativePath.split('/');if(p.length>=4&&!p[2].startsWith('_')&&p[2]!=='搬入票'){if(ctNos.size===0||ctNos.has(p[2]))ctSet.add(p[2]);}}const ctFolders=[...ctSet].sort();log(`   CTフォルダ ${ctFolders.length}件 (Partial=${row.partial}): ${ctFolders.join(', ')}`,'info');if(!ctFolders.length){log(' ⚠️ CTフォルダなし','warn');return;}let ci=0;for(const cf of ctFolders){let cont=S.containers.find(c=>c.container===cf);if(!cont){cont=S.containers[ci];ci++;}if(!cont)continue;const no=cont.no;const imgs=ivFiles.filter(f=>{const p=f.webkitRelativePath.split('/');return p[2]===cf&&ext.test(p[p.length-1]);}).sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true}));if(!imgs.length){log(`    ⚠️ ${cf} 写真なし`,'warn');continue;}S.vanPhotos[no]={};S.groups[no]=imgs;for(let i=0;i<imgs.length;i+=5){const batch=imgs.slice(i,i+5);await Promise.all(batch.map(async(f,bi)=>{try{const seq=i+bi+1;S.vanPhotos[no][seq]=await fileToB64(f);S.vanPhotos[no][`_name_${seq}`]=f.name;}catch(e){log(`    ⚠️ ${f.name}`,'warn');}}));setProgress(5+Math.round(((ci||1)/ctFolders.length)*35),`写真読込: ${cf}`);}log(`    ✅ CT${no} (${cf}): ${Object.keys(S.vanPhotos[no]).filter(k=>!k.startsWith('_')).length}枚`,'ok');}log(`✅ 写真読込完了`,'ok');
+async function loadPhotosLocal(row){
+  const ivNo=row.ivNo;
+  const ext=/\.(jpe?g|png)$/i;
+  const ctPattern=/^[A-Z]{4}\d{7}$/;
+
+  // STEP1: まず同一IVフォルダで CT番号フォルダを探す
+  const ivFiles=S.photoFiles.filter(f=>f.webkitRelativePath.split('/')[1]===ivNo);
+  if(!ivFiles.length){log(` ⚠️ ローカルに ${ivNo} なし`,'warn');}
+
+  // STEP2: COMPASSのCT番号リストで全PHOTOフォルダを横断検索
+  // 同一BKG内で別IVフォルダにCTが入っている場合に対応
+  const ctNos=row.ctList.map(c=>c.ctNo).filter(Boolean);
+  const ctFileMap={}; // ctNo → File[]
+
+  if(ctNos.length){
+    // 全ファイルからCT番号フォルダを検索 (IV問わず)
+    S.photoFiles.forEach(f=>{
+      const p=f.webkitRelativePath.split('/');
+      if(p.length<4) return;
+      const folder=p[2];
+      if(!ctPattern.test(folder)) return;
+      if(!ext.test(p[p.length-1])) return;
+      if(ctNos.includes(folder)){
+        if(!ctFileMap[folder]) ctFileMap[folder]=[];
+        ctFileMap[folder].push(f);
+      }
+    });
+    // 見つかったCTをログ
+    const found=Object.keys(ctFileMap);
+    const missing=ctNos.filter(c=>!ctFileMap[c]);
+    if(found.length) log(`   CT番号検索: ${found.length}件発見 [${found.join(', ')}]`,'ok');
+    if(missing.length) log(`   ⚠️ CT未発見: [${missing.join(', ')}]`,'warn');
+  }
+
+  // STEP3: CT番号で見つからなかった分はIVフォルダ内の未割当CTフォルダで補完
+  const assignedCts=new Set(Object.keys(ctFileMap));
+  const unassignedConts=S.containers.filter(c=>!assignedCts.has(c.container));
+  if(unassignedConts.length && ivFiles.length){
+    // IVフォルダ内のCTパターンフォルダを収集 (まだ未割当のもの)
+    const ivCtFolders=new Set();
+    ivFiles.forEach(f=>{
+      const p=f.webkitRelativePath.split('/');
+      if(p.length>=4 && ctPattern.test(p[2]) && !assignedCts.has(p[2])) ivCtFolders.add(p[2]);
+    });
+    const ivCtArr=[...ivCtFolders].sort();
+    log(`   IV内未割当CTフォルダ: [${ivCtArr.join(', ')}]`,'info');
+    // 順番に割当
+    ivCtArr.forEach((cf,i)=>{
+      if(i<unassignedConts.length){
+        const imgs=ivFiles.filter(f=>{
+          const p=f.webkitRelativePath.split('/');
+          return p[2]===cf && ext.test(p[p.length-1]);
+        });
+        if(imgs.length){
+          ctFileMap[cf]=imgs;
+          log(`   フォルダ割当: ${cf} → CT${unassignedConts[i].no} (${unassignedConts[i].container||'未番号'})`,'info');
+        }
+      }
+    });
+  }
+
+  // STEP4: 写真読込
+  const ctFolders=Object.keys(ctFileMap);
+  log(`   CTフォルダ ${ctFolders.length}件 (Partial=${row.partial}): ${ctFolders.join(', ')}`,'info');
+  if(!ctFolders.length){log(' ⚠️ CTフォルダなし','warn');return;}
+
+  let ci=0;
+  for(const cf of ctFolders){
+    // CT番号でコンテナを特定、なければ順番割当
+    let cont=S.containers.find(c=>c.container===cf);
+    if(!cont){cont=S.containers.find(c=>!S.vanPhotos[c.no]);} // まだ未割当のコンテナ
+    if(!cont){cont=S.containers[ci];ci++;}
+    if(!cont)continue;
+    const no=cont.no;
+    const imgs=(ctFileMap[cf]||[]).sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true}));
+    if(!imgs.length){log(`    ⚠️ ${cf} 写真なし`,'warn');continue;}
+    S.vanPhotos[no]={};S.groups[no]=imgs;
+    for(let i=0;i<imgs.length;i+=5){
+      const batch=imgs.slice(i,i+5);
+      await Promise.all(batch.map(async(f,bi)=>{
+        try{const seq=i+bi+1;S.vanPhotos[no][seq]=await fileToB64(f);S.vanPhotos[no][`_name_${seq}`]=f.name;}
+        catch(e){log(`    ⚠️ ${f.name}`,'warn');}
+      }));
+      setProgress(5+Math.round(((ci||1)/ctFolders.length)*35),`写真読込: ${cf}`);
+    }
+    log(`    ✅ CT${no} (${cf}): ${Object.keys(S.vanPhotos[no]).filter(k=>!k.startsWith('_')).length}枚`,'ok');
+  }
+  log(`✅ 写真読込完了`,'ok');
   // _CHECK_PHOTO フォルダ読込 (BALING用)
   const checkPhotoFiles=ivFiles.filter(f=>{const p=f.webkitRelativePath.split('/');return p[2]==='_CHECK_PHOTO'&&ext.test(p[p.length-1]);});
   if(checkPhotoFiles.length){

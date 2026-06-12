@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LEENAI COTECNAレポートツール v8.0</title>
+<title>LEENAI COTECNAレポートツール v8.1</title>
 <style>
 :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3350;--accent:#4f8ef7;--ok:#22c55e;--warn:#f59e0b;--error:#ef4444;--info:#38bdf8;--text:#e2e8f0;--text2:#8892a4;--text3:#4a5568;}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -93,7 +93,10 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 <body>
 <header>
   <div class="logo">LEAN<span>AI</span></div>
-  <div class="version">COTECNAレポートツール v8.0 (2026-06-12)</div>
+  <div class="version">COTECNAレポートツール v8.1 (2026-06-12)</div>
+  <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
+    <button class="btn btn-ghost btn-sm" id="plantMasterBtn" onclick="togglePlantMaster()" style="font-size:11px;">⚙ PLANTマスター</button>
+  </div>
   <div class="api-mini">
     <span style="color:var(--text2);font-size:11px;">API KEY</span>
     <div class="api-dot" id="apiDot"></div>
@@ -214,6 +217,36 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
     </div>
   </div>
 </div>
+<div id="plantMasterPanel" style="display:none;margin-top:16px;">
+  <div class="step open" id="plantMasterStep">
+    <div class="step-hdr" style="cursor:default;">
+      <div class="step-num" style="background:var(--info);color:#fff;">⚙</div>
+      <div class="step-title">PLANTマスター管理</div>
+      <div class="step-sub" id="plantMasterSub">COMPASS から自動取得・英文名登録</div>
+    </div>
+    <div class="step-body" style="display:block;">
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;">
+        <button class="btn btn-primary btn-sm" onclick="fetchPlantMaster()">🔄 COMPASSから取得</button>
+        <button class="btn btn-ok btn-sm" onclick="savePlantMasterAll()">💾 保存</button>
+        <span id="plantMasterMsg" style="font-size:11px;color:var(--text2);"></span>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="dash-table" id="plantMasterTable">
+          <thead><tr>
+            <th>PLANT名（日本語）</th>
+            <th>英文名（リポート記載）</th>
+            <th>Packer</th>
+            <th>GUID</th>
+          </tr></thead>
+          <tbody id="plantMasterBody">
+            <tr><td colspan="4" style="text-align:center;color:var(--text3);padding:20px;">「COMPASSから取得」をクリックしてください</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="hint mt8">💡 英文名はBALINGレポートの「INSPECTION PLACE」に使用されます。例: 兼子(横浜) → YOKOHAMA</div>
+    </div>
+  </div>
+</div>
 <div class="powered">✦ Powered by LEENAI Automation System</div>
 </div>
 <script>
@@ -239,6 +272,128 @@ async function handleCallback(){const params=new URLSearchParams(location.search
 function updateLoginUI(){const ok=!!S.dvToken;document.getElementById('loginDot').className='login-dot'+(ok?' ok':'');document.getElementById('loginStatusTxt').textContent=ok?'✅ ログイン済み':'未ログイン — Dataverse 認証';document.getElementById('loginStatusTxt').style.color=ok?'var(--ok)':'var(--text2)';document.getElementById('loginBtn').textContent=ok?'🔄 再ログイン':'🔐 ログイン';document.getElementById('step1Sub').textContent=ok?'✅ ログイン済み':'未ログイン';checkFetchReady();}
 function checkFetchReady(){document.getElementById('fetchBtn').disabled=!(S.dvToken&&S.photoFiles.length);}
 window.onload=async()=>{const saved=localStorage.getItem('cotecna_api_key');if(saved){S.apiKey=saved;document.getElementById('apiKey').value=saved;document.getElementById('apiDot').classList.add('ok');}const now=new Date(),from=new Date(now);from.setDate(from.getDate()-7);document.getElementById('dateTo').value=now.toISOString().slice(0,10);document.getElementById('dateFrom').value=from.toISOString().slice(0,10);const savedTok=sessionStorage.getItem('cotecna_dv_token');if(savedTok){S.dvToken=savedTok;updateLoginUI();document.getElementById('step1').classList.remove('active');document.getElementById('step1').classList.add('done');document.getElementById('step2').classList.add('active','open');}if(location.search.includes('code='))await handleCallback();};
+// ── IndexedDB: plant_master ──
+let plantDB=null;
+function openPlantDB(){
+  return new Promise((res,rej)=>{
+    if(plantDB){res(plantDB);return;}
+    const r=indexedDB.open('leenai_cotecna_v1',1);
+    r.onupgradeneeded=e=>{
+      const db=e.target.result;
+      if(!db.objectStoreNames.contains('plant_master'))
+        db.createObjectStore('plant_master',{keyPath:'plantId'});
+    };
+    r.onsuccess=e=>{plantDB=e.target.result;res(plantDB);};
+    r.onerror=e=>rej(e);
+  });
+}
+async function savePlantMaster(records){
+  const db=await openPlantDB();
+  const tx=db.transaction('plant_master','readwrite');
+  const st=tx.objectStore('plant_master');
+  records.forEach(r=>st.put(r));
+  return new Promise((res,rej)=>{tx.oncomplete=res;tx.onerror=rej;});
+}
+async function loadPlantMaster(){
+  const db=await openPlantDB();
+  return new Promise((res,rej)=>{
+    const tx=db.transaction('plant_master','readonly');
+    const st=tx.objectStore('plant_master');
+    const req=st.getAll();
+    req.onsuccess=()=>res(req.result||[]);
+    req.onerror=rej;
+  });
+}
+async function getPlantEnById(plantId){
+  if(!plantId)return '';
+  const db=await openPlantDB();
+  return new Promise((res)=>{
+    const tx=db.transaction('plant_master','readonly');
+    const req=tx.objectStore('plant_master').get(plantId);
+    req.onsuccess=()=>res(req.result?.plantEn||req.result?.plantJa||'');
+    req.onerror=()=>res('');
+  });
+}
+function togglePlantMaster(){
+  const p=document.getElementById('plantMasterPanel');
+  const b=document.getElementById('plantMasterBtn');
+  const show=p.style.display==='none';
+  p.style.display=show?'block':'none';
+  b.style.borderColor=show?'var(--accent)':'var(--border)';
+  b.style.color=show?'var(--accent)':'var(--text)';
+}
+
+async function fetchPlantMaster(){
+  if(!S.dvToken){alert('COMPASSにログインしてください');return;}
+  const msg=document.getElementById('plantMasterMsg');
+  const tbody=document.getElementById('plantMasterBody');
+  msg.textContent='取得中...';
+  try{
+    // COMPASS から全 packer_plant 取得
+    const data=await dvGet(`${DV_API}/crcf9_packer_plants?$select=crcf9_packer_plantid,crcf9_plant,crcf9_plant_address&$top=500`);
+    const plants=data.value||[];
+    msg.textContent=`${plants.length}件取得`;
+
+    // 既存保存データ読込
+    const saved=await loadPlantMaster();
+    const savedMap={};
+    saved.forEach(r=>{savedMap[r.plantId]=r;});
+
+    // テーブル描画
+    tbody.innerHTML='';
+    plants.sort((a,b)=>(a.crcf9_plant||'').localeCompare(b.crcf9_plant||'','ja')).forEach(p=>{
+      const id=p.crcf9_packer_plantid;
+      const ja=p.crcf9_plant||'—';
+      const savedEn=savedMap[id]?.plantEn||'';
+      const tr=document.createElement('tr');
+      tr.innerHTML=`
+        <td>${ja}</td>
+        <td><input type="text" value="${savedEn}" data-id="${id}" data-ja="${ja}"
+          placeholder="例: YOKOHAMA"
+          style="background:var(--surface2);border:1px solid var(--border);color:var(--text);
+                 padding:4px 8px;border-radius:4px;font-size:12px;width:160px;font-family:inherit;"
+          onchange="markDirty(this)"></td>
+        <td style="font-size:11px;color:var(--text2);">${p.crcf9_plant_address||'—'}</td>
+        <td style="font-size:10px;color:var(--text3);">${id.slice(0,8)}...</td>`;
+      tbody.appendChild(tr);
+    });
+    // 保存済みのみのレコードも追加 (COMPASS未取得分)
+    saved.filter(r=>!plants.find(p=>p.crcf9_packer_plantid===r.plantId)).forEach(r=>{
+      const tr=document.createElement('tr');
+      tr.innerHTML=`<td style="color:var(--text3);">${r.plantJa} <small>(COMPASS未取得)</small></td>
+        <td><input type="text" value="${r.plantEn||''}" data-id="${r.plantId}" data-ja="${r.plantJa}"
+          placeholder="例: YOKOHAMA"
+          style="background:var(--surface2);border:1px solid var(--border);color:var(--text);
+                 padding:4px 8px;border-radius:4px;font-size:12px;width:160px;font-family:inherit;"
+          onchange="markDirty(this)"></td>
+        <td>—</td><td style="font-size:10px;color:var(--text3);">${r.plantId.slice(0,8)}...</td>`;
+      tbody.appendChild(tr);
+    });
+  }catch(e){msg.textContent='エラー: '+e.message;}
+}
+
+function markDirty(el){el.style.borderColor='var(--warn)';}
+
+async function savePlantMasterAll(){
+  const inputs=document.querySelectorAll('#plantMasterBody input[data-id]');
+  const records=[];
+  inputs.forEach(inp=>{
+    records.push({
+      plantId: inp.dataset.id,
+      plantJa: inp.dataset.ja,
+      plantEn: inp.value.trim().toUpperCase(),
+    });
+    inp.style.borderColor='var(--border)';
+  });
+  try{
+    await savePlantMaster(records);
+    const msg=document.getElementById('plantMasterMsg');
+    msg.textContent=`✅ ${records.length}件保存完了`;
+    msg.style.color='var(--ok)';
+    setTimeout(()=>{msg.style.color='var(--text2)';},3000);
+  }catch(e){alert('保存エラー: '+e.message);}
+}
+
 function saveApiKey(){const v=document.getElementById('apiKey').value.trim();if(!v)return alert('APIキーを入力してください');S.apiKey=v;localStorage.setItem('cotecna_api_key',v);document.getElementById('apiDot').classList.add('ok');flog('✅ APIキー保存','ok');}
 function onFolderSelected(input){const files=Array.from(input.files);if(!files.length)return;S.photoFiles=files;S.photoFolderName=files[0].webkitRelativePath.split('/')[0];const ivSet=new Set(files.map(f=>f.webkitRelativePath.split('/')[1]).filter(Boolean));document.getElementById('folderPath').innerHTML=`<b>${S.photoFolderName}</b>　IVフォルダ ${ivSet.size}件 · ファイル ${files.length}個`;document.getElementById('folderBanner').classList.add('ok');document.getElementById('step2Sub').textContent=`${S.photoFolderName} (${ivSet.size}件)`;checkFetchReady();}
 async function dvGet(url){const r=await fetch(url,{headers:{Authorization:`Bearer ${S.dvToken}`,'OData-MaxVersion':'4.0','OData-Version':'4.0',Accept:'application/json;odata.metadata=minimal'}});if(!r.ok){if(r.status===401){S.dvToken=null;sessionStorage.removeItem('cotecna_dv_token');updateLoginUI();}throw new Error(`DV ${r.status}: ${(await r.text()).slice(0,120)}`);}return r.json();}
@@ -274,7 +429,7 @@ async function fetchList(){
       ctData=await dvGet(
         `${DV_API}/crcf9_container_informations`+
         `?$filter=${encodeURIComponent(filter)}`+
-        `&$select=crcf9_container_informationid,crcf9_container_no,crcf9_partial_no,crcf9_work_date,crcf9_seal_no,_crcf9_booking_id_value,_crcf9_purchase_contract_id_value`+
+        `&$select=crcf9_container_informationid,crcf9_container_no,crcf9_partial_no,crcf9_work_date,crcf9_seal_no,_crcf9_booking_id_value,_crcf9_purchase_contract_id_value,_crcf9_parker_plant_id_value`+
         `&$orderby=crcf9_work_date asc&$top=200`
       );
     }catch(e1){
@@ -402,6 +557,7 @@ async function fetchList(){
           partial: partial||'—',
           bkgNo: bkg.cr49f_booking_no||'—',
           packer, pol,
+          plantGuid: ct['_crcf9_parker_plant_id_value']||'',
           workDates:[], ctList:[],
           photoStatus: localIvSet.has(ivNo)?'📁':'❌',
         };
@@ -476,7 +632,7 @@ async function proceedSelected(){
     try{
       setPhase(1);setProgress(5,'写真読込中...');await loadPhotosLocal(row);
       setPhase(2);setProgress(45,'AI分類中...');S.logoB64=DEFAULT_LOGO_B64;await classifyAll();
-      setPhase(3);setProgress(88,'VAN FORM 生成中...');const van=buildVanDocx();setProgress(95,'BALING FORM 生成中...');const bal=buildBalingDocx();
+      setPhase(3);setProgress(88,'VAN FORM 生成中...');const van=buildVanDocx();setProgress(92,'INSPECTION PLACE 取得中...');const plantEn=await getPlantEnById(row.plantGuid);S.inspLocation=plantEn?`${row.packer} / ${plantEn}`:(row.packer||'');setProgress(95,'BALING FORM 生成中...');const bal=buildBalingDocx();
       setProgress(100,`✅ ${row.ivNo}/${row.partial} 完了`);setAllDone();log(`🎉 完了`,'ok');
       const voSafe=S.voNo?S.voNo.replace(/[^a-zA-Z0-9._-]/g,'_'):`${row.ivNo}_${row.partial}`.replace(/[^a-zA-Z0-9._-]/g,'_');
       allDl.push({buf:van,name:`[${voSafe}]_VAN.docx`,icon:'📄',label:`${row.ivNo}/${row.partial} VAN`},{buf:bal,name:`[${voSafe}]_BALING.docx`,icon:'📋',label:`${row.ivNo}/${row.partial} BALING`});

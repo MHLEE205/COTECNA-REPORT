@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LEENAI COTECNAレポートツール v10.0</title>
+<title>LEENAI COTECNAレポートツール v10.1</title>
 <style>
 :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3350;--accent:#4f8ef7;--ok:#22c55e;--warn:#f59e0b;--error:#ef4444;--info:#38bdf8;--text:#e2e8f0;--text2:#8892a4;--text3:#4a5568;}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -93,7 +93,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 <body>
 <header>
   <div class="logo">LEE<span>NAI</span></div>
-  <div class="version">COTECNAレポートツール v10.0 (2026-06-12)</div>
+  <div class="version">COTECNAレポートツール v10.1 (2026-06-12)</div>
   <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
     <button class="btn btn-ghost btn-sm" id="plantMasterBtn" onclick="togglePlantMaster()" style="font-size:11px;">⚙ PLANTマスター</button>
   </div>
@@ -637,7 +637,7 @@ async function proceedSelected(){
   showResults(allDl);document.getElementById('proceedBtn').disabled=false;
   document.getElementById('step2').classList.remove('active');document.getElementById('step2').classList.add('done');step3.classList.add('done');
 }
-function resetJobState(row){S.mode='folder';S.groups={};S.containers=row.ctList.map((ct,i)=>({no:i+1,container:ct.ctNo,seal:ct.seal}));S.vanPhotos={};S.baraPhotos={};S.pressPhotos={};S.balingRawFiles=[];S.classifiedVan={};S.classifiedBaling={goods_yard:null,inspector:null,open_bales:[],rebales:[]};S.logoB64=null;S.voNo=(row.voNo&&row.voNo!=='—'&&row.partial&&row.partial!=='—')?`${row.voNo}-${row.partial}`:(row.voNo&&row.voNo!=='—'?row.voNo:'');const MN=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];const fmtDate=s=>{const d=new Date(s);return MN[d.getMonth()]+`. ${d.getDate()}, ${d.getFullYear()}`};const fd=row.workDates[0]||'';const ld=row.workDates[row.workDates.length-1]||'';if(row.workDates.length>=2){const d0=new Date(fd),d1=new Date(ld);S.reportDate=MN[d0.getMonth()]+`. ${d0.getDate()} & ${d1.getDate()}, ${d0.getFullYear()}`;}else{S.reportDate=fd?fmtDate(fd):'';};S.balingDateCount=row.workDates.length;S.inspPlace=row.pol||'';S.baleCount=0;S.rootName=row.ivNo;S.fileList=[];}
+function resetJobState(row){S.mode='folder';S.groups={};S.containers=row.ctList.map((ct,i)=>({no:i+1,container:ct.ctNo,seal:ct.seal}));S.vanPhotos={};S.baraPhotos={};S.pressPhotos={};S.balingRawFiles=[];S.classifiedVan={};S.classifiedBaling={goods_yards:[],inspectors:[],open_bales:[],rebales:[]};S.logoB64=null;S.voNo=(row.voNo&&row.voNo!=='—'&&row.partial&&row.partial!=='—')?`${row.voNo}-${row.partial}`:(row.voNo&&row.voNo!=='—'?row.voNo:'');const MN=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];const fmtDate=s=>{const d=new Date(s);return MN[d.getMonth()]+`. ${d.getDate()}, ${d.getFullYear()}`};const fd=row.workDates[0]||'';const ld=row.workDates[row.workDates.length-1]||'';if(row.workDates.length>=2){const d0=new Date(fd),d1=new Date(ld);S.reportDate=MN[d0.getMonth()]+`. ${d0.getDate()} & ${d1.getDate()}, ${d0.getFullYear()}`;}else{S.reportDate=fd?fmtDate(fd):'';};S.balingDateCount=row.workDates.length;S.inspPlace=row.pol||'';S.baleCount=0;S.rootName=row.ivNo;S.fileList=[];}
 async function loadPhotosLocal(row){
   const ivNo=row.ivNo;
   const ext=/\.(jpe?g|png)$/i;
@@ -756,7 +756,15 @@ async function loadPhotosLocal(row){
       log(`   _ARCHIVED ${archivedFiles.length}枚 発見 → BALING読込中...`,'info');
       S.balingRawFiles=[];
       await Promise.all(archivedFiles.map(async f=>{
-        try{const b64=await fileToB64(f);S.balingRawFiles.push({name:f.name,b64});}catch(e){}
+        try{
+          const b64=await fileToB64(f);
+          // フォルダパスからバラ/プレス判定
+          const pathParts=f.webkitRelativePath.split('/');
+          const folderNames=pathParts.join('/').toLowerCase();
+          const folderType=folderNames.includes('バラ')||folderNames.includes('bara')?'bara':
+                           folderNames.includes('プレス')||folderNames.includes('press')?'press':'other';
+          S.balingRawFiles.push({name:f.name,b64,folderType});
+        }catch(e){}
       }));
       log(`   ✅ _ARCHIVED BALING写真 ${S.balingRawFiles.length}枚 読込完了`,'ok');
       const sampleNames=S.balingRawFiles.slice(0,8).map(x=>x.name).join(' | ');
@@ -804,42 +812,80 @@ function fileToB64WithDate(f, dateStr){
     reader.readAsDataURL(f);
   });
 }
-async function classifyAll(){S.classifiedVan={};S.classifiedBaling={goods_yard:null,inspector:null,open_bales:[],rebales:[]};
+async function classifyAll(){S.classifiedVan={};S.classifiedBaling={goods_yards:[],inspectors:[],open_bales:[],rebales:[]};
 
-  // ── BALING: _CHECK_PHOTO ファイル名マッピング (KANEKO等 命名規則あり) ──
+  // ── BALING: _ARCHIVED フォルダ AI分類 ──
+  // バラフォルダ → inspector / open_bale
+  // プレスフォルダ → goods_yard / rebale
+  // rebale数 = open_bale数, goods_yard/inspector = 作業日数分
   if(S.balingRawFiles&&S.balingRawFiles.length){
-    log('  📋 BALING写真 ファイル名マッピング中...','info');
-    const byName={};
-    S.balingRawFiles.forEach(({name,b64})=>{
-      const n=name.replace(/_R\.(jpg|jpeg|png)$/i,'');
-      // goods_yard
-      if(/ヤード在庫/.test(n)){byName.goods_yard=b64;log(`    ヤード在庫 → goods_yard`,'ok');}
-      // inspector
-      else if(/検査員/.test(n)){byName.inspector=b64;log(`    検査員 → inspector`,'ok');}
-      // re_bale: 検査済みベールN
-      else if(/検査済みベール([\d０-９]+|[一二三四五六七八九十]+)/.test(n)){
-        const mN=n.match(/検査済みベール([\d０-９]+)/)||n.match(/検査済みベール([一二三四五六七八九十]+)/);
-        const num=mN?kanjiToNum(mN[1]):byName._rebale_count||1;
-        if(!byName.rebales)byName.rebales=[];
-        byName.rebales.push({num,b64});
-        log(`    ${name} → re_bale#${num}`,'ok');
-      }
-      // open_bale: 開梱されたベールN
-      else if(/開梱されたベール([\d０-９]+|[一二三四五六七八九十]+)/.test(n)){
-        const mN=n.match(/開梱されたベール([\d０-９]+)/)||n.match(/開梱されたベール([一二三四五六七八九十]+)/);
-        const num=mN?kanjiToNum(mN[1]):byName._open_count||1;
-        if(!byName.open_bales)byName.open_bales=[];
-        byName.open_bales.push({num,b64});
-        log(`    ${name} → open_bale#${num}`,'ok');
-      }
-    });
-    if(byName.goods_yard||byName.inspector||byName.rebales||byName.open_bales){
-      S.classifiedBaling.goods_yard=byName.goods_yard||null;
-      S.classifiedBaling.inspector=byName.inspector||null;
-      S.classifiedBaling.rebales=(byName.rebales||[]).sort((a,b)=>a.num-b.num).map(x=>x.b64);
-      S.classifiedBaling.open_bales=(byName.open_bales||[]).sort((a,b)=>a.num-b.num).map(x=>x.b64);
-      log(`  ✅ BALING マッピング完了: goods_yard=${!!byName.goods_yard} inspector=${!!byName.inspector} open=${S.classifiedBaling.open_bales.length}枚 rebale=${S.classifiedBaling.rebales.length}枚`,'ok');
+    log('  📋 BALING写真 AI分類中 (バラ/プレス分離)...','info');
+    const baraFiles=S.balingRawFiles.filter(({folderType})=>folderType==='bara');
+    const pressFiles=S.balingRawFiles.filter(({folderType})=>folderType==='press');
+    const allFiles=S.balingRawFiles; // folderTypeなし(旧_CHECK_PHOTO)はすべて対象
+    const useBaraPress=(baraFiles.length>0||pressFiles.length>0);
+    const targetBara=useBaraPress?baraFiles:allFiles;
+    const targetPress=useBaraPress?pressFiles:allFiles;
+    log(`  バラ: ${targetBara.length}枚 / プレス: ${targetPress.length}枚`,'info');
+
+    // プレスフォルダ → goods_yard / rebale をAI分類
+    const pressResults=[];
+    for(let i=0;i<targetPress.length;i+=4){
+      const batch=targetPress.slice(i,i+4);
+      await Promise.all(batch.map(async({name,b64})=>{
+        try{
+          const label=await callAI([
+            {type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},
+            {type:'text',text:BALING_PROMPT}
+          ],20);
+          const l=label.trim().toLowerCase();
+          if(l==='goods_yard'||l==='rebale'){
+            pressResults.push({label:l,b64,name});
+            log(`    [プレス] ${name} → ${l}`,'ok');
+          }else{
+            log(`    [プレス] ${name} → ${l} (スキップ)`,'info');
+          }
+        }catch(e){log(`    [プレス] ${name} エラー`,'warn');}
+      }));
     }
+
+    // バラフォルダ → inspector / open_bale をAI分類
+    const baraResults=[];
+    for(let i=0;i<targetBara.length;i+=4){
+      const batch=targetBara.slice(i,i+4);
+      await Promise.all(batch.map(async({name,b64})=>{
+        try{
+          const label=await callAI([
+            {type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},
+            {type:'text',text:BALING_PROMPT}
+          ],20);
+          const l=label.trim().toLowerCase();
+          if(l==='inspector'||l==='open_bale'){
+            baraResults.push({label:l,b64,name});
+            log(`    [バラ] ${name} → ${l}`,'ok');
+          }else{
+            log(`    [バラ] ${name} → ${l} (スキップ)`,'info');
+          }
+        }catch(e){log(`    [バラ] ${name} エラー`,'warn');}
+      }));
+    }
+
+    // 結果振り分け
+    const dateCount=Math.max(1,S.balingDateCount||1);
+    const goodsYards=pressResults.filter(r=>r.label==='goods_yard').map(r=>r.b64);
+    const rebales=pressResults.filter(r=>r.label==='rebale').map(r=>r.b64);
+    const inspectors=baraResults.filter(r=>r.label==='inspector').map(r=>r.b64);
+    const openBales=baraResults.filter(r=>r.label==='open_bale').map(r=>r.b64);
+    const rebaleCount=rebales.length;
+
+    // goods_yard / inspector は作業日数分まで
+    S.classifiedBaling.goods_yards=goodsYards.slice(0,dateCount);
+    S.classifiedBaling.inspectors=inspectors.slice(0,dateCount);
+    // open_bale は rebale数に合わせる
+    S.classifiedBaling.rebales=rebales;
+    S.classifiedBaling.open_bales=openBales.slice(0,rebaleCount);
+
+    log(`  ✅ BALING分類完了: goods_yard=${S.classifiedBaling.goods_yards.length}枚 rebale=${rebaleCount}枚 inspector=${S.classifiedBaling.inspectors.length}枚 open_bale=${S.classifiedBaling.open_bales.length}枚`,'ok');
   }
 
 const nos=Object.keys(S.vanPhotos).map(Number).sort((a,b)=>a-b);if(!nos.length){log('⚠️ 写真なし','warn');for(const c of S.containers)S.classifiedVan[c.no]={};return;}// ── VAN: ファイル名マッピング試行 (KANEKO等) ──
@@ -1047,15 +1093,15 @@ function buildBalingDocx(){
   };
   const b=S.classifiedBaling;
   xml+=`<w:tbl><w:tblPr><w:tblW w:w="10632" w:type="dxa"/>${TBL_BRD}</w:tblPr>`;
-  // Goods at Yard / Inspector with Goods — 検査日数分のセット
+  // Goods at Yard / Inspector with Goods — 作業日数分
   const dateCount=Math.max(1,S.balingDateCount||1);
   for(let d=0;d<dateCount;d++){
-    const gy=Array.isArray(b.goods_yards)?b.goods_yards[d]:b.goods_yard;
-    const ins=Array.isArray(b.inspectors)?b.inspectors[d]:b.inspector;
-    ar('Goods at Yard',gy||null,'Inspector with Goods',ins||null);
+    const gy=(b.goods_yards||[])[d]||null;
+    const ins=(b.inspectors||[])[d]||null;
+    ar('Goods at Yard',gy,'Inspector with Goods',ins);
   }
-  // Bale #N — Open bale / Re-bale with Cotecna tape
-  const baleCount=Math.max(b.open_bales.length,b.rebales.length,1);
+  // Bale #N — rebale数を基準に (open_baleもrebale数に合わせる)
+  const baleCount=Math.max((b.rebales||[]).length,1);
   for(let i=0;i<baleCount;i++){
     ar(`Bale #${i+1} – Open bale`,b.open_bales[i]||null,`Bale #${i+1} – Re-bale with Cotecna tape`,b.rebales[i]||null);
   }

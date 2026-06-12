@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LEENAI COTECNAレポートツール v8.1</title>
+<title>LEENAI COTECNAレポートツール v8.2</title>
 <style>
 :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3350;--accent:#4f8ef7;--ok:#22c55e;--warn:#f59e0b;--error:#ef4444;--info:#38bdf8;--text:#e2e8f0;--text2:#8892a4;--text3:#4a5568;}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -93,7 +93,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 <body>
 <header>
   <div class="logo">LEAN<span>AI</span></div>
-  <div class="version">COTECNAレポートツール v8.1 (2026-06-12)</div>
+  <div class="version">COTECNAレポートツール v8.2 (2026-06-12)</div>
   <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
     <button class="btn btn-ghost btn-sm" id="plantMasterBtn" onclick="togglePlantMaster()" style="font-size:11px;">⚙ PLANTマスター</button>
   </div>
@@ -565,7 +565,7 @@ async function fetchList(){
 
       const d=ct.crcf9_work_date?.slice(0,10)||'';
       if(d&&!groupMap[groupKey].workDates.includes(d))groupMap[groupKey].workDates.push(d);
-      groupMap[groupKey].ctList.push({ctNo:ct.crcf9_container_no||'—',seal:ct.crcf9_seal_no||'',date:d});
+      groupMap[groupKey].ctList.push({ctNo:ct.crcf9_container_no||'—',sealShip:ct.crcf9_seal_no||'',seal:'',date:d});
     }
 
     const list=Object.values(groupMap);
@@ -632,7 +632,7 @@ async function proceedSelected(){
     try{
       setPhase(1);setProgress(5,'写真読込中...');await loadPhotosLocal(row);
       setPhase(2);setProgress(45,'AI分類中...');S.logoB64=DEFAULT_LOGO_B64;await classifyAll();
-      setPhase(3);setProgress(88,'VAN FORM 生成中...');const van=buildVanDocx();setProgress(92,'INSPECTION PLACE 取得中...');const plantEn=await getPlantEnById(row.plantGuid);S.inspLocation=plantEn?`${row.packer} / ${plantEn}`:(row.packer||'');setProgress(95,'BALING FORM 生成中...');const bal=buildBalingDocx();
+      setPhase(3);setProgress(88,'VAN FORM 生成中...');const van=buildVanDocx();setProgress(92,'INSPECTION PLACE 取得中...');log(`   PLANT GUID: ${row.plantGuid||'(なし)'}`, 'info');const plantEn=row.plantGuid?await getPlantEnById(row.plantGuid):'';log(`   PLANT EN: ${plantEn||'(未登録)'}`, 'info');S.inspLocation=plantEn?`${row.packer} / ${plantEn}`:(row.packer||'');setProgress(95,'BALING FORM 生成中...');const bal=buildBalingDocx();
       setProgress(100,`✅ ${row.ivNo}/${row.partial} 完了`);setAllDone();log(`🎉 完了`,'ok');
       const voSafe=S.voNo?S.voNo.replace(/[^a-zA-Z0-9._-]/g,'_'):`${row.ivNo}_${row.partial}`.replace(/[^a-zA-Z0-9._-]/g,'_');
       allDl.push({buf:van,name:`[${voSafe}]_VAN.docx`,icon:'📄',label:`${row.ivNo}/${row.partial} VAN`},{buf:bal,name:`[${voSafe}]_BALING.docx`,icon:'📋',label:`${row.ivNo}/${row.partial} BALING`});

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LEENAI COTECNAレポートツール v9.5</title>
+<title>LEENAI COTECNAレポートツール v9.6</title>
 <style>
 :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3350;--accent:#4f8ef7;--ok:#22c55e;--warn:#f59e0b;--error:#ef4444;--info:#38bdf8;--text:#e2e8f0;--text2:#8892a4;--text3:#4a5568;}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -93,7 +93,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 <body>
 <header>
   <div class="logo">LEAN<span>AI</span></div>
-  <div class="version">COTECNAレポートツール v9.5 (2026-06-12)</div>
+  <div class="version">COTECNAレポートツール v9.6 (2026-06-12)</div>
   <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
     <button class="btn btn-ghost btn-sm" id="plantMasterBtn" onclick="togglePlantMaster()" style="font-size:11px;">⚙ PLANTマスター</button>
   </div>
@@ -890,12 +890,69 @@ const nos=Object.keys(S.vanPhotos).map(Number).sort((a,b)=>a-b);if(!nos.length){
     // OOMOTO固定スロット: 1=empty, 4=half, 5=full, 6=right_door, 9=cotecna_seal, 11=inspector (2番はスキップ)
     const OOMOTO_SLOT_DEF={1:'empty',4:'half',5:'full',6:'right_door',9:'cotecna_seal',11:'inspector'};
     const OOMOTO_CHECK={
-      1:`この写真はコンテナ内部を正面から撮影した空コンテナの写真ですか？両扉が開いた状態でコンテナ内部が見えていればyes。「yes」または「no」のみ答えてください。`,
-      4:`この写真はコンテナの両扉が開いた状態で、内部に古紙ベールが約50%積載されている写真ですか？「yes」または「no」のみ答えてください。`,
-      5:`この写真はコンテナの両扉が開いた状態で、内部に古紙ベールが満載されている写真ですか？「yes」または「no」のみ答えてください。`,
-      6:`この写真はコンテナのドアが閉まった状態でコンテナ番号プレートが正面に大きく見えている写真ですか？「yes」または「no」のみ答えてください。`,
-      9:`この写真は黄色いCOTECNAシールのクローズアップ写真ですか？「COTECNA」の文字と「JP-」で始まる番号が見えていればyes。「yes」または「no」のみ答えてください。`,
-      11:`この写真は白いヘルメットをかぶった作業員がCOTECNA検査書類を手に持っている写真ですか？「yes」または「no」のみ答えてください。`,
+      1:`【古紙輸出VAN検査 写真確認】
+この写真は、コンテナに荷物を積み込む前に撮影した「空コンテナ内部確認写真」として使用されます。
+以下のいずれかに該当すればyesと答えてください：
+・コンテナの両扉が開いた状態で、内部が写っている
+・コンテナ内部のコルゲート（波型鉄板）が見える
+・荷物が一切ない、または床面しか見えない
+・コンテナ開口部から内部を撮影した角度である
+「yes」または「no」のみ答えてください。`,
+      4:`【古紙輸出VAN検査 写真確認】
+この写真は、コンテナへの古紙ベール積載途中の「半積み確認写真」として使用されます。
+以下のいずれかに該当すればyesと答えてください：
+・コンテナ内部に古紙ベール（四角く圧縮された古紙の固まり）が積まれている
+・コンテナの奥まで荷物が見えるが、天井まで届いていない
+・半分程度積まれた状態（30〜70%）
+・荷物がある程度積まれているが、まだ空きスペースが上方に見える
+「yes」または「no」のみ答えてください。`,
+      5:`【古紙輸出VAN検査 写真確認】
+この写真は、コンテナへの古紙ベール積載完了後の「満載確認写真」として使用されます。
+以下のいずれかに該当すればyesと答えてください：
+・コンテナ内部に古紙ベールがぎっしり詰まっている
+・天井近くまで荷物が積まれている
+・コンテナ開口部の大半が荷物で埋まっている
+・積み込み完了の状態（荷物が多く空きスペースが少ない）
+・コンテナ扉口から見て荷物が密に詰まっている
+「yes」または「no」のみ答えてください。`,
+      6:`【古紙輸出VAN検査 写真確認】
+この写真は、コンテナの「右扉閉め・コンテナ番号確認写真」として使用されます。
+以下のいずれかに該当すればyesと答えてください：
+・コンテナの扉が閉まっている（片側または両側）
+・コンテナの外側側面や扉が写っている
+・英字4文字＋数字7桁のコンテナ番号（例：SEGU5989373）が写っている
+・コンテナ外壁・扉面が主体の写真
+・コンテナを外から撮影した写真
+注意：コンテナ番号が小さく写っていたり、やや見づらくても構いません。扉や外壁が写っていればyesです。
+「yes」または「no」のみ答えてください。`,
+      9:`【古紙輸出VAN検査 写真確認】
+この写真は、COTECNA社の「封印シール（コンテナシール）クローズアップ写真」として使用されます。
+他の船会社のシールも黄色いものが多いため、以下の条件を必ず確認してください。
+
+【yes の条件 — 以下を両方満たすこと】
+① シール・タグ・錠前のクローズアップ写真である
+② 次のいずれかの文字が写真内に確認できる：
+   ・「COTECNA」（全部でも一部でも可、COT / OTECNA 等も可）
+   ・「JP-」で始まる番号（例：JP-9047847）
+   ・「JP」の文字（単独でも可）
+
+【no の条件】
+・黄色いシールでも「COTECNA」「JP」の文字が一切確認できない場合はno
+・コンテナ番号プレートや扉全体の写真はno
+・文字が読み取れないほど暗い・ぼけている場合はno
+
+注意：写真が少し暗くても、「COTECNA」または「JP」の文字が判別できればyesです。
+「yes」または「no」のみ答えてください。`,
+      11:`【古紙輸出VAN検査 写真確認】
+この写真は、COTECNA検査員による「検査完了確認写真」として使用されます。
+以下のいずれかに該当すればyesと答えてください：
+・白いヘルメット（安全帽）をかぶった人物が写っている
+・作業服・安全ベストを着た人物がコンテナの前や付近に立っている
+・人物がカメラに向かって書類・ボード・カード等を提示している
+・検査員らしき人物が写っている（書類を持っていなくても可）
+・人物がコンテナや荷物の前に立っているシーン
+注意：書類が写っていなくても、ヘルメットをかぶった人物がいればyesです。
+「yes」または「no」のみ答えてください。`,
     };
     for(const no of nos){
       S.classifiedVan[no]={};
@@ -914,12 +971,14 @@ const nos=Object.keys(S.vanPhotos).map(Number).sort((a,b)=>a-b);if(!nos.length){
         const seq=posMap[posNum];
         if(seq==null||!p[seq]) return;
         try{
-          const ans=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:p[seq]}},{type:'text',text:OOMOTO_CHECK[posNum]}],10);
+          const ans=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:p[seq]}},{type:'text',text:OOMOTO_CHECK[posNum]}],15);
           if(ans.toLowerCase().includes('yes')){
             S.classifiedVan[no][slot]=p[seq];
             log(`    CT${no} pos${pos} → ${slot} ✅`,'ok');
           }else{
-            log(`    CT${no} pos${pos} → ${slot} ❌(AI否定・スキップ)`,'warn');
+            // AI否定でも位置ベースは信頼度が高いため、位置で確定（警告表示のみ）
+            S.classifiedVan[no][slot]=p[seq];
+            log(`    CT${no} pos${pos} → ${slot} ⚠️(AI否定・位置優先で採用)`,'warn');
           }
         }catch(e){
           S.classifiedVan[no][slot]=p[seq];

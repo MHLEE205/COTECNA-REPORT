@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LEENAI COTECNAレポートツール v9.2</title>
+<title>LEENAI COTECNAレポートツール v9.3</title>
 <style>
 :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3350;--accent:#4f8ef7;--ok:#22c55e;--warn:#f59e0b;--error:#ef4444;--info:#38bdf8;--text:#e2e8f0;--text2:#8892a4;--text3:#4a5568;}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -93,7 +93,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 <body>
 <header>
   <div class="logo">LEAN<span>AI</span></div>
-  <div class="version">COTECNAレポートツール v9.2 (2026-06-12)</div>
+  <div class="version">COTECNAレポートツール v9.3 (2026-06-12)</div>
   <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
     <button class="btn btn-ghost btn-sm" id="plantMasterBtn" onclick="togglePlantMaster()" style="font-size:11px;">⚙ PLANTマスター</button>
   </div>
@@ -722,7 +722,7 @@ async function loadPhotosLocal(row){
     for(let i=0;i<imgs.length;i+=5){
       const batch=imgs.slice(i,i+5);
       await Promise.all(batch.map(async(f,bi)=>{
-        try{const seq=i+bi+1;S.vanPhotos[no][seq]=S.overlayDate?await fileToB64WithDate(f,S.overlayDate):await fileToB64(f);S.vanPhotos[no][`_name_${seq}`]=f.name;}
+        try{const seq=i+bi+1;S.vanPhotos[no][seq]=S.overlayDate?await fileToB64WithDate(f,S.overlayDate):await fileToB64(f);S.vanPhotos[no][`_name_${seq}`]=f.name;if(seq===1)log(`    [DEBUG] f.name='${f.name}'`,'info');}
         catch(e){log(`    ⚠️ ${f.name}`,'warn');}
       }));
       setProgress(5+Math.round(((ci||1)/ctFolders.length)*35),`写真読込: ${cf}`);
@@ -884,7 +884,7 @@ const nos=Object.keys(S.vanPhotos).map(Number).sort((a,b)=>a-b);if(!nos.length){
   const fp=S.vanPhotos[nos[0]];
   const seqs=Object.keys(fp).filter(k=>!k.startsWith('_')).map(Number).sort((a,b)=>a-b);
   const firstName=(fp[`_name_${seqs[0]}`]||'');
-  const isOomoto=/^\d+\s*\(\d+\)\.(jpg|jpeg|png)$/i.test(firstName);
+  const isOomoto=/^\\d+ \\(\\d+\\)\.JPG$/i.test(firstName);
   if(isOomoto){
     log(`  📋 OOMOTOパターン検出 (${seqs.length}枚) → 位置指定+AI確認`,'ok');
     // OOMOTO固定スロット: 1=empty, 4=half, 5=full, 6=right_door, 9=cotecna_seal, 11=inspector (2番はスキップ)

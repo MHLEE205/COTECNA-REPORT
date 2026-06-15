@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LEENAI COTECNAレポートツール v10.8</title>
+<title>LEENAI COTECNAレポートツール v10.9</title>
 <style>
 :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3350;--accent:#4f8ef7;--ok:#22c55e;--warn:#f59e0b;--error:#ef4444;--info:#38bdf8;--text:#e2e8f0;--text2:#8892a4;--text3:#4a5568;}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -93,7 +93,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 <body>
 <header>
   <div class="logo">LEE<span>NAI</span></div>
-  <div class="version">COTECNAレポートツール v10.8 (2026-06-15)</div>
+  <div class="version">COTECNAレポートツール v10.9 (2026-06-15)</div>
   <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
     <button class="btn btn-ghost btn-sm" id="plantMasterBtn" onclick="togglePlantMaster()" style="font-size:11px;">⚙ PLANTマスター</button>
   </div>
@@ -856,44 +856,56 @@ async function classifyAll(){S.classifiedVan={};S.classifiedBaling={goods_yards:
     const useArchivedPath=(baraFiles.length>0||pressFiles.length>0);
 
     if(useArchivedPath){
-      // ── _ARCHIVED パス: バラ/プレス AI分類 ──
-      log('  📋 BALING AI分類中 (バラ/プレス分離)...','info');
+      // ── _ARCHIVED パス ──
+      // プレスフォルダ: goods_yardのみAI判定、それ以外は全てrebale
+      // バラフォルダ: inspectorのみAI判定、それ以外は全てopen_bale
+      // ITEM順: OCC→OMG→ONP→その他
+      log('  📋 BALING分類中 (フォルダ基準)...','info');
       log(`  バラ: ${baraFiles.length}枚 / プレス: ${pressFiles.length}枚`,'info');
+      const ITEM_ORDER=['OCC','OMG','ONP','MIX',''];
+      const itemSort=(a,b)=>{const ai=ITEM_ORDER.indexOf(a.item||'');const bi=ITEM_ORDER.indexOf(b.item||'');return (ai===-1?999:ai)-(bi===-1?999:bi);};
 
-      // プレス → goods_yard / rebale
+      // プレス: goods_yardのみAI判定、残りはrebale
       const pressResults=[];
       for(let i=0;i<pressFiles.length;i+=4){
         await Promise.all(pressFiles.slice(i,i+4).map(async({name,b64,item})=>{
           try{
             const l=(await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:BALING_PROMPT}],20)).trim().toLowerCase();
-            if(l==='goods_yard'||l==='rebale'){pressResults.push({label:l,b64,name,item:item||''});log(`    [プレス] ${name}(${item||''}) → ${l}`,'ok');}
-            else{log(`    [プレス] ${name} → ${l} (スキップ)`,'info');}
-          }catch(e){log(`    [プレス] ${name} エラー: ${e.message}`,'warn');}
+            const label=l==='goods_yard'?'goods_yard':'rebale';
+            pressResults.push({label,b64,name,item:item||''});
+            log(`    [プレス] ${name}(${item||''}) → ${label}`,'ok');
+          }catch(e){
+            // エラー時はrebaleとして採用
+            pressResults.push({label:'rebale',b64,name,item:item||''});
+            log(`    [プレス] ${name} エラー→rebale採用`,'warn');
+          }
         }));
       }
 
-      // バラ → inspector / open_bale
+      // バラ: inspectorのみAI判定、残りはopen_bale
       const baraResults=[];
       for(let i=0;i<baraFiles.length;i+=4){
         await Promise.all(baraFiles.slice(i,i+4).map(async({name,b64,item})=>{
           try{
             const l=(await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:BALING_PROMPT}],20)).trim().toLowerCase();
-            if(l==='inspector'||l==='open_bale'){baraResults.push({label:l,b64,name,item:item||''});log(`    [バラ] ${name}(${item||''}) → ${l}`,'ok');}
-            else{log(`    [バラ] ${name} → ${l} (スキップ)`,'info');}
-          }catch(e){log(`    [バラ] ${name} エラー: ${e.message}`,'warn');}
+            const label=l==='inspector'?'inspector':'open_bale';
+            baraResults.push({label,b64,name,item:item||''});
+            log(`    [バラ] ${name}(${item||''}) → ${label}`,'ok');
+          }catch(e){
+            // エラー時はopen_baleとして採用
+            baraResults.push({label:'open_bale',b64,name,item:item||''});
+            log(`    [バラ] ${name} エラー→open_bale採用`,'warn');
+          }
         }));
       }
 
       const dateCount=Math.max(1,S.balingDateCount||1);
-      // ITEM順にソート: OCC→OMG→ONP→その他の順
-      const ITEM_ORDER=['OCC','OMG','ONP','MIX',''];
-      const itemSort=(a,b)=>{const ai=ITEM_ORDER.indexOf(a.item||'');const bi=ITEM_ORDER.indexOf(b.item||'');return (ai===-1?999:ai)-(bi===-1?999:bi);};
       const rebalesSorted=pressResults.filter(r=>r.label==='rebale').sort(itemSort);
       const goodsYardsSorted=pressResults.filter(r=>r.label==='goods_yard').sort(itemSort);
       const inspectorsSorted=baraResults.filter(r=>r.label==='inspector').sort(itemSort);
       const openBalesSorted=baraResults.filter(r=>r.label==='open_bale').sort(itemSort);
-      log(`  ITEMソート: rebale=[${rebalesSorted.map(r=>r.item||'-').join(',')}]`,'info');
-      log(`  ITEMソート: open_bale=[${openBalesSorted.map(r=>r.item||'-').join(',')}]`,'info');
+      log(`  rebale=[${rebalesSorted.map(r=>r.item||'-').join(',')}]`,'info');
+      log(`  open_bale=[${openBalesSorted.map(r=>r.item||'-').join(',')}]`,'info');
       S.classifiedBaling.goods_yards=goodsYardsSorted.map(r=>r.b64).slice(0,dateCount);
       S.classifiedBaling.rebales=rebalesSorted.map(r=>r.b64);
       S.classifiedBaling.inspectors=inspectorsSorted.map(r=>r.b64).slice(0,dateCount);

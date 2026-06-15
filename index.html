@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LEENAI COTECNAレポートツール v10.1</title>
+<title>LEENAI COTECNAレポートツール v10.2</title>
 <style>
 :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3350;--accent:#4f8ef7;--ok:#22c55e;--warn:#f59e0b;--error:#ef4444;--info:#38bdf8;--text:#e2e8f0;--text2:#8892a4;--text3:#4a5568;}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -93,7 +93,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 <body>
 <header>
   <div class="logo">LEE<span>NAI</span></div>
-  <div class="version">COTECNAレポートツール v10.1 (2026-06-12)</div>
+  <div class="version">COTECNAレポートツール v10.2 (2026-06-12)</div>
   <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
     <button class="btn btn-ghost btn-sm" id="plantMasterBtn" onclick="togglePlantMaster()" style="font-size:11px;">⚙ PLANTマスター</button>
   </div>
@@ -814,78 +814,80 @@ function fileToB64WithDate(f, dateStr){
 }
 async function classifyAll(){S.classifiedVan={};S.classifiedBaling={goods_yards:[],inspectors:[],open_bales:[],rebales:[]};
 
-  // ── BALING: _ARCHIVED フォルダ AI分類 ──
-  // バラフォルダ → inspector / open_bale
-  // プレスフォルダ → goods_yard / rebale
-  // rebale数 = open_bale数, goods_yard/inspector = 作業日数分
+  // ── BALING 分類 ──
+  // ① _ARCHIVED (folderType=bara/press) → バラ/プレス AI分類
+  // ② _CHECK_PHOTO (ファイル名命名規則あり) → ファイル名マッピング優先
   if(S.balingRawFiles&&S.balingRawFiles.length){
-    log('  📋 BALING写真 AI分類中 (バラ/プレス分離)...','info');
-    const baraFiles=S.balingRawFiles.filter(({folderType})=>folderType==='bara');
-    const pressFiles=S.balingRawFiles.filter(({folderType})=>folderType==='press');
-    const allFiles=S.balingRawFiles; // folderTypeなし(旧_CHECK_PHOTO)はすべて対象
-    const useBaraPress=(baraFiles.length>0||pressFiles.length>0);
-    const targetBara=useBaraPress?baraFiles:allFiles;
-    const targetPress=useBaraPress?pressFiles:allFiles;
-    log(`  バラ: ${targetBara.length}枚 / プレス: ${targetPress.length}枚`,'info');
+    const baraFiles=S.balingRawFiles.filter(f=>f.folderType==='bara');
+    const pressFiles=S.balingRawFiles.filter(f=>f.folderType==='press');
+    const useArchivedPath=(baraFiles.length>0||pressFiles.length>0);
 
-    // プレスフォルダ → goods_yard / rebale をAI分類
-    const pressResults=[];
-    for(let i=0;i<targetPress.length;i+=4){
-      const batch=targetPress.slice(i,i+4);
-      await Promise.all(batch.map(async({name,b64})=>{
-        try{
-          const label=await callAI([
-            {type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},
-            {type:'text',text:BALING_PROMPT}
-          ],20);
-          const l=label.trim().toLowerCase();
-          if(l==='goods_yard'||l==='rebale'){
-            pressResults.push({label:l,b64,name});
-            log(`    [プレス] ${name} → ${l}`,'ok');
-          }else{
-            log(`    [プレス] ${name} → ${l} (スキップ)`,'info');
-          }
-        }catch(e){log(`    [プレス] ${name} エラー`,'warn');}
-      }));
+    if(useArchivedPath){
+      // ── _ARCHIVED パス: バラ/プレス AI分類 ──
+      log('  📋 BALING AI分類中 (バラ/プレス分離)...','info');
+      log(`  バラ: ${baraFiles.length}枚 / プレス: ${pressFiles.length}枚`,'info');
+
+      // プレス → goods_yard / rebale
+      const pressResults=[];
+      for(let i=0;i<pressFiles.length;i+=4){
+        await Promise.all(pressFiles.slice(i,i+4).map(async({name,b64})=>{
+          try{
+            const l=(await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:BALING_PROMPT}],20)).trim().toLowerCase();
+            if(l==='goods_yard'||l==='rebale'){pressResults.push({label:l,b64,name});log(`    [プレス] ${name} → ${l}`,'ok');}
+            else{log(`    [プレス] ${name} → ${l} (スキップ)`,'info');}
+          }catch(e){log(`    [プレス] ${name} エラー`,'warn');}
+        }));
+      }
+
+      // バラ → inspector / open_bale
+      const baraResults=[];
+      for(let i=0;i<baraFiles.length;i+=4){
+        await Promise.all(baraFiles.slice(i,i+4).map(async({name,b64})=>{
+          try{
+            const l=(await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:BALING_PROMPT}],20)).trim().toLowerCase();
+            if(l==='inspector'||l==='open_bale'){baraResults.push({label:l,b64,name});log(`    [バラ] ${name} → ${l}`,'ok');}
+            else{log(`    [バラ] ${name} → ${l} (スキップ)`,'info');}
+          }catch(e){log(`    [バラ] ${name} エラー`,'warn');}
+        }));
+      }
+
+      const dateCount=Math.max(1,S.balingDateCount||1);
+      const rebales=pressResults.filter(r=>r.label==='rebale').map(r=>r.b64);
+      S.classifiedBaling.goods_yards=pressResults.filter(r=>r.label==='goods_yard').map(r=>r.b64).slice(0,dateCount);
+      S.classifiedBaling.rebales=rebales;
+      S.classifiedBaling.inspectors=baraResults.filter(r=>r.label==='inspector').map(r=>r.b64).slice(0,dateCount);
+      S.classifiedBaling.open_bales=baraResults.filter(r=>r.label==='open_bale').map(r=>r.b64).slice(0,rebales.length);
+      log(`  ✅ BALING分類完了: goods_yard=${S.classifiedBaling.goods_yards.length}枚 rebale=${rebales.length}枚 inspector=${S.classifiedBaling.inspectors.length}枚 open_bale=${S.classifiedBaling.open_bales.length}枚`,'ok');
+
+    }else{
+      // ── _CHECK_PHOTO パス: ファイル名マッピング優先 ──
+      log('  📋 BALING写真 ファイル名マッピング中...','info');
+      const byName={};
+      S.balingRawFiles.forEach(({name,b64})=>{
+        const n=name.replace(/_R\.(jpg|jpeg|png)$/i,'');
+        if(/ヤード在庫/.test(n)){byName.goods_yard=b64;log(`    ${name} → goods_yard`,'ok');}
+        else if(/検査員/.test(n)){byName.inspector=b64;log(`    ${name} → inspector`,'ok');}
+        else if(/検査済みベール([\d０-９]+|[一二三四五六七八九十]+)/.test(n)){
+          const mN=n.match(/検査済みベール([\d０-９]+)/)||n.match(/検査済みベール([一二三四五六七八九十]+)/);
+          const num=mN?kanjiToNum(mN[1]):(byName.rebales||[]).length+1;
+          if(!byName.rebales)byName.rebales=[];
+          byName.rebales.push({num,b64});log(`    ${name} → rebale#${num}`,'ok');
+        }
+        else if(/開梱されたベール([\d０-９]+|[一二三四五六七八九十]+)/.test(n)){
+          const mN=n.match(/開梱されたベール([\d０-９]+)/)||n.match(/開梱されたベール([一二三四五六七八九十]+)/);
+          const num=mN?kanjiToNum(mN[1]):(byName.open_bales||[]).length+1;
+          if(!byName.open_bales)byName.open_bales=[];
+          byName.open_bales.push({num,b64});log(`    ${name} → open_bale#${num}`,'ok');
+        }
+      });
+      const dateCount=Math.max(1,S.balingDateCount||1);
+      const rebales=(byName.rebales||[]).sort((a,b)=>a.num-b.num).map(x=>x.b64);
+      S.classifiedBaling.goods_yards=byName.goods_yard?[byName.goods_yard].slice(0,dateCount):[];
+      S.classifiedBaling.inspectors=byName.inspector?[byName.inspector].slice(0,dateCount):[];
+      S.classifiedBaling.rebales=rebales;
+      S.classifiedBaling.open_bales=(byName.open_bales||[]).sort((a,b)=>a.num-b.num).map(x=>x.b64).slice(0,rebales.length);
+      log(`  ✅ BALING分類完了: goods_yard=${S.classifiedBaling.goods_yards.length}枚 rebale=${rebales.length}枚 inspector=${S.classifiedBaling.inspectors.length}枚 open_bale=${S.classifiedBaling.open_bales.length}枚`,'ok');
     }
-
-    // バラフォルダ → inspector / open_bale をAI分類
-    const baraResults=[];
-    for(let i=0;i<targetBara.length;i+=4){
-      const batch=targetBara.slice(i,i+4);
-      await Promise.all(batch.map(async({name,b64})=>{
-        try{
-          const label=await callAI([
-            {type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},
-            {type:'text',text:BALING_PROMPT}
-          ],20);
-          const l=label.trim().toLowerCase();
-          if(l==='inspector'||l==='open_bale'){
-            baraResults.push({label:l,b64,name});
-            log(`    [バラ] ${name} → ${l}`,'ok');
-          }else{
-            log(`    [バラ] ${name} → ${l} (スキップ)`,'info');
-          }
-        }catch(e){log(`    [バラ] ${name} エラー`,'warn');}
-      }));
-    }
-
-    // 結果振り分け
-    const dateCount=Math.max(1,S.balingDateCount||1);
-    const goodsYards=pressResults.filter(r=>r.label==='goods_yard').map(r=>r.b64);
-    const rebales=pressResults.filter(r=>r.label==='rebale').map(r=>r.b64);
-    const inspectors=baraResults.filter(r=>r.label==='inspector').map(r=>r.b64);
-    const openBales=baraResults.filter(r=>r.label==='open_bale').map(r=>r.b64);
-    const rebaleCount=rebales.length;
-
-    // goods_yard / inspector は作業日数分まで
-    S.classifiedBaling.goods_yards=goodsYards.slice(0,dateCount);
-    S.classifiedBaling.inspectors=inspectors.slice(0,dateCount);
-    // open_bale は rebale数に合わせる
-    S.classifiedBaling.rebales=rebales;
-    S.classifiedBaling.open_bales=openBales.slice(0,rebaleCount);
-
-    log(`  ✅ BALING分類完了: goods_yard=${S.classifiedBaling.goods_yards.length}枚 rebale=${rebaleCount}枚 inspector=${S.classifiedBaling.inspectors.length}枚 open_bale=${S.classifiedBaling.open_bales.length}枚`,'ok');
   }
 
 const nos=Object.keys(S.vanPhotos).map(Number).sort((a,b)=>a-b);if(!nos.length){log('⚠️ 写真なし','warn');for(const c of S.containers)S.classifiedVan[c.no]={};return;}// ── VAN: ファイル名マッピング試行 (KANEKO等) ──

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LEENAI COTECNAレポートツール v10.3</title>
+<title>LEENAI COTECNAレポートツール v10.5</title>
 <style>
 :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3350;--accent:#4f8ef7;--ok:#22c55e;--warn:#f59e0b;--error:#ef4444;--info:#38bdf8;--text:#e2e8f0;--text2:#8892a4;--text3:#4a5568;}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -93,7 +93,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 <body>
 <header>
   <div class="logo">LEE<span>NAI</span></div>
-  <div class="version">COTECNAレポートツール v10.3 (2026-06-15)</div>
+  <div class="version">COTECNAレポートツール v10.5 (2026-06-15)</div>
   <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
     <button class="btn btn-ghost btn-sm" id="plantMasterBtn" onclick="togglePlantMaster()" style="font-size:11px;">⚙ PLANTマスター</button>
   </div>
@@ -257,7 +257,7 @@ const SLOT_ORDER=['empty','half','full','right_door','inspector','cotecna_seal']
 const SLOT_CAPTIONS={empty:'Empty container',half:'Half load container',full:'Full load container',right_door:'Right door closed, with Container No.',inspector:'Inspector with closed container',cotecna_seal:'Cotecna container seal, closed up'};
 const IMG_CX=3303270,IMG_CY=2477135;
 const VAN_PROMPT=`この写真はコンテナ梱包の検査写真です。以下の6種類のうち最も当てはまるラベルを1つだけ返してください。\n\n【分類ラベルと判断基準】\nempty        - コンテナ内部が完全に空の写真。両扉を開いた状態で撮影し、荷物が一切なくコルゲートが見える。荷物が少しでも写っている場合はemptyと答えてはならない。\nhalf         - コンテナに荷物が半分程度積まれている写真。古紙ベールが見える。\nfull         - コンテナに荷物が満載されている写真。古紙ベールがぎっしり詰まっている。\nright_door   - コンテナの右扉だけを閉めた状態の写真。コンテナ番号（英字4桁+数字7桁）が写っていることが多い。\ninspector    - 白いヘルメットをかぶった検査員が写っている写真。コンテナの前に立っている。\ncotecna_seal - COTECNAコンテナ封印シールのクローズアップ写真。以下を両方確認すること：①シール・タグ・錠前のクローズアップ ②上部または中央に「COTECNA」の文字（一部でも可）があり、かつ「JP-」で始まる番号が写っている。黄色くても「COTECNA」と「JP-」の両方が見えなければcotecna_sealと答えてはならない。他社の黄色シールと混同注意。\n\n【回答ルール】\n以下のリストにある単語をそのまま1つだけ返してください。説明・理由・句読点は不要。\n\nempty / half / full / right_door / inspector / cotecna_seal`;
-const BALING_PROMPT=`この写真は古紙（廃紙）バーリング検査の写真です。以下の4種類のうち最も当てはまるラベルを1つだけ返してください。\n\n【分類ラベルと判断基準】\ngoods_yard  - 古紙の圧縮ベールが倉庫・ヤード内に複数段積み上げられた全景写真。天井や倉庫の構造物が背景に見える。ベールはワイヤーで結束された直方体形状で整然と積まれている。人物は写っていない。\nopen_bale   - 圧縮ベールが解体・開梱され、新聞・雑誌・折込チラシ等の古紙が床や容器の中で無秩序に散乱している写真。紙が折れ重なって広がった状態。平積みではなくバラバラに崩れているのが特徴。人物なし。\nrebale      - COTECNA検査後に再結束された古紙ベールの単体クローズアップ写真。ベール上面または側面に白い「COTECNA」ラベルと番号カード（①②等）が貼付されている場合もある。ベールは屋外地面または搬送台の上に単独で置かれている。COTECNAラベルの有無が最重要判断基準だが、ラベルがなくても再結束されたベール単体の写真であればrebaleとする。\ninspector   - 白いヘルメット・青い作業服・安全ベストを着用したCOTECNA検査員が「X.13.XXXXXX-PX / INDONESIA / COTECNA」等と記載された白いボードを両手で正面に掲げて立っている写真。背景に散乱した古紙が見える。人物とボードが写真の主役。\n\n【回答ルール】\n以下のリストにある単語をそのまま1つだけ返してください。説明・理由は不要。\n\ngoods_yard / open_bale / rebale / inspector`;
+const BALING_PROMPT=`この写真は古紙（廃紙）バーリング検査の写真です。以下の4種類のうち最も当てはまるラベルを1つだけ返してください。\n\n【分類ラベルと判断基準】\ngoods_yard  - 圧縮ベールが3個以上写っている写真。倉庫・ヤード内に積まれた全景、または屋外でも3個以上のベールが見えればgoods_yard。【重要】ベールが1～2個しか写っていない場合はrebaleとする。\nopen_bale   - 圧縮ベールが解体・開梱され、新聞・雑誌・折込チラシ等の古紙が床や容器の中で無秩序に散乱している写真。紙が折れ重なって広がった状態。平積みではなくバラバラに崩れているのが特徴。人物なし。\nrebale      - 圧縮ベールが1～2個だけ写っている写真。ベールが地面・パレット・屋外に単独または2個以下で置かれているクローズアップ。ベール上に「COTECNA」ラベルや番号カードがある場合もある。【重要】ベールが3個以上写っている場合は必ずgoods_yardとする。\ninspector   - 白いヘルメット・青い作業服・安全ベストを着用したCOTECNA検査員が「X.13.XXXXXX-PX / INDONESIA / COTECNA」等と記載された白いボードを両手で正面に掲げて立っている写真。背景に散乱した古紙が見える。人物とボードが写真の主役。\n\n【回答ルール】\n以下のリストにある単語をそのまま1つだけ返してください。説明・理由は不要。\n\ngoods_yard / open_bale / rebale / inspector`;
 const S={apiKey:'',dvToken:null,photoFiles:[],photoFolderName:'',inspLocation:'',inspList:[],selectedKeys:[],mode:'folder',groups:{},containers:[],vanPhotos:{},baraPhotos:{},pressPhotos:{},classifiedVan:{},classifiedBaling:{},logoB64:null,voNo:'',reportDate:'',inspPlace:'',baleCount:0,rootName:'',fileList:[],balingDateCount:1};
 
 function toggleStep(id){const el=document.getElementById(id);if(!el)return;const isOpen=el.classList.contains('open')||el.classList.contains('active');document.querySelectorAll('.step').forEach(s=>s.classList.remove('open'));if(!isOpen)el.classList.add('open');}
@@ -789,10 +789,14 @@ async function loadPhotosLocal(row){
           const b64=await fileToB64(f);
           // フォルダパスからバラ/プレス判定
           const pathParts=f.webkitRelativePath.split('/');
-          const folderNames=pathParts.join('/').toLowerCase();
-          const folderType=folderNames.includes('バラ')||folderNames.includes('bara')?'bara':
-                           folderNames.includes('プレス')||folderNames.includes('press')?'press':'other';
-          S.balingRawFiles.push({name:f.name,b64,folderType});
+          const folderPath=pathParts.join('/');
+          const folderPathL=folderPath.toLowerCase();
+          const folderType=folderPath.includes('バラ')?'bara':
+                           folderPath.includes('プレス')?'press':'other';
+          // ITEM抽出: フォルダ名から (OCC)/(OMG)/(ONP)/(MIX)等を検出
+          const itemMatch=folderPath.match(/\(([A-Z]{2,4})\)/);
+          const item=itemMatch?itemMatch[1]:'';
+          S.balingRawFiles.push({name:f.name,b64,folderType,item});
         }catch(e){}
       }));
       log(`   ✅ _ARCHIVED BALING写真 ${S.balingRawFiles.length}枚 読込完了`,'ok');
@@ -862,7 +866,7 @@ async function classifyAll(){S.classifiedVan={};S.classifiedBaling={goods_yards:
         await Promise.all(pressFiles.slice(i,i+4).map(async({name,b64})=>{
           try{
             const l=(await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:BALING_PROMPT}],20)).trim().toLowerCase();
-            if(l==='goods_yard'||l==='rebale'){pressResults.push({label:l,b64,name});log(`    [プレス] ${name} → ${l}`,'ok');}
+            if(l==='goods_yard'||l==='rebale'){pressResults.push({label:l,b64,name,item:f.item||''});log(`    [プレス] ${name}(${f.item||''}) → ${l}`,'ok');}
             else{log(`    [プレス] ${name} → ${l} (スキップ)`,'info');}
           }catch(e){log(`    [プレス] ${name} エラー`,'warn');}
         }));
@@ -874,19 +878,27 @@ async function classifyAll(){S.classifiedVan={};S.classifiedBaling={goods_yards:
         await Promise.all(baraFiles.slice(i,i+4).map(async({name,b64})=>{
           try{
             const l=(await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:BALING_PROMPT}],20)).trim().toLowerCase();
-            if(l==='inspector'||l==='open_bale'){baraResults.push({label:l,b64,name});log(`    [バラ] ${name} → ${l}`,'ok');}
+            if(l==='inspector'||l==='open_bale'){baraResults.push({label:l,b64,name,item:f.item||''});log(`    [バラ] ${name}(${f.item||''}) → ${l}`,'ok');}
             else{log(`    [バラ] ${name} → ${l} (スキップ)`,'info');}
           }catch(e){log(`    [バラ] ${name} エラー`,'warn');}
         }));
       }
 
       const dateCount=Math.max(1,S.balingDateCount||1);
-      const rebales=pressResults.filter(r=>r.label==='rebale').map(r=>r.b64);
-      S.classifiedBaling.goods_yards=pressResults.filter(r=>r.label==='goods_yard').map(r=>r.b64).slice(0,dateCount);
-      S.classifiedBaling.rebales=rebales;
-      S.classifiedBaling.inspectors=baraResults.filter(r=>r.label==='inspector').map(r=>r.b64).slice(0,dateCount);
-      S.classifiedBaling.open_bales=baraResults.filter(r=>r.label==='open_bale').map(r=>r.b64).slice(0,rebales.length);
-      log(`  ✅ BALING分類完了: goods_yard=${S.classifiedBaling.goods_yards.length}枚 rebale=${rebales.length}枚 inspector=${S.classifiedBaling.inspectors.length}枚 open_bale=${S.classifiedBaling.open_bales.length}枚`,'ok');
+      // ITEM順にソート: OCC→OMG→ONP→その他の順
+      const ITEM_ORDER=['OCC','OMG','ONP','MIX',''];
+      const itemSort=(a,b)=>(ITEM_ORDER.indexOf(a.item||'')-(ITEM_ORDER.indexOf(b.item||'')||99))||0;
+      const rebalesSorted=pressResults.filter(r=>r.label==='rebale').sort(itemSort);
+      const goodsYardsSorted=pressResults.filter(r=>r.label==='goods_yard').sort(itemSort);
+      const inspectorsSorted=baraResults.filter(r=>r.label==='inspector').sort(itemSort);
+      const openBalesSorted=baraResults.filter(r=>r.label==='open_bale').sort(itemSort);
+      log(`  ITEMソート: rebale=[${rebalesSorted.map(r=>r.item||'-').join(',')}]`,'info');
+      log(`  ITEMソート: open_bale=[${openBalesSorted.map(r=>r.item||'-').join(',')}]`,'info');
+      S.classifiedBaling.goods_yards=goodsYardsSorted.map(r=>r.b64).slice(0,dateCount);
+      S.classifiedBaling.rebales=rebalesSorted.map(r=>r.b64);
+      S.classifiedBaling.inspectors=inspectorsSorted.map(r=>r.b64).slice(0,dateCount);
+      S.classifiedBaling.open_bales=openBalesSorted.map(r=>r.b64).slice(0,rebalesSorted.length);
+      log(`  ✅ BALING分類完了: goods_yard=${S.classifiedBaling.goods_yards.length}枚 rebale=${rebalesSorted.length}枚 inspector=${S.classifiedBaling.inspectors.length}枚 open_bale=${S.classifiedBaling.open_bales.length}枚`,'ok');
 
     }else{
       // ── _CHECK_PHOTO パス: ファイル名マッピング優先 ──

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LEENAI COTECNAレポートツール v10.2</title>
+<title>LEENAI COTECNAレポートツール v10.3</title>
 <style>
 :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3350;--accent:#4f8ef7;--ok:#22c55e;--warn:#f59e0b;--error:#ef4444;--info:#38bdf8;--text:#e2e8f0;--text2:#8892a4;--text3:#4a5568;}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -93,7 +93,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 <body>
 <header>
   <div class="logo">LEE<span>NAI</span></div>
-  <div class="version">COTECNAレポートツール v10.2 (2026-06-12)</div>
+  <div class="version">COTECNAレポートツール v10.3 (2026-06-15)</div>
   <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
     <button class="btn btn-ghost btn-sm" id="plantMasterBtn" onclick="togglePlantMaster()" style="font-size:11px;">⚙ PLANTマスター</button>
   </div>
@@ -268,6 +268,29 @@ async function handleCallback(){const params=new URLSearchParams(location.search
 function updateLoginUI(){const ok=!!S.dvToken;document.getElementById('loginDot').className='login-dot'+(ok?' ok':'');document.getElementById('loginStatusTxt').textContent=ok?'✅ ログイン済み':'未ログイン — Dataverse 認証';document.getElementById('loginStatusTxt').style.color=ok?'var(--ok)':'var(--text2)';document.getElementById('loginBtn').textContent=ok?'🔄 再ログイン':'🔐 ログイン';document.getElementById('step1Sub').textContent=ok?'✅ ログイン済み':'未ログイン';checkFetchReady();}
 function checkFetchReady(){document.getElementById('fetchBtn').disabled=!(S.dvToken&&S.photoFiles.length);}
 window.onload=async()=>{const saved=localStorage.getItem('cotecna_api_key');if(saved){S.apiKey=saved;document.getElementById('apiKey').value=saved;document.getElementById('apiDot').classList.add('ok');}const now=new Date(),from=new Date(now);from.setDate(from.getDate()-3);document.getElementById('dateTo').value=now.toISOString().slice(0,10);document.getElementById('dateFrom').value=from.toISOString().slice(0,10);const savedTok=sessionStorage.getItem('cotecna_dv_token');if(savedTok){S.dvToken=savedTok;updateLoginUI();document.getElementById('step1').classList.remove('active');document.getElementById('step1').classList.add('done');document.getElementById('step2').classList.add('active','open');}if(location.search.includes('code='))await handleCallback();};
+// ── DEFAULT PLANT MASTER (ハードコード: 全員共有) ──
+const DEFAULT_PLANTS = [
+  {plantId:"030eb02b-cb5b-f011-bec2-6045bd62e122",plantJa:"ステップスナイン",plantEn:"STEPS NINE"},
+  {plantId:"f21aed29-cb5b-f011-bec2-000d3a786f70",plantJa:"ふじ(豊崎)",plantEn:"FUJI SANGYO"},
+  {plantId:"e40db02b-cb5b-f011-bec2-6045bd62e122",plantJa:"ふじ(本社)",plantEn:"FUJI SANGYO"},
+  {plantId:"ee1aed29-cb5b-f011-bec2-000d3a786f70",plantJa:"ふじ(名護)",plantEn:"FUJI SANGYO"},
+  {plantId:"01b6f82f-cb5b-f011-bec2-000d3a786f70",plantJa:"安楽商店",plantEn:"ANRAKU SHOTEN"},
+  {plantId:"f61aed29-cb5b-f011-bec2-000d3a786f70",plantJa:"沖縄紙業",plantEn:"OKINAWA SHIGYO"},
+  {plantId:"b00db02b-cb5b-f011-bec2-6045bd62e122",plantJa:"兼子(横浜)",plantEn:"YOKOHAMA"},
+  {plantId:"ba0db02b-cb5b-f011-bec2-6045bd62e122",plantJa:"兼子(金沢)",plantEn:"KANAZAWA"},
+  {plantId:"fcdfbf37-cb5b-f011-bec2-6045bd62e122",plantJa:"兼子(戸田)",plantEn:"TODA"},
+  {plantId:"d31aed29-cb5b-f011-bec2-000d3a786f70",plantJa:"兼子(埼玉)",plantEn:"SAITAMA"},
+  {plantId:"015cbf3d-cb5b-f011-bec2-6045bd62e122",plantJa:"兼子(市原)",plantEn:"ICHIHARA"},
+  {plantId:"bb0db02b-cb5b-f011-bec2-6045bd62e122",plantJa:"兼子(新潟)",plantEn:"NIIGATA"},
+  {plantId:"1fb5f82f-cb5b-f011-bec2-000d3a786f70",plantJa:"大本",plantEn:"OOMOTO SHIRYO"},
+  {plantId:"000eb02b-cb5b-f011-bec2-6045bd62e122",plantJa:"大中物産",plantEn:"SENDAI"},
+  {plantId:"0a88a831-cb5b-f011-bec2-6045bd62e122",plantJa:"石坂グループ",plantEn:"ISHIZAKA GROUP"},
+  {plantId:"b752f835-cb5b-f011-bec2-000d3a786f70",plantJa:"千歳",plantEn:"CHITOSE"},
+  {plantId:"b50db02b-cb5b-f011-bec2-6045bd62e122",plantJa:"兼子(湘南)",plantEn:"SHONAN"},
+  {plantId:"1f988087-1c58-f111-a824-6045bd67027c",plantJa:"兼子(湘南) PM",plantEn:"SHONAN"},
+  {plantId:"f24af608-2058-f111-a824-6045bd67027c",plantJa:"兼子(埼玉) PM",plantEn:"SAITAMA"},
+];
+
 // ── IndexedDB: plant_master ──
 let plantDB=null;
 function openPlantDB(){
@@ -302,13 +325,19 @@ async function loadPlantMaster(){
 }
 async function getPlantEnById(plantId){
   if(!plantId)return '';
-  const db=await openPlantDB();
-  return new Promise((res)=>{
-    const tx=db.transaction('plant_master','readonly');
-    const req=tx.objectStore('plant_master').get(plantId);
-    req.onsuccess=()=>res(req.result?.plantEn||req.result?.plantJa||'');
-    req.onerror=()=>res('');
-  });
+  // まずDEFAULT_PLANTSから検索 (全員共有データ)
+  const def=DEFAULT_PLANTS.find(p=>p.plantId===plantId);
+  if(def&&def.plantEn)return def.plantEn;
+  // なければIndexedDB (個人登録データ) から検索
+  try{
+    const db=await openPlantDB();
+    return new Promise((res)=>{
+      const tx=db.transaction('plant_master','readonly');
+      const req=tx.objectStore('plant_master').get(plantId);
+      req.onsuccess=()=>res(req.result?.plantEn||req.result?.plantJa||'');
+      req.onerror=()=>res('');
+    });
+  }catch(e){return '';}
 }
 function togglePlantMaster(){
   const p=document.getElementById('plantMasterPanel');

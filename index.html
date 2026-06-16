@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LEENAI COTECNAレポートツール v11.2</title>
+<title>LEENAI COTECNAレポートツール v11.3</title>
 <style>
 :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3350;--accent:#4f8ef7;--ok:#22c55e;--warn:#f59e0b;--error:#ef4444;--info:#38bdf8;--text:#e2e8f0;--text2:#8892a4;--text3:#4a5568;}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -93,7 +93,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 <body>
 <header>
   <div class="logo">LEE<span>NAI</span></div>
-  <div class="version">COTECNAレポートツール v11.2 (2026-06-15)</div>
+  <div class="version">COTECNAレポートツール v11.3 (2026-06-15)</div>
   <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
     <button class="btn btn-ghost btn-sm" id="plantMasterBtn" onclick="togglePlantMaster()" style="font-size:11px;">⚙ PLANTマスター</button>
   </div>
@@ -756,7 +756,7 @@ async function loadPhotosLocal(row){
   }
   log(`✅ 写真読込完了`,'ok');
   // _CHECK_PHOTO フォルダ読込 (BALING用)
-  const checkPhotoFiles=ivFiles.filter(f=>{const p=f.webkitRelativePath.split('/');return p[2]==='_CHECK_PHOTO'&&ext.test(p[p.length-1]);});
+  const checkPhotoFiles=ivFiles.filter(f=>{const p=f.webkitRelativePath.split('/');return p.includes('_CHECK_PHOTO')&&ext.test(p[p.length-1]);});
   if(checkPhotoFiles.length){
     log(`   _CHECK_PHOTO ${checkPhotoFiles.length}枚 読込中...`,'info');
     S.balingRawFiles=[];
@@ -933,7 +933,9 @@ async function classifyAll(){S.classifiedVan={};S.classifiedBaling={goods_yards:
       log(`  ✅ BALING分類完了: goods_yard=${S.classifiedBaling.goods_yards.length}枚 rebale=${S.classifiedBaling.rebales.length}枚 inspector=${S.classifiedBaling.inspectors.length}枚 open_bale=${S.classifiedBaling.open_bales.length}枚`,'ok');
 
     }else{
-      // ── _CHECK_PHOTO パス: ファイル名マッピング優先 ──
+      // ── _CHECK_PHOTO パス ──
+      // まずファイル名命名規則でマッピング試行
+      // 不足の場合はAI分類にフォールバック
       log('  📋 BALING写真 ファイル名マッピング中...','info');
       const byName={};
       S.balingRawFiles.forEach(({name,b64})=>{
@@ -954,12 +956,37 @@ async function classifyAll(){S.classifiedVan={};S.classifiedBaling={goods_yards:
         }
       });
       const dateCount=Math.max(1,S.balingDateCount||1);
-      const rebales=(byName.rebales||[]).sort((a,b)=>a.num-b.num).map(x=>x.b64);
-      S.classifiedBaling.goods_yards=byName.goods_yard?[byName.goods_yard].slice(0,dateCount):[];
-      S.classifiedBaling.inspectors=byName.inspector?[byName.inspector].slice(0,dateCount):[];
-      S.classifiedBaling.rebales=rebales;
-      S.classifiedBaling.open_bales=(byName.open_bales||[]).sort((a,b)=>a.num-b.num).map(x=>x.b64).slice(0,rebales.length);
-      log(`  ✅ BALING分類完了: goods_yard=${S.classifiedBaling.goods_yards.length}枚 rebale=${rebales.length}枚 inspector=${S.classifiedBaling.inspectors.length}枚 open_bale=${S.classifiedBaling.open_bales.length}枚`,'ok');
+      const mappedRebales=(byName.rebales||[]).sort((a,b)=>a.num-b.num).map(x=>x.b64);
+      const mappedOpen=(byName.open_bales||[]).sort((a,b)=>a.num-b.num).map(x=>x.b64);
+      const mappedOk=mappedRebales.length>0||byName.goods_yard||byName.inspector;
+
+      if(mappedOk){
+        // 命名規則マッピング成功
+        S.classifiedBaling.goods_yards=byName.goods_yard?[byName.goods_yard].slice(0,dateCount):[];
+        S.classifiedBaling.inspectors=byName.inspector?[byName.inspector].slice(0,dateCount):[];
+        S.classifiedBaling.rebales=mappedRebales;
+        S.classifiedBaling.open_bales=mappedOpen.slice(0,mappedRebales.length);
+        log(`  ✅ BALING マッピング完了: goods_yard=${S.classifiedBaling.goods_yards.length}枚 rebale=${mappedRebales.length}枚 inspector=${S.classifiedBaling.inspectors.length}枚 open_bale=${S.classifiedBaling.open_bales.length}枚`,'ok');
+      }else{
+        // 命名規則なし → AI分類にフォールバック
+        log('  📋 命名規則なし → AI分類にフォールバック...','info');
+        const aiResults=[];
+        for(let i=0;i<S.balingRawFiles.length;i+=4){
+          await Promise.all(S.balingRawFiles.slice(i,i+4).map(async({name,b64})=>{
+            try{
+              const l=(await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:BALING_PROMPT}],20)).trim().toLowerCase();
+              aiResults.push({label:l,b64,name});
+              log(`    ${name} → ${l}`,'ok');
+            }catch(e){log(`    ${name} エラー: ${e.message}`,'warn');}
+          }));
+        }
+        const rebales=aiResults.filter(r=>r.label==='rebale').map(r=>r.b64);
+        S.classifiedBaling.goods_yards=aiResults.filter(r=>r.label==='goods_yard').map(r=>r.b64).slice(0,dateCount);
+        S.classifiedBaling.inspectors=aiResults.filter(r=>r.label==='inspector').map(r=>r.b64).slice(0,dateCount);
+        S.classifiedBaling.rebales=rebales;
+        S.classifiedBaling.open_bales=aiResults.filter(r=>r.label==='open_bale').map(r=>r.b64).slice(0,rebales.length);
+        log(`  ✅ BALING AI分類完了: goods_yard=${S.classifiedBaling.goods_yards.length}枚 rebale=${rebales.length}枚 inspector=${S.classifiedBaling.inspectors.length}枚 open_bale=${S.classifiedBaling.open_bales.length}枚`,'ok');
+      }
     }
   }
 

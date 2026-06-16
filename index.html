@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LEENAI COTECNAレポートツール v11.3</title>
+<title>LEENAI COTECNAレポートツール v11.4</title>
 <style>
 :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3350;--accent:#4f8ef7;--ok:#22c55e;--warn:#f59e0b;--error:#ef4444;--info:#38bdf8;--text:#e2e8f0;--text2:#8892a4;--text3:#4a5568;}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -93,7 +93,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 <body>
 <header>
   <div class="logo">LEE<span>NAI</span></div>
-  <div class="version">COTECNAレポートツール v11.3 (2026-06-15)</div>
+  <div class="version">COTECNAレポートツール v11.4 (2026-06-15)</div>
   <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
     <button class="btn btn-ghost btn-sm" id="plantMasterBtn" onclick="togglePlantMaster()" style="font-size:11px;">⚙ PLANTマスター</button>
   </div>
@@ -257,7 +257,7 @@ const SLOT_ORDER=['empty','half','full','right_door','inspector','cotecna_seal']
 const SLOT_CAPTIONS={empty:'Empty container',half:'Half load container',full:'Full load container',right_door:'Right door closed, with Container No.',inspector:'Inspector with closed container',cotecna_seal:'Cotecna container seal, closed up'};
 const IMG_CX=3303270,IMG_CY=2477135;
 const VAN_PROMPT=`この写真はコンテナ梱包の検査写真です。以下の6種類のうち最も当てはまるラベルを1つだけ返してください。\n\n【分類ラベルと判断基準】\nempty        - コンテナ内部が完全に空の写真。両扉を開いた状態で撮影し、荷物が一切なくコルゲートが見える。荷物が少しでも写っている場合はemptyと答えてはならない。\nhalf         - コンテナに荷物が半分程度積まれている写真。古紙ベールが見える。\nfull         - コンテナに荷物が満載されている写真。古紙ベールがぎっしり詰まっている。\nright_door   - コンテナの右扉だけを閉めた状態の写真。コンテナ番号（英字4桁+数字7桁）が写っていることが多い。\ninspector    - 白いヘルメットをかぶった検査員が写っている写真。コンテナの前に立っている。\ncotecna_seal - COTECNAコンテナ封印シールのクローズアップ写真。以下を両方確認すること：①シール・タグ・錠前のクローズアップ ②上部または中央に「COTECNA」の文字（一部でも可）があり、かつ「JP-」で始まる番号が写っている。黄色くても「COTECNA」と「JP-」の両方が見えなければcotecna_sealと答えてはならない。他社の黄色シールと混同注意。\n\n【回答ルール】\n以下のリストにある単語をそのまま1つだけ返してください。説明・理由・句読点は不要。\n\nempty / half / full / right_door / inspector / cotecna_seal`;
-const BALING_PROMPT=`この写真は古紙（廃紙）バーリング検査の写真です。以下の4種類のうち最も当てはまるラベルを1つだけ返してください。\n\n【分類ラベルと判断基準】\ngoods_yard  - 圧縮ベールが3個以上写っている写真。倉庫・ヤード内に積まれた全景、または屋外でも3個以上のベールが見えればgoods_yard。【重要】ベールが1～2個しか写っていない場合はrebaleとする。\nopen_bale   - 圧縮ベールが解体・開梱され、新聞・雑誌・折込チラシ等の古紙が床や容器の中で無秩序に散乱している写真。紙が折れ重なって広がった状態。平積みではなくバラバラに崩れているのが特徴。人物なし。\nrebale      - 圧縮ベールが1～2個だけ写っている写真。ベールが地面・パレット・屋外に単独または2個以下で置かれているクローズアップ。ベール上に「COTECNA」ラベルや番号カードがある場合もある。【重要】ベールが3個以上写っている場合は必ずgoods_yardとする。\ninspector   - 白いヘルメット・青い作業服・安全ベストを着用したCOTECNA検査員が「X.13.XXXXXX-PX / INDONESIA / COTECNA」等と記載された白いボードを両手で正面に掲げて立っている写真。背景に散乱した古紙が見える。人物とボードが写真の主役。\n\n【回答ルール】\n以下のリストにある単語をそのまま1つだけ返してください。説明・理由は不要。\n\ngoods_yard / open_bale / rebale / inspector`;
+const BALING_PROMPT=`この写真は古紙（廃紙）バーリング検査の写真です。以下の4種類のうち最も当てはまるラベルを1つだけ返してください。\n\n【分類ラベルと判断基準】\ngoods_yard  - 倉庫・ヤード内に圧縮ベールが複数段・複数列で積み上げられた全景写真。天井・柱・壁などの倉庫構造物が背景に見える。ベールが整然と積まれており、画面全体にベールが広がっている。\nopen_bale   - 圧縮ベールが解体・開梱され、新聞・雑誌・チラシ・紙類が床や容器の中で無秩序に散乱している写真。紙がバラバラに崩れて広がった状態。ベールの圧縮形態は残っていない。\nrebale      - 再結束された古紙ベール1個が画面の主役として写っているクローズアップ写真。ベールは圧縮された直方体形状を保っており、側面や上面に「COTECNA」ラベルが貼られている場合もある。背景に他のベールが少し見えても、手前の1個のベールが主役であればrebale。\ninspector   - 検査員が「X.13.XXXXXX-PX」等が記載された白いボードを手に持って立っている写真。ボードを持った人物が写真の主役であること。\n\n【判断のポイント】\n・ベール形態が残っている（圧縮された四角形）→ goods_yard または rebale\n・ベール形態がない（紙が散乱）→ open_bale\n・goods_yard と rebale の違い：goods_yardは「倉庫全体・複数ベールの全景」、rebaleは「1個のベールのクローズアップ」\n\n【回答ルール】\n以下のリストにある単語をそのまま1つだけ返してください。説明・理由は不要。\n\ngoods_yard / open_bale / rebale / inspector`;
 const S={apiKey:'',dvToken:null,photoFiles:[],photoFolderName:'',inspLocation:'',inspList:[],selectedKeys:[],mode:'folder',groups:{},containers:[],vanPhotos:{},baraPhotos:{},pressPhotos:{},classifiedVan:{},classifiedBaling:{},logoB64:null,voNo:'',reportDate:'',inspPlace:'',baleCount:0,rootName:'',fileList:[],balingDateCount:1};
 
 function toggleStep(id){const el=document.getElementById(id);if(!el)return;const isOpen=el.classList.contains('open')||el.classList.contains('active');document.querySelectorAll('.step').forEach(s=>s.classList.remove('open'));if(!isOpen)el.classList.add('open');}
@@ -981,8 +981,8 @@ async function classifyAll(){S.classifiedVan={};S.classifiedBaling={goods_yards:
           }));
         }
         const rebales=aiResults.filter(r=>r.label==='rebale').map(r=>r.b64);
-        S.classifiedBaling.goods_yards=aiResults.filter(r=>r.label==='goods_yard').map(r=>r.b64).slice(0,dateCount);
-        S.classifiedBaling.inspectors=aiResults.filter(r=>r.label==='inspector').map(r=>r.b64).slice(0,dateCount);
+        S.classifiedBaling.goods_yards=aiResults.filter(r=>r.label==='goods_yard').map(r=>r.b64).slice(0,1);
+        S.classifiedBaling.inspectors=aiResults.filter(r=>r.label==='inspector').map(r=>r.b64).slice(0,1);
         S.classifiedBaling.rebales=rebales;
         S.classifiedBaling.open_bales=aiResults.filter(r=>r.label==='open_bale').map(r=>r.b64).slice(0,rebales.length);
         log(`  ✅ BALING AI分類完了: goods_yard=${S.classifiedBaling.goods_yards.length}枚 rebale=${rebales.length}枚 inspector=${S.classifiedBaling.inspectors.length}枚 open_bale=${S.classifiedBaling.open_bales.length}枚`,'ok');

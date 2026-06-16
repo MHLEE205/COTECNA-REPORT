@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LEENAI COTECNAレポートツール v11.5</title>
+<title>LEENAI COTECNAレポートツール v11.6</title>
 <style>
 :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3350;--accent:#4f8ef7;--ok:#22c55e;--warn:#f59e0b;--error:#ef4444;--info:#38bdf8;--text:#e2e8f0;--text2:#8892a4;--text3:#4a5568;}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -93,7 +93,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 <body>
 <header>
   <div class="logo">LEE<span>NAI</span></div>
-  <div class="version">COTECNAレポートツール v11.5 (2026-06-16)</div>
+  <div class="version">COTECNAレポートツール v11.6 (2026-06-16)</div>
   <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
     <button class="btn btn-ghost btn-sm" id="plantMasterBtn" onclick="togglePlantMaster()" style="font-size:11px;">⚙ PLANTマスター</button>
   </div>
@@ -257,7 +257,7 @@ const SLOT_ORDER=['empty','half','full','right_door','inspector','cotecna_seal']
 const SLOT_CAPTIONS={empty:'Empty container',half:'Half load container',full:'Full load container',right_door:'Right door closed, with Container No.',inspector:'Inspector with closed container',cotecna_seal:'Cotecna container seal, closed up'};
 const IMG_CX=3303270,IMG_CY=2477135;
 const VAN_PROMPT=`この写真はコンテナ梱包の検査写真です。以下の6種類のうち最も当てはまるラベルを1つだけ返してください。\n\n【分類ラベルと判断基準】\nempty        - コンテナ内部が完全に空の写真。両扉を開いた状態で撮影し、荷物が一切なくコルゲートが見える。荷物が少しでも写っている場合はemptyと答えてはならない。\nhalf         - コンテナに荷物が半分程度積まれている写真。古紙ベールが見える。\nfull         - コンテナに荷物が満載されている写真。古紙ベールがぎっしり詰まっている。\nright_door   - コンテナの右扉だけを閉めた状態の写真。コンテナ番号（英字4桁+数字7桁）が写っていることが多い。\ninspector    - 白いヘルメットをかぶった検査員が写っている写真。コンテナの前に立っている。\ncotecna_seal - COTECNAコンテナ封印シールのクローズアップ写真。以下を両方確認すること：①シール・タグ・錠前のクローズアップ ②上部または中央に「COTECNA」の文字（一部でも可）があり、かつ「JP-」で始まる番号が写っている。黄色くても「COTECNA」と「JP-」の両方が見えなければcotecna_sealと答えてはならない。他社の黄色シールと混同注意。\n\n【回答ルール】\n以下のリストにある単語をそのまま1つだけ返してください。説明・理由・句読点は不要。\n\nempty / half / full / right_door / inspector / cotecna_seal`;
-const BALING_PROMPT=`この写真は古紙（廃紙）バーリング検査の写真です。以下の4種類のうち最も当てはまるラベルを1つだけ返してください。\n\n【分類ラベルと判断基準】\ngoods_yard  - 倉庫・ヤード内に圧縮ベールが複数段・複数列で積み上げられた全景写真。天井・柱・壁などの倉庫構造物が背景に見える。ベールが整然と積まれており、画面全体にベールが広がっている。\nopen_bale   - 古紙ベールが解体されて中身が出た状態の写真。ワイヤー（結束線）が見えず、新聞・雑誌・チラシ・紙類が床や容器の中で無秩序に散乱している。ベールの四角い形が残っていない。\nrebale      - 再結束された古紙ベール1個が画面の主役として写っているクローズアップ写真。【重要】ワイヤー（金属の結束線）でしっかり束ねられた直方体のベールが写っていればrebale。表面の紙が乱れていたり、はみ出していてもワイヤーで束ねられた四角い形が残っていればrebale。側面や上面に「COTECNA」ラベルが見えれば確実にrebale。背景に他のベールが少し見えても、手前の1個のベールが主役であればrebale。\ninspector   - 検査員が「X.13.XXXXXX-PX」等が記載された白いボードを手に持って立っている写真。ボードを持った人物が写真の主役であること。\n\n【判断のポイント】\n① まず人物とボードが写真の主役か → inspector\n② 紙が散乱してワイヤーが見えない → open_bale\n③ ワイヤーで束ねられた四角いベールがある → goods_yard または rebale\n④ ③の場合: 1個のベールのクローズアップ → rebale / 複数ベールの倉庫全景 → goods_yard\n\n【回答ルール】\n以下のリストにある単語をそのまま1つだけ返してください。説明・理由は不要。\n\ngoods_yard / open_bale / rebale / inspector`;
+const BALING_PROMPT=`この写真は古紙（廃紙）バーリング検査の写真です。以下の4種類のうち最も当てはまるラベルを1つだけ返してください。\n\n【分類ラベルと判断基準】\ngoods_yard  - 倉庫・ヤード内に圧縮ベールが複数段・複数列で積み上げられた全景写真。天井・柱・壁などの倉庫構造物が背景に見える。ベールが整然と積まれており、画面全体にベールが広がっている。\nopen_bale   - 古紙が解体・バラバラに흩어진状態。ベールの塊が見えず、新聞・雑誌・チラシ等の紙が床や空間に無秩序に散乱している。「塊」がなく「散乱」しているのが特徴。\nrebale      - 古紙ベールが「塊」として画面に立っている写真。ワイヤー（金属の結束線）で束ねられた直方体の塊が写真に存在すればrebale。表面の紙が乱れていても、バラバラに飛び散っていても、塊自体がしっかり立っていればrebale。「COTECNA」ラベルが見えれば確実にrebale。背景に他のベールが見えても、塊が主役であればrebale。\ninspector   - 検査員が「X.13.XXXXXX-PX」等が記載された白いボードを手に持って立っている写真。ボードを持った人物が写真の主役であること。\n\n【open_baleとrebaleの決定的な違い】\n・rebale  → ベールの「塊」が写真の中に立っている（周囲が散らかっていてもOK）\n・open_bale → 「塊」がなく、紙が空間に散乱している\n\n【判断フロー】\n① 人物がボードを持って主役 → inspector\n② ベールの「塊」が写真に存在するか？\n   YES → 塊が1個クローズアップ → rebale\n         塊が複数・倉庫全景   → goods_yard\n   NO  → 紙が散乱のみ        → open_bale\n\n【回答ルール】\n以下のリストにある単語をそのまま1つだけ返してください。説明・理由は不要。\n\ngoods_yard / open_bale / rebale / inspector`;
 const S={apiKey:'',dvToken:null,photoFiles:[],photoFolderName:'',inspLocation:'',inspList:[],selectedKeys:[],mode:'folder',groups:{},containers:[],vanPhotos:{},baraPhotos:{},pressPhotos:{},classifiedVan:{},classifiedBaling:{},logoB64:null,voNo:'',reportDate:'',inspPlace:'',baleCount:0,rootName:'',fileList:[],balingDateCount:1};
 
 function toggleStep(id){const el=document.getElementById(id);if(!el)return;const isOpen=el.classList.contains('open')||el.classList.contains('active');document.querySelectorAll('.step').forEach(s=>s.classList.remove('open'));if(!isOpen)el.classList.add('open');}

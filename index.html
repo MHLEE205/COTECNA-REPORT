@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LEENAI COTECNAレポートツール v11.9</title>
+<title>LEENAI COTECNAレポートツール v12.0</title>
 <style>
 :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3350;--accent:#4f8ef7;--ok:#22c55e;--warn:#f59e0b;--error:#ef4444;--info:#38bdf8;--text:#e2e8f0;--text2:#8892a4;--text3:#4a5568;}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -93,7 +93,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 <body>
 <header>
   <div class="logo">LEE<span>NAI</span></div>
-  <div class="version">COTECNAレポートツール v11.9 (2026-06-18)</div>
+  <div class="version">COTECNAレポートツール v12.0 (2026-06-19)</div>
   <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
     <button class="btn btn-ghost btn-sm" id="plantMasterBtn" onclick="togglePlantMaster()" style="font-size:11px;">⚙ PLANTマスター</button>
   </div>
@@ -257,6 +257,34 @@ const SLOT_ORDER=['empty','half','full','right_door','inspector','cotecna_seal']
 const SLOT_CAPTIONS={empty:'Empty container',half:'Half load container',full:'Full load container',right_door:'Right door closed, with Container No.',inspector:'Inspector with closed container',cotecna_seal:'Cotecna container seal, closed up'};
 const IMG_CX=3303270,IMG_CY=2477135;
 const VAN_PROMPT=`この写真はコンテナ梱包の検査写真です。以下の6種類のうち最も当てはまるラベルを1つだけ返してください。\n\n【分類ラベルと判断基準】\nempty        - コンテナ内部が完全に空の写真。両扉を開いた状態で撮影し、荷物が一切なくコルゲートが見える。荷物が少しでも写っている場合はemptyと答えてはならない。\nhalf         - コンテナに荷物が半分程度積まれている写真。古紙ベールが見える。\nfull         - コンテナに荷物が満載されている写真。古紙ベールがぎっしり詰まっている。\nright_door   - コンテナの右扉だけを閉めた状態の写真。コンテナ番号（英字4桁+数字7桁）が写っていることが多い。\ninspector    - 白いヘルメットをかぶった検査員が写っている写真。コンテナの前に立っている。\ncotecna_seal - COTECNAコンテナ封印シールのクローズアップ写真。以下を両方確認すること：①シール・タグ・錠前のクローズアップ ②上部または中央に「COTECNA」の文字（一部でも可）があり、かつ「JP-」で始まる番号が写っている。黄色くても「COTECNA」と「JP-」の両方が見えなければcotecna_sealと答えてはならない。他社の黄色シールと混同注意。\n\n【回答ルール】\n以下のリストにある単語をそのまま1つだけ返してください。説明・理由・句読点は不要。\n\nempty / half / full / right_door / inspector / cotecna_seal`;
+// ── OKINAWA 分岐用プロンプト ──
+const UNIFIED_PROMPT=`この写真はコンテナ検査の写真です。以下の10種類のうち最も当てはまる1つを返してください。
+
+【VAN関連 — コンテナ本体の写真】
+empty          - コンテナ内部が完全に空。両扉を開いた状態で荷物が一切ない。
+half           - コンテナ内部に古紙ベールが半分程度（30〜70%）積まれている。
+full           - コンテナ内部に古紙ベールが満載（天井近くまでぎっしり）。
+right_door     - コンテナ右扉・外観・スペックプレートのクローズアップ。コンテナ番号（英字4桁+数字7桁）が写っていることが多い。
+inspector_van  - 検査員がコンテナを背景に立っている写真。背景に鉄製コンテナ壁・ドア・コンテナ番号が見える。
+cotecna_seal   - シール・封印のクローズアップ写真。
+
+【BALING関連 — 古紙の梱包状態の写真】
+goods_yard     - 倉庫・ヤード内に圧縮ベールが複数段・複数列で積まれた全景写真。天井・壁など倉庫構造物が背景に見える。
+rebale         - ワイヤーで束ねられたベールの塊のクローズアップ。塊が1個以上写真に存在する。
+open_bale      - ベールの塊がなく古紙が散乱している状態。紙が床や空間に無秩序に広がっている。
+inspector_baling - 検査員が古紙・ベール・倉庫内の荷物を背景に立っている写真。背景が古紙の塊・散乱紙・倉庫内の古紙。
+
+【inspector判定の決定的な違い】
+背景がコンテナの鉄壁・ドア・外観 → inspector_van
+背景が古紙・ベール・散乱紙・倉庫内荷物 → inspector_baling
+
+【回答ルール】
+以下の単語を1つだけ返してください（説明・理由不要）：
+empty / half / full / right_door / inspector_van / cotecna_seal / goods_yard / rebale / open_bale / inspector_baling`;
+
+const DATE_CHECK_PROMPT=`この写真に撮影日付（例：2026/06/19、2026-06-19、26/06/19、2026.06.19等）が画像内に文字として写っていますか？
+「yes」または「no」のみ返してください。`;
+
 const BALING_PROMPT=`この写真は古紙（廃紙）バーリング検査の写真です。以下の4種類のうち最も当てはまるラベルを1つだけ返してください。\n\n【分類ラベルと判断基準】\ngoods_yard  - 倉庫・ヤード内に圧縮ベールが複数段・複数列で積み上げられた全景写真。天井・柱・壁などの倉庫構造物が背景に見える。ベールが整然と積まれており、画面全体にベールが広がっている。\nopen_bale   - 古紙が解体・バラバラに흩어진状態。ベールの塊が見えず、新聞・雑誌・チラシ等の紙が床や空間に無秩序に散乱している。「塊」がなく「散乱」しているのが特徴。\nrebale      - 古紙ベールが「塊」として画面に立っている写真。ワイヤー（金属の結束線）で束ねられた直方体の塊が写真に存在すればrebale。表面の紙が乱れていても、バラバラに飛び散っていても、塊自体がしっかり立っていればrebale。「COTECNA」ラベルが見えれば確実にrebale。背景に他のベールが見えても、塊が主役であればrebale。\ninspector   - 検査員が「X.13.XXXXXX-PX」等が記載された白いボードを手に持って立っている写真。ボードを持った人物が写真の主役であること。\n\n【open_baleとrebaleの決定的な違い】\n・rebale  → ベールの「塊」が写真の中に立っている（周囲が散らかっていてもOK）\n・open_bale → 「塊」がなく、紙が空間に散乱している\n\n【判断フロー】\n① 人物がボードを持って主役 → inspector\n② ベールの「塊」が写真に存在するか？\n   YES → 塊が1個クローズアップ → rebale\n         塊が複数・倉庫全景   → goods_yard\n   NO  → 紙が散乱のみ        → open_bale\n\n【回答ルール】\n以下のリストにある単語をそのまま1つだけ返してください。説明・理由は不要。\n\ngoods_yard / open_bale / rebale / inspector`;
 const S={apiKey:'',dvToken:null,photoFiles:[],photoFolderName:'',inspLocation:'',inspList:[],selectedKeys:[],mode:'folder',groups:{},containers:[],vanPhotos:{},baraPhotos:{},pressPhotos:{},classifiedVan:{},classifiedBaling:{},logoB64:null,voNo:'',reportDate:'',inspPlace:'',baleCount:0,rootName:'',fileList:[],balingDateCount:1};
 
@@ -655,7 +683,7 @@ async function proceedSelected(){
     document.getElementById('jobSub').textContent=`${row.packer} / ${row.pol} / CT ${row.ctList.length}本 / ${row.workDates.join(' 〜 ')}`;
     clearLog();resetJobState(row);
     try{
-      setPhase(1);setProgress(5,'写真読込中...');S.overlayDate=(row.packer==='KANEKO'&&row.workDates[0])?row.workDates[0]:null;await loadPhotosLocal(row);
+      setPhase(1);setProgress(5,'写真読込中...');S.overlayDate=((row.packer==='KANEKO'||row.packer==='OKINAWA SHIGYO')&&row.workDates[0])?row.workDates[0]:null;await loadPhotosLocal(row);
       setPhase(2);setProgress(45,'AI分類中...');S.logoB64=DEFAULT_LOGO_B64;await classifyAll();
       setPhase(3);setProgress(88,'VAN FORM 生成中...');const van=buildVanDocx();setProgress(92,'INSPECTION PLACE 取得中...');log(`   PLANT GUID: ${row.plantGuid||'(なし)'}`, 'info');const plantEn=row.plantGuid?await getPlantEnById(row.plantGuid):'';log(`   PLANT EN: ${plantEn||'(未登録)'}`, 'info');S.inspLocation=plantEn?`${row.packer} / ${plantEn}`:(row.packer||'');setProgress(95,'BALING FORM 生成中...');const bal=buildBalingDocx();
       setProgress(100,`✅ ${row.ivNo}/${row.partial} 完了`);setAllDone();log(`🎉 完了`,'ok');
@@ -1213,7 +1241,187 @@ const nos=Object.keys(S.vanPhotos).map(Number).sort((a,b)=>a-b);if(!nos.length){
     showClassifyPreview(S.vanPhotos[nos[0]],Object.fromEntries(Object.entries(OOMOTO_SLOT_DEF).map(([pos,slot])=>[slot,Object.keys(S.vanPhotos[nos[0]]||{}).filter(k=>!k.startsWith('_')).map(Number).find(seq=>{const n=(S.vanPhotos[nos[0]]||{})[`_name_${seq}`]||'';return n.match(new RegExp('^\\\\d+\\\\s*\\\\('+pos+'\\\\)'));})]).filter(([,v])=>v!=null)));
     setProgress(80,'分類完了');log(`✅ OOMOTO分類完了`,'ok');return;
   }
-  const res=[];res.forEach(({seq,label})=>log(`    seq${seq} [${fp[`_name_${seq}`]||''}] → ${label}`,'info'));const cands={};for(const{seq,label}of res)if(SLOT_ORDER.includes(label)){if(!cands[label])cands[label]=[];cands[label].push(seq);}const sm={};if(cands['cotecna_seal']?.length>1){const chk=await Promise.all(cands['cotecna_seal'].map(async seq=>{try{const a=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:fp[seq]}},{type:'text',text:`シールのクローズアップ写真で、上部に「COTECNA」の文字かつ「JP-」で始まる番号が両方写っているか？「yes」または「no」のみ返してください。`}],10);return{seq,ok:a.toLowerCase().includes('yes')};}catch(e){return{seq,ok:false};}}));sm['cotecna_seal']=(chk.find(r=>r.ok)??chk[0]).seq;}else if(cands['cotecna_seal']?.length===1)sm['cotecna_seal']=cands['cotecna_seal'][0];if(cands['right_door']?.length>1){const chk=await Promise.all(cands['right_door'].map(async seq=>{try{const a=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:fp[seq]}},{type:'text',text:`左側に荷物、右側に右ドアが写る写真か「yes」`}],10);return{seq,ok:a.toLowerCase().includes('yes')};}catch(e){return{seq,ok:false};}}));sm['right_door']=(chk.find(r=>r.ok)??chk[0]).seq;}else if(cands['right_door']?.length===1)sm['right_door']=cands['right_door'][0];const ai=[...(cands['full']||[]),...(cands['half']||[])].sort((a,b)=>a-b);if(ai.length>=2){const sc=await Promise.all(ai.map(async seq=>{try{const a=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:fp[seq]}},{type:'text',text:`荷物の積載率を1〜10。数字のみ`}],5);return{seq,score:parseInt(a)||0};}catch(e){return{seq,score:0};}}));sc.sort((a,b)=>b.score-a.score);cands['full']=[sc[0].seq];cands['half']=sc[1]?[sc[1].seq]:[];}else if(ai.length===1)cands['full']=ai;for(const s of SLOT_ORDER){if(s==='cotecna_seal'||s==='right_door')continue;if(cands[s]?.length&&!sm[s])sm[s]=cands[s][0];}const miss=SLOT_ORDER.filter(s=>!sm[s]);if(miss.length)log(` ⚠️ 未分類: ${miss.join(', ')}`,'warn');log(` ✅ マッチ: ${JSON.stringify(sm)}`,'ok');showClassifyPreview(fp,sm);for(const no of nos){S.classifiedVan[no]={};const p=S.vanPhotos[no]||{};for(const[s,seq]of Object.entries(sm))if(p[seq])S.classifiedVan[no][s]=p[seq];}const nc=S.containers.some(c=>!c.container||c.container==='—'||c.container.match(/^\d+$/));const ns=S.containers.some(c=>!c.seal||!c.seal.toUpperCase().startsWith('JP-'));if((nc&&sm['right_door'])||(ns&&sm['cotecna_seal'])){log(' 🔍 OCR処理中...','info');await Promise.all(nos.map(async no=>{const cont=S.containers.find(c=>c.no===no);if(!cont)return;const t=[];if(nc&&S.classifiedVan[no]?.right_door)t.push(callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:S.classifiedVan[no].right_door}},{type:'text',text:`コンテナ番号（英字4桁+数字7桁）番号のみ`}],30).then(v=>{const m=v.trim().match(/[A-Z]{4}\d{7}/i);if(m){cont.container=m[0].toUpperCase();log(`    CT${no}: ${cont.container}`,'ok');}}).catch(()=>{}));if(ns&&S.classifiedVan[no]?.cotecna_seal)t.push(callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:S.classifiedVan[no].cotecna_seal}},{type:'text',text:`写真に写っているCOTECNAシール番号を読み取ってください。「JP-」の後に続く数字を含め「JP-XXXXXXX」形式のみ返してください（例: JP-0403644）。番号以外は一切書かないでください。番号が読み取れない場合は「不明」とのみ返してください。`}],30).then(v=>{const m=v.trim().match(/JP-?\d{4,8}/i);if(m){cont.seal=m[0].toUpperCase().replace(/^JP([^-])/,'JP-$1');log(`    CT${no} Seal: ${cont.seal}`,'ok');}}).catch(()=>{}));await Promise.all(t);}));}if(sm['inspector']&&!S.classifiedBaling.inspectors.length)S.classifiedBaling.inspectors=[fp[sm['inspector']]];if(sm['full']&&!S.classifiedBaling.goods_yards.length)S.classifiedBaling.goods_yards=[fp[sm['full']]];setProgress(80,'AI分類完了');log(`✅ AI分類完了`,'ok');}
+
+  // ── OKINAWA 分岐: VAN/BALING混在 → UNIFIED_PROMPT で一括分類 ──
+  log('  📋 OKINAWAパターン: UNIFIED_PROMPT で VAN/BALING 混在分類中...','ok');
+
+  // 全CTの全写真を収集
+  const allPhotos=[]; // {no, seq, b64, name}
+  for(const no of nos){
+    const p=S.vanPhotos[no]||{};
+    const seqsAll=Object.keys(p).filter(k=>!k.startsWith('_')).map(Number).sort((a,b)=>a-b);
+    for(const seq of seqsAll){
+      if(p[seq]) allPhotos.push({no,seq,b64:p[seq],name:p[`_name_${seq}`]||''});
+    }
+  }
+  log(`  全写真 ${allPhotos.length}枚 → UNIFIED_PROMPT + DATE_CHECK_PROMPT 並列実行`,'info');
+
+  // 全写真に対してUNIFIED + DATE_CHECK を並列実行
+  const photoResults=[]; // {no,seq,b64,name,label,hasDate}
+  for(let i=0;i<allPhotos.length;i+=4){
+    await Promise.all(allPhotos.slice(i,i+4).map(async({no,seq,b64,name})=>{
+      let label='unknown', hasDate=true;
+      try{
+        const imgContent={type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}};
+        const [lRes,dRes]=await Promise.all([
+          callAI([imgContent,{type:'text',text:UNIFIED_PROMPT}],20),
+          callAI([imgContent,{type:'text',text:DATE_CHECK_PROMPT}],5)
+        ]);
+        label=lRes.trim().toLowerCase();
+        hasDate=!dRes.trim().toLowerCase().includes('no');
+        log(`    CT${no} [${name}] → ${label} / 日付:${hasDate?'あり':'なし'}`,'ok');
+      }catch(e){
+        log(`    CT${no} [${name}] エラー: ${e.message}`,'warn');
+      }
+      photoResults.push({no,seq,b64,name,label,hasDate});
+    }));
+  }
+
+  // 日付なし写真にオーバーレイ適用
+  const workDate=S.overlayDate||(S.inspList&&S.inspList.length?(S.inspList.find(r=>r.groupKey===S.selectedKeys[0])||{}).workDates?.[0]:'');
+  if(workDate){
+    for(const r of photoResults){
+      if(!r.hasDate){
+        try{
+          const file=(S.groups[r.no]||[]).find(f=>f.name===r.name);
+          if(file){
+            r.b64=await fileToB64WithDate(file,workDate);
+            if(S.vanPhotos[r.no]) S.vanPhotos[r.no][r.seq]=r.b64;
+            log(`    CT${r.no} [${r.name}] 日付オーバーレイ追加 (${workDate})`,'ok');
+          }
+        }catch(e){log(`    CT${r.no} [${r.name}] オーバーレイエラー`,'warn');}
+      }
+    }
+  }
+
+  // VAN / BALING に振り分け
+  const VAN_LABELS_OK=['empty','half','full','right_door','inspector_van','cotecna_seal'];
+  const BALING_LABELS_OK=['goods_yard','rebale','open_bale','inspector_baling'];
+
+  // VAN: CT別にスロット候補を収集
+  const vanCands={}; // no → {slot: [{seq,b64}]}
+  for(const no of nos) vanCands[no]={};
+
+  // BALING: 全CT共通で収集
+  const balingCands={goods_yards:[],rebales:[],open_bales:[],inspectors_baling:[]};
+
+  for(const{no,seq,b64,label}of photoResults){
+    if(VAN_LABELS_OK.includes(label)){
+      const slot=(label==='inspector_van')?'inspector':label;
+      if(!vanCands[no][slot]) vanCands[no][slot]=[];
+      vanCands[no][slot].push({seq,b64});
+    } else if(BALING_LABELS_OK.includes(label)){
+      if(label==='goods_yard') balingCands.goods_yards.push(b64);
+      else if(label==='rebale') balingCands.rebales.push(b64);
+      else if(label==='open_bale') balingCands.open_bales.push(b64);
+      else if(label==='inspector_baling') balingCands.inspectors_baling.push(b64);
+    }
+  }
+
+  // cotecna_seal 精密判定: 複数候補があれば色→COTECNA文字で絞り込み
+  for(const no of nos){
+    const sealCands=vanCands[no]['cotecna_seal']||[];
+    if(sealCands.length>1){
+      log(`  CT${no} cotecna_seal候補 ${sealCands.length}枚 → 色判定中...`,'info');
+      // STEP1: 黄色フィルタ
+      const colorChecks=await Promise.all(sealCands.map(async({seq,b64})=>{
+        try{const a=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:`このシール・タグ・封印の写真で、タグ本体の色は黄色ですか？「yes」または「no」のみ返してください。`}],5);return{seq,b64,isYellow:a.toLowerCase().includes('yes')};}
+        catch(e){return{seq,b64,isYellow:false};}
+      }));
+      const yellows=colorChecks.filter(r=>r.isYellow);
+      log(`  CT${no} 黄色シール: ${yellows.length}枚`,'info');
+      if(yellows.length===1){
+        vanCands[no]['cotecna_seal']=[yellows[0]];
+        log(`  CT${no} cotecna_seal → 黄色1枚で確定`,'ok');
+      } else if(yellows.length>1){
+        // STEP2: COTECNA文字+JP-番号確認
+        const verifyChecks=await Promise.all(yellows.map(async({seq,b64})=>{
+          try{const a=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:`このシール写真で、①「COTECNA」の文字（一部でも可）と②「JP-」で始まる番号の両方が写っていますか？「yes」または「no」のみ返してください。`}],10);return{seq,b64,ok:a.toLowerCase().includes('yes')};}
+          catch(e){return{seq,b64,ok:false};}
+        }));
+        const verified=verifyChecks.find(r=>r.ok)||yellows[0];
+        vanCands[no]['cotecna_seal']=[verified];
+        log(`  CT${no} cotecna_seal → COTECNA文字確認で確定`,'ok');
+      } else {
+        // 黄色なし → 全候補でCOTECNA文字確認
+        const verifyAll=await Promise.all(sealCands.map(async({seq,b64})=>{
+          try{const a=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:`このシール写真で、①「COTECNA」の文字（一部でも可）と②「JP-」で始まる番号の両方が写っていますか？「yes」または「no」のみ返してください。`}],10);return{seq,b64,ok:a.toLowerCase().includes('yes')};}
+          catch(e){return{seq,b64,ok:false};}
+        }));
+        vanCands[no]['cotecna_seal']=[verifyAll.find(r=>r.ok)||sealCands[0]];
+        log(`  CT${no} cotecna_seal → 黄色なし・COTECNA文字確認で確定`,'warn');
+      }
+    }
+  }
+
+  // right_door 複数候補: 荷物+右扉確認
+  for(const no of nos){
+    const rdCands=vanCands[no]['right_door']||[];
+    if(rdCands.length>1){
+      const chk=await Promise.all(rdCands.map(async({seq,b64})=>{
+        try{const a=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:`左側に荷物、右側にコンテナ右扉が写る写真か？「yes」または「no」のみ返してください。`}],10);return{seq,b64,ok:a.toLowerCase().includes('yes')};}
+        catch(e){return{seq,b64,ok:false};}
+      }));
+      vanCands[no]['right_door']=[chk.find(r=>r.ok)||rdCands[0]];
+    }
+  }
+
+  // full/half 複数候補: 積載率スコアで振り分け
+  for(const no of nos){
+    const fullCands=vanCands[no]['full']||[];
+    const halfCands=vanCands[no]['half']||[];
+    const aiLoadCands=[...fullCands,...halfCands];
+    if(aiLoadCands.length>=2){
+      const sc=await Promise.all(aiLoadCands.map(async({seq,b64})=>{
+        try{const a=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:`荷物の積載率を1〜10。数字のみ`}],5);return{seq,b64,score:parseInt(a)||0};}
+        catch(e){return{seq,b64,score:0};}
+      }));
+      sc.sort((a,b)=>b.score-a.score);
+      vanCands[no]['full']=[sc[0]];
+      vanCands[no]['half']=sc[1]?[sc[1]]:[];
+    }
+  }
+
+  // classifiedVan に確定スロットを格納
+  for(const no of nos){
+    S.classifiedVan[no]={};
+    for(const slot of SLOT_ORDER){
+      const cand=(vanCands[no][slot]||[])[0];
+      if(cand) S.classifiedVan[no][slot]=cand.b64;
+    }
+    const slots=Object.keys(S.classifiedVan[no]);
+    const miss=SLOT_ORDER.filter(s=>!slots.includes(s));
+    if(miss.length) log(`  CT${no} ⚠️ 未分類スロット: ${miss.join(', ')}`,'warn');
+    log(`  CT${no} ✅ VAN分類完了: [${slots.join(', ')}]`,'ok');
+  }
+
+  // classifiedBaling に格納
+  const dateCount=Math.max(1,S.balingDateCount||1);
+  S.classifiedBaling.goods_yards=balingCands.goods_yards.slice(0,dateCount);
+  S.classifiedBaling.inspectors=balingCands.inspectors_baling.slice(0,dateCount);
+  S.classifiedBaling.rebales=balingCands.rebales;
+  S.classifiedBaling.open_bales=balingCands.open_bales.slice(0,balingCands.rebales.length);
+  log(`  ✅ BALING分類完了: goods_yard=${S.classifiedBaling.goods_yards.length}枚 rebale=${S.classifiedBaling.rebales.length}枚 inspector=${S.classifiedBaling.inspectors.length}枚 open_bale=${S.classifiedBaling.open_bales.length}枚`,'ok');
+
+  // OCR処理 (CT No / Seal が未取得の場合)
+  const nc=S.containers.some(c=>!c.container||c.container==='—'||c.container.match(/^\d+$/));
+  const ns=S.containers.some(c=>!c.seal||!c.seal.toUpperCase().startsWith('JP-'));
+  if(nc||ns){
+    log(' 🔍 OCR処理中...','info');
+    await Promise.all(nos.map(async no=>{
+      const cont=S.containers.find(c=>c.no===no);if(!cont)return;const t=[];
+      if(nc&&S.classifiedVan[no]?.right_door)t.push(callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:S.classifiedVan[no].right_door}},{type:'text',text:`コンテナ番号（英字4桁+数字7桁）番号のみ`}],30).then(v=>{const m=v.trim().match(/[A-Z]{4}\d{7}/i);if(m){cont.container=m[0].toUpperCase();log(`    CT${no}: ${cont.container}`,'ok');}}).catch(()=>{}));
+      if(ns&&S.classifiedVan[no]?.cotecna_seal)t.push(callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:S.classifiedVan[no].cotecna_seal}},{type:'text',text:`写真に写っているCOTECNAシール番号を読み取ってください。「JP-」の後に続く数字を含め「JP-XXXXXXX」形式のみ返してください（例: JP-0403644）。番号以外は一切書かないでください。番号が読み取れない場合は「不明」とのみ返してください。`}],30).then(v=>{const m=v.trim().match(/JP-?\d{4,8}/i);if(m){cont.seal=m[0].toUpperCase().replace(/^JP([^-])/,'JP-$1');log(`    CT${no} Seal: ${cont.seal}`,'ok');}}).catch(()=>{}));
+      await Promise.all(t);
+    }));
+  }
+
+  // プレビュー表示 (CT1のVANスロットマップ)
+  const previewSlotMap={};
+  for(const slot of SLOT_ORDER){const cand=(vanCands[nos[0]]?.[slot]||[])[0];if(cand)previewSlotMap[slot]=cand.seq;}
+  showClassifyPreview(S.vanPhotos[nos[0]],previewSlotMap);
+  setProgress(80,'AI分類完了');log(`✅ OKINAWA分類完了`,'ok');
+}
 async function callAI(content,maxTokens=20,_retry=0){const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':S.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:maxTokens,messages:[{role:'user',content}]})});if(r.status===429&&_retry<4){await new Promise(res=>setTimeout(res,5000*Math.pow(2,_retry)));return callAI(content,maxTokens,_retry+1);}if(!r.ok)throw new Error(`API ${r.status}`);const d=await r.json();return d.content?.[0]?.text?.trim()||'';}
 function kanjiToNum(s){const m={'一':1,'二':2,'三':3,'四':4,'五':5,'六':6,'七':7,'八':8,'九':9,'十':10,'１':1,'２':2,'３':3,'４':4,'５':5,'６':6,'７':7,'８':8,'９':9};if(/^\d+$/.test(s))return parseInt(s);let r=0;for(const c of s){if(m[c])r+=m[c];}return r||1;}
 async function classifyOne(b64,prompt){return callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:prompt}],20);}

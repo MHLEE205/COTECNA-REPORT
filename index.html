@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LEENAI COTECNAレポートツール v11.7</title>
+<title>LEENAI COTECNAレポートツール v11.9</title>
 <style>
 :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3350;--accent:#4f8ef7;--ok:#22c55e;--warn:#f59e0b;--error:#ef4444;--info:#38bdf8;--text:#e2e8f0;--text2:#8892a4;--text3:#4a5568;}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -93,7 +93,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 <body>
 <header>
   <div class="logo">LEE<span>NAI</span></div>
-  <div class="version">COTECNAレポートツール v11.7 (2026-06-18)</div>
+  <div class="version">COTECNAレポートツール v11.9 (2026-06-18)</div>
   <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
     <button class="btn btn-ghost btn-sm" id="plantMasterBtn" onclick="togglePlantMaster()" style="font-size:11px;">⚙ PLANTマスター</button>
   </div>
@@ -711,8 +711,10 @@ async function loadPhotosLocal(row){
       const p=f.webkitRelativePath.split('/');
       if(p.length>=4 && ctPattern.test(p[2]) && !assignedCts.has(p[2])) ivCtFolders.add(p[2]);
     });
-    const ivCtArr=[...ivCtFolders].sort();
-    log(`   IV内未割当CTフォルダ: [${ivCtArr.join(', ')}]`,'info');
+    // ⚠️ Dataverse CT番号リストに含まれるフォルダのみ割当 (他Partial混入防止)
+    const validCtNos=new Set(ctNos);
+    const ivCtArr=[...ivCtFolders].filter(cf=>validCtNos.has(cf)).sort();
+    log(`   IV内未割当CTフォルダ(Partial一致): [${ivCtArr.join(', ')}]`,'info');
     // 順番に割当
     ivCtArr.forEach((cf,i)=>{
       if(i<unassignedConts.length){
@@ -756,7 +758,25 @@ async function loadPhotosLocal(row){
   }
   log(`✅ 写真読込完了`,'ok');
   // _CHECK_PHOTO フォルダ読込 (BALING用)
-  const checkPhotoFiles=ivFiles.filter(f=>{const p=f.webkitRelativePath.split('/');return p.includes('_CHECK_PHOTO')&&ext.test(p[p.length-1]);});
+  const checkPartial=(row.partial||'').replace(/^P/i,'');
+  const checkPhotoFiles=ivFiles.filter(f=>{
+    const p=f.webkitRelativePath.split('/');
+    if(!p.includes('_CHECK_PHOTO'))return false;
+    if(!ext.test(p[p.length-1]))return false;
+    // _CHECK_PHOTOの直後がサブフォルダの場合、フォルダ名にPartial番号が含まれるか確認
+    const cpIdx=p.indexOf('_CHECK_PHOTO');
+    if(cpIdx>=0&&p.length>cpIdx+2){
+      // サブフォルダあり → フォルダ名にPartialが含まれるものだけ
+      const subFolder=p[cpIdx+1]||'';
+      const pMatch=subFolder.includes(`-P${checkPartial} `)||
+                   subFolder.includes(`-P${checkPartial}_`)||
+                   subFolder.includes(` P${checkPartial} `)||
+                   subFolder.includes(` P${checkPartial}_`)||
+                   new RegExp(`P${checkPartial}[^\\d]`).test(subFolder);
+      return pMatch;
+    }
+    return true; // サブフォルダなし → 全て対象
+  });
   if(checkPhotoFiles.length){
     log(`   _CHECK_PHOTO ${checkPhotoFiles.length}枚 読込中...`,'info');
     S.balingRawFiles=[];

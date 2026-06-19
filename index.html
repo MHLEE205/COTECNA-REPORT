@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LEENAI COTECNAレポートツール v11.6</title>
+<title>LEENAI COTECNAレポートツール v11.7</title>
 <style>
 :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3350;--accent:#4f8ef7;--ok:#22c55e;--warn:#f59e0b;--error:#ef4444;--info:#38bdf8;--text:#e2e8f0;--text2:#8892a4;--text3:#4a5568;}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -93,7 +93,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 <body>
 <header>
   <div class="logo">LEE<span>NAI</span></div>
-  <div class="version">COTECNAレポートツール v11.6 (2026-06-16)</div>
+  <div class="version">COTECNAレポートツール v11.7 (2026-06-18)</div>
   <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
     <button class="btn btn-ghost btn-sm" id="plantMasterBtn" onclick="togglePlantMaster()" style="font-size:11px;">⚙ PLANTマスター</button>
   </div>
@@ -963,10 +963,28 @@ async function classifyAll(){S.classifiedVan={};S.classifiedBaling={goods_yards:
       if(mappedOk){
         // 命名規則マッピング成功
         S.classifiedBaling.goods_yards=byName.goods_yard?[byName.goods_yard].slice(0,dateCount):[];
-        S.classifiedBaling.inspectors=byName.inspector?[byName.inspector].slice(0,dateCount):[];
         S.classifiedBaling.rebales=mappedRebales;
         S.classifiedBaling.open_bales=mappedOpen.slice(0,mappedRebales.length);
-        log(`  ✅ BALING マッピング完了: goods_yard=${S.classifiedBaling.goods_yards.length}枚 rebale=${mappedRebales.length}枚 inspector=${S.classifiedBaling.inspectors.length}枚 open_bale=${S.classifiedBaling.open_bales.length}枚`,'ok');
+
+        // inspector が0枚の場合 → 全ファイルをAIで再スキャン
+        if(byName.inspector){
+          S.classifiedBaling.inspectors=[byName.inspector];
+          log(`  ✅ BALING マッピング完了: goods_yard=${S.classifiedBaling.goods_yards.length}枚 rebale=${mappedRebales.length}枚 inspector=1枚 open_bale=${S.classifiedBaling.open_bales.length}枚`,'ok');
+        }else{
+          log('  ⚠️ inspector 未検出 → AI再スキャン中...','warn');
+          const inspFound=[];
+          for(let i=0;i<S.balingRawFiles.length;i+=4){
+            await Promise.all(S.balingRawFiles.slice(i,i+4).map(async({name,b64})=>{
+              try{
+                const l=(await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:BALING_PROMPT}],20)).trim().toLowerCase();
+                if(l==='inspector'){inspFound.push(b64);log(`    ${name} → inspector ✅`,'ok');}
+              }catch(e){log(`    ${name} エラー: ${e.message}`,'warn');}
+            }));
+            if(inspFound.length>0)break; // 1枚見つかったら終了
+          }
+          S.classifiedBaling.inspectors=inspFound.slice(0,1);
+          log(`  ✅ BALING完了: goods_yard=${S.classifiedBaling.goods_yards.length}枚 rebale=${mappedRebales.length}枚 inspector=${S.classifiedBaling.inspectors.length}枚 open_bale=${S.classifiedBaling.open_bales.length}枚`,'ok');
+        }
       }else{
         // 命名規則なし → AI分類にフォールバック
         log('  📋 命名規則なし → AI分類にフォールバック...','info');

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LEENAI COTECNAレポートツール v12.3</title>
+<title>LEENAI COTECNAレポートツール v12.4</title>
 <style>
 :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3350;--accent:#4f8ef7;--ok:#22c55e;--warn:#f59e0b;--error:#ef4444;--info:#38bdf8;--text:#e2e8f0;--text2:#8892a4;--text3:#4a5568;}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -119,7 +119,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 <body>
 <header>
   <div class="logo">LEE<span>NAI</span></div>
-  <div class="version">COTECNAレポートツール v12.3 (2026-06-20)</div>
+  <div class="version">COTECNAレポートツール v12.4 (2026-06-20)</div>
   <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
     <button class="btn btn-ghost btn-sm" id="plantMasterBtn" onclick="togglePlantMaster()" style="font-size:11px;">⚙ PLANTマスター</button>
   </div>
@@ -355,7 +355,9 @@ right_door     - 【必須条件：以下の両方が同時に写っているこ
                  ❌ コンテナ内部の側壁・天井・床だけの写真はNG
                  ❌ 荷物のみ、扉のみの写真はNG
                  ❌ 荷物が写っていない外観写真はNG
-inspector_van  - 検査員がコンテナを背景に立っている写真。背景に鉄製コンテナ壁・ドア・コンテナ番号が見える。
+inspector_van  - 【必須】人物（検査員）が写っていること。
+                 検査員がコンテナを背景に立っている写真。背景に鉄製コンテナ壁・ドア・コンテナ番号が見える。
+                 ❌ 人物が写っていない写真はNG（外観・ドアのみはright_doorまたは他スロット）
 cotecna_seal   - シール・封印のクローズアップ写真。以下を両方満たすこと：
                  ① 黄色いタグ・シールである
                  ② 「COTECNA」の文字または「JP-」番号が確認できる
@@ -1397,8 +1399,10 @@ const nos=Object.keys(S.vanPhotos).map(Number).sort((a,b)=>a-b);if(!nos.length){
   const vanCands={}; // no → {slot: [{seq,b64}]}
   for(const no of nos) vanCands[no]={};
 
-  // BALING: 全CT共通で収集
-  const balingCands={goods_yards:[],rebales:[],open_bales:[],inspectors_baling:[]};
+  // BALING: CT別に収集 → CT内でpair後に合算
+  // balingByNo[no] = {goods_yards:[], rebales:[], open_bales:[], inspectors_baling:[]}
+  const balingByNo={};
+  for(const no of nos) balingByNo[no]={goods_yards:[],rebales:[],open_bales:[],inspectors_baling:[]};
 
   for(const{no,seq,b64,label}of photoResults){
     if(VAN_LABELS_OK.includes(label)){
@@ -1406,11 +1410,27 @@ const nos=Object.keys(S.vanPhotos).map(Number).sort((a,b)=>a-b);if(!nos.length){
       if(!vanCands[no][slot]) vanCands[no][slot]=[];
       vanCands[no][slot].push({seq,b64});
     } else if(BALING_LABELS_OK.includes(label)){
-      if(label==='goods_yard') balingCands.goods_yards.push(b64);
-      else if(label==='rebale') balingCands.rebales.push(b64);
-      else if(label==='open_bale') balingCands.open_bales.push(b64);
-      else if(label==='inspector_baling') balingCands.inspectors_baling.push(b64);
+      const bt=balingByNo[no]||balingByNo[nos[0]]; // fallback to CT1
+      if(label==='goods_yard') bt.goods_yards.push(b64);
+      else if(label==='rebale') bt.rebales.push(b64);
+      else if(label==='open_bale') bt.open_bales.push(b64);
+      else if(label==='inspector_baling') bt.inspectors_baling.push(b64);
     }
+  }
+  log('  📋 CT別BALING pair処理中...','info');
+  // CT別に rebale ↔ open_bale をペアリング後に合算
+  const balingCands={goods_yards:[],rebales:[],open_bales:[],inspectors_baling:[]};
+  for(const no of nos){
+    const bt=balingByNo[no];
+    const rCount=bt.rebales.length;
+    const oCount=bt.open_bales.length;
+    // pair数 = min(rebale数, open_bale数)
+    const pairCount=Math.min(rCount,oCount);
+    balingCands.rebales.push(...bt.rebales.slice(0,pairCount));
+    balingCands.open_bales.push(...bt.open_bales.slice(0,pairCount));
+    balingCands.goods_yards.push(...bt.goods_yards);
+    balingCands.inspectors_baling.push(...bt.inspectors_baling);
+    log(`  CT${no} BALING: rebale=${rCount}枚 open_bale=${oCount}枚 → pair=${pairCount}組`,'ok');
   }
 
   // cotecna_seal 精密判定: 複数候補があれば色→COTECNA文字で絞り込み
@@ -1490,12 +1510,12 @@ const nos=Object.keys(S.vanPhotos).map(Number).sort((a,b)=>a-b);if(!nos.length){
     log(`  CT${no} ✅ VAN分類完了: [${slots.join(', ')}]`,'ok');
   }
 
-  // classifiedBaling に格納
+  // classifiedBaling に格納 (CT別pairリング済み)
   const dateCount=Math.max(1,S.balingDateCount||1);
   S.classifiedBaling.goods_yards=balingCands.goods_yards.slice(0,dateCount);
   S.classifiedBaling.inspectors=balingCands.inspectors_baling.slice(0,dateCount);
   S.classifiedBaling.rebales=balingCands.rebales;
-  S.classifiedBaling.open_bales=balingCands.open_bales.slice(0,balingCands.rebales.length);
+  S.classifiedBaling.open_bales=balingCands.open_bales; // CT別pair済みのため既に対応
   log(`  ✅ BALING分類完了: goods_yard=${S.classifiedBaling.goods_yards.length}枚 rebale=${S.classifiedBaling.rebales.length}枚 inspector=${S.classifiedBaling.inspectors.length}枚 open_bale=${S.classifiedBaling.open_bales.length}枚`,'ok');
 
   // OCR処理 (CT No / Seal が未取得の場合)

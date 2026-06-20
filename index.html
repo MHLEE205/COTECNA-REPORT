@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LEENAI COTECNAレポートツール v12.4</title>
+<title>LEENAI COTECNAレポートツール v12.5</title>
 <style>
 :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3350;--accent:#4f8ef7;--ok:#22c55e;--warn:#f59e0b;--error:#ef4444;--info:#38bdf8;--text:#e2e8f0;--text2:#8892a4;--text3:#4a5568;}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -119,7 +119,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 <body>
 <header>
   <div class="logo">LEE<span>NAI</span></div>
-  <div class="version">COTECNAレポートツール v12.4 (2026-06-20)</div>
+  <div class="version">COTECNAレポートツール v12.5 (2026-06-20)</div>
   <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
     <button class="btn btn-ghost btn-sm" id="plantMasterBtn" onclick="togglePlantMaster()" style="font-size:11px;">⚙ PLANTマスター</button>
   </div>
@@ -367,8 +367,13 @@ cotecna_seal   - シール・封印のクローズアップ写真。以下を両
 
 【BALING関連 — 古紙の梱包状態の写真】
 goods_yard     - 倉庫・ヤード内に圧縮ベールが複数段・複数列で積まれた全景写真。天井・壁など倉庫構造物が背景に見える。
-rebale         - ワイヤーで束ねられたベールの塊のクローズアップ。塊が1個以上写真に存在する。
-open_bale      - ベールの塊がなく古紙が散乱している状態。紙が床や空間に無秩序に広がっている。
+rebale         - ワイヤー・紐・ビニールで圧縮・プレスされた直方体の塊（ベール）のクローズアップ。
+                 塊が1個以上写真の主役として存在する。
+                 ❌ 袋に入っているだけでプレス圧縮されていない状態 → open_bale
+open_bale      - 古紙・資源物がバラバラ・散乱している状態。以下のいずれか：
+                 ① 紙・資源物が床や空間に無秩序に広がっている
+                 ② ビニール袋・袋の中に資源物が入っているが、プレス（圧縮）されていない状態
+                 ❌ ワイヤー・紐・ビニールでプレス圧縮された直方体の塊が主役 → rebale
 inspector_baling - 検査員が古紙・ベール・倉庫内の荷物を背景に立っている写真。背景が古紙の塊・散乱紙・倉庫内の古紙。
 
 【inspector判定の決定的な違い】

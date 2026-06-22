@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LEENAI COTECNAレポートツール v12.7</title>
+<title>LEENAI COTECNAレポートツール v12.8</title>
 <style>
 :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3350;--accent:#4f8ef7;--ok:#22c55e;--warn:#f59e0b;--error:#ef4444;--info:#38bdf8;--text:#e2e8f0;--text2:#8892a4;--text3:#4a5568;}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -119,7 +119,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 <body>
 <header>
   <div class="logo">LEE<span>NAI</span></div>
-  <div class="version">COTECNAレポートツール v12.7 (2026-06-22)</div>
+  <div class="version">COTECNAレポートツール v12.8 (2026-06-22)</div>
   <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
     <button class="btn btn-ghost btn-sm" id="plantMasterBtn" onclick="togglePlantMaster()" style="font-size:11px;">⚙ PLANTマスター</button>
   </div>
@@ -1488,7 +1488,12 @@ const nos=Object.keys(S.vanPhotos).map(Number).sort((a,b)=>a-b);if(!nos.length){
     const rdCands=vanCands[no]['right_door']||[];
     if(rdCands.length>1){
       const chk=await Promise.all(rdCands.map(async({seq,b64})=>{
-        try{const a=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:`左側に荷物、右側にコンテナ右扉が写る写真か？「yes」または「no」のみ返してください。`}],10);return{seq,b64,ok:a.toLowerCase().includes('yes')};}
+        try{const a=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:`以下の条件を全て満たす場合のみ「yes」を返してください：
+① 写真の左側または中央に古紙ベール・荷物が積まれている
+② 写真の右側にコンテナの扉（ドア）が写っている
+③ コンテナ番号が横書きで正面から読める状態である
+④ 内部側壁を下から上へ見上げた構図ではない（外部・空が大きく写っていない）
+全て満たす→「yes」、一つでも満たさない→「no」のみ返してください。`}],10);return{seq,b64,ok:a.toLowerCase().includes('yes')};}
         catch(e){return{seq,b64,ok:false};}
       }));
       vanCands[no]['right_door']=[chk.find(r=>r.ok)||rdCands[0]];

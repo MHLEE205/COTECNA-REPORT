@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LEENAI COTECNAレポートツール v12.8</title>
+<title>LEENAI COTECNAレポートツール v12.9</title>
 <style>
 :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3350;--accent:#4f8ef7;--ok:#22c55e;--warn:#f59e0b;--error:#ef4444;--info:#38bdf8;--text:#e2e8f0;--text2:#8892a4;--text3:#4a5568;}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -119,7 +119,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 <body>
 <header>
   <div class="logo">LEE<span>NAI</span></div>
-  <div class="version">COTECNAレポートツール v12.8 (2026-06-22)</div>
+  <div class="version">COTECNAレポートツール v12.9 (2026-06-24)</div>
   <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
     <button class="btn btn-ghost btn-sm" id="plantMasterBtn" onclick="togglePlantMaster()" style="font-size:11px;">⚙ PLANTマスター</button>
   </div>
@@ -794,7 +794,7 @@ async function proceedSelected(){
     document.getElementById('jobSub').textContent=`${row.packer} / ${row.pol} / CT ${row.ctList.length}本 / ${row.workDates.join(' 〜 ')}`;
     clearLog();resetJobState(row);
     try{
-      setPhase(1);setProgress(5,'写真読込中...');S.overlayDate=((row.packer==='KANEKO'||row.packer==='OKINAWA SHIGYO')&&row.workDates[0])?row.workDates[0]:null;await loadPhotosLocal(row);
+      setPhase(1);setProgress(5,'写真読込中...');S.overlayDate=null; // CT別date使用のため廃止await loadPhotosLocal(row);
       setPhase(2);setProgress(45,'AI分類中...');S.logoB64=DEFAULT_LOGO_B64;await classifyAll();
       setPhase(3);setProgress(88,'VAN FORM 生成中...');const van=buildVanDocx();setProgress(92,'INSPECTION PLACE 取得中...');log(`   PLANT GUID: ${row.plantGuid||'(なし)'}`, 'info');const plantEn=row.plantGuid?await getPlantEnById(row.plantGuid):'';log(`   PLANT EN: ${plantEn||'(未登録)'}`, 'info');S.inspLocation=plantEn?`${row.packer} / ${plantEn}`:(row.packer||'');setProgress(95,'BALING FORM 生成中...');const bal=buildBalingDocx();
       setProgress(100,`✅ ${row.ivNo}/${row.partial} 完了`);setAllDone();log(`🎉 完了`,'ok');
@@ -805,7 +805,7 @@ async function proceedSelected(){
   showResults(allDl);document.getElementById('proceedBtn').disabled=false;
   document.getElementById('step2').classList.remove('active');document.getElementById('step2').classList.add('done');step3.classList.add('done');
 }
-function resetJobState(row){S.mode='folder';S.groups={};S.containers=row.ctList.map((ct,i)=>({no:i+1,container:ct.ctNo,seal:ct.seal}));S.vanPhotos={};S.baraPhotos={};S.pressPhotos={};S.balingRawFiles=[];S.classifiedVan={};S.classifiedBaling={goods_yards:[],inspectors:[],open_bales:[],rebales:[]};S.logoB64=null;S.voNo=(row.voNo&&row.voNo!=='—'&&row.partial&&row.partial!=='—')?`${row.voNo}-${row.partial}`:(row.voNo&&row.voNo!=='—'?row.voNo:'');const MN=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];const fmtDate=s=>{const d=new Date(s);return MN[d.getMonth()]+`. ${d.getDate()}, ${d.getFullYear()}`};const fd=row.workDates[0]||'';const ld=row.workDates[row.workDates.length-1]||'';if(row.workDates.length>=2){const d0=new Date(fd),d1=new Date(ld);S.reportDate=MN[d0.getMonth()]+`. ${d0.getDate()} & ${d1.getDate()}, ${d0.getFullYear()}`;}else{S.reportDate=fd?fmtDate(fd):'';};S.balingDateCount=row.workDates.length;S.inspPlace=row.pol||'';S.baleCount=0;S.rootName=row.ivNo;S.fileList=[];}
+function resetJobState(row){S.mode='folder';S.groups={};S.containers=row.ctList.map((ct,i)=>({no:i+1,container:ct.ctNo,seal:ct.seal,date:ct.date||''}));S.vanPhotos={};S.baraPhotos={};S.pressPhotos={};S.balingRawFiles=[];S.classifiedVan={};S.classifiedBaling={goods_yards:[],inspectors:[],open_bales:[],rebales:[]};S.logoB64=null;S.voNo=(row.voNo&&row.voNo!=='—'&&row.partial&&row.partial!=='—')?`${row.voNo}-${row.partial}`:(row.voNo&&row.voNo!=='—'?row.voNo:'');const MN=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];const fmtDate=s=>{const d=new Date(s);return MN[d.getMonth()]+`. ${d.getDate()}, ${d.getFullYear()}`};const fd=row.workDates[0]||'';const ld=row.workDates[row.workDates.length-1]||'';if(row.workDates.length>=2){const d0=new Date(fd),d1=new Date(ld);S.reportDate=MN[d0.getMonth()]+`. ${d0.getDate()} & ${d1.getDate()}, ${d0.getFullYear()}`;}else{S.reportDate=fd?fmtDate(fd):'';};S.balingDateCount=row.workDates.length;S.inspPlace=row.pol||'';S.baleCount=0;S.rootName=row.ivNo;S.fileList=[];}
 async function loadPhotosLocal(row){
   const ivNo=row.ivNo;
   const ext=/\.(jpe?g|png)$/i;
@@ -888,7 +888,7 @@ async function loadPhotosLocal(row){
     for(let i=0;i<imgs.length;i+=5){
       const batch=imgs.slice(i,i+5);
       await Promise.all(batch.map(async(f,bi)=>{
-        try{const seq=i+bi+1;S.vanPhotos[no][seq]=S.overlayDate?await fileToB64WithDate(f,S.overlayDate):await fileToB64(f);S.vanPhotos[no][`_name_${seq}`]=f.name;if(seq===1)log(`    [DEBUG] f.name='${f.name}'`,'info');}
+        try{const seq=i+bi+1;const ctDate=cont?.date||'';S.vanPhotos[no][seq]=ctDate?await fileToB64WithDate(f,ctDate):await fileToB64(f);S.vanPhotos[no][`_name_${seq}`]=f.name;if(seq===1)log(`    [DEBUG] f.name='${f.name}'`,'info');}
         catch(e){log(`    ⚠️ ${f.name}`,'warn');}
       }));
       setProgress(5+Math.round(((ci||1)/ctFolders.length)*35),`写真読込: ${cf}`);
@@ -919,7 +919,7 @@ async function loadPhotosLocal(row){
   if(checkPhotoFiles.length){
     log(`   _CHECK_PHOTO ${checkPhotoFiles.length}枚 読込中...`,'info');
     S.balingRawFiles=[];
-    await Promise.all(checkPhotoFiles.map(async f=>{try{const b64raw=await fileToB64(f);const b64=S.overlayDate?await new Promise((res)=>{const img=new Image();img.onload=()=>{const c=document.createElement('canvas');c.width=img.width;c.height=img.height;const ctx=c.getContext('2d');ctx.drawImage(img,0,0);const fs=Math.max(14,Math.round(img.height*0.035));ctx.font=`bold ${fs}px Arial`;const pad=Math.round(fs*0.5);const tw=ctx.measureText(S.overlayDate).width;const x=img.width-tw-pad*2;const y=img.height-pad;ctx.fillStyle='rgba(0,0,0,0.55)';ctx.fillRect(x-pad/2,y-fs-pad/2,tw+pad,fs+pad);ctx.fillStyle='#ffffff';ctx.fillText(S.overlayDate,x,y);res(c.toDataURL('image/jpeg',0.92).split(',')[1]);};img.onerror=()=>res(b64raw);img.src='data:image/jpeg;base64,'+b64raw;}):b64raw;S.balingRawFiles.push({name:f.name,b64});}catch(e){}}));
+    await Promise.all(checkPhotoFiles.map(async f=>{try{const b64raw=await fileToB64(f);const kanekoCTDate=(S.containers[0]?.date||'');const b64=kanekoCTDate?await new Promise((res)=>{const img=new Image();img.onload=()=>{const c=document.createElement('canvas');c.width=img.width;c.height=img.height;const ctx=c.getContext('2d');ctx.drawImage(img,0,0);const fs=Math.max(14,Math.round(img.height*0.035));ctx.font=`bold ${fs}px Arial`;const pad=Math.round(fs*0.5);const tw=ctx.measureText(S.overlayDate).width;const x=img.width-tw-pad*2;const y=img.height-pad;ctx.fillStyle='rgba(0,0,0,0.55)';ctx.fillRect(x-pad/2,y-fs-pad/2,tw+pad,fs+pad);ctx.fillStyle='#ffffff';ctx.fillText(kanekoCTDate,x,y);res(c.toDataURL('image/jpeg',0.92).split(',')[1]);};img.onerror=()=>res(b64raw);img.src='data:image/jpeg;base64,'+b64raw;}):b64raw;S.balingRawFiles.push({name:f.name,b64});}catch(e){}}));
     log(`   ✅ BALING写真 ${S.balingRawFiles.length}枚 読込完了`,'ok');
   }else{S.balingRawFiles=[];}
 
@@ -1388,20 +1388,19 @@ const nos=Object.keys(S.vanPhotos).map(Number).sort((a,b)=>a-b);if(!nos.length){
     }));
   }
 
-  // 日付なし写真にオーバーレイ適用
-  const workDate=S.overlayDate||(S.inspList&&S.inspList.length?(S.inspList.find(r=>r.groupKey===S.selectedKeys[0])||{}).workDates?.[0]:'');
-  if(workDate){
-    for(const r of photoResults){
-      if(!r.hasDate){
-        try{
-          const file=(S.groups[r.no]||[]).find(f=>f.name===r.name);
-          if(file){
-            r.b64=await fileToB64WithDate(file,workDate);
-            if(S.vanPhotos[r.no]) S.vanPhotos[r.no][r.seq]=r.b64;
-            log(`    CT${r.no} [${r.name}] 日付オーバーレイ追加 (${workDate})`,'ok');
-          }
-        }catch(e){log(`    CT${r.no} [${r.name}] オーバーレイエラー`,'warn');}
-      }
+  // 日付なし写真にオーバーレイ適用 (CT別work_date使用)
+  for(const r of photoResults){
+    if(!r.hasDate){
+      const ctDate=S.containers.find(c=>c.no===r.no)?.date||'';
+      if(!ctDate) continue;
+      try{
+        const file=(S.groups[r.no]||[]).find(f=>f.name===r.name);
+        if(file){
+          r.b64=await fileToB64WithDate(file,ctDate);
+          if(S.vanPhotos[r.no]) S.vanPhotos[r.no][r.seq]=r.b64;
+          log('    CT'+r.no+' ['+r.name+'] 日付オーバーレイ追加 ('+ctDate+')','ok');
+        }
+      }catch(e){log('    CT'+r.no+' ['+r.name+'] オーバーレイエラー','warn');}
     }
   }
 

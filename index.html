@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LEENAI COTECNAレポートツール v13.3</title>
+<title>LEENAI COTECNAレポートツール v13.4</title>
 <style>
 :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3350;--accent:#4f8ef7;--ok:#22c55e;--warn:#f59e0b;--error:#ef4444;--info:#38bdf8;--text:#e2e8f0;--text2:#8892a4;--text3:#4a5568;}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -119,7 +119,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 <body>
 <header>
   <div class="logo">LEE<span>NAI</span></div>
-  <div class="version">COTECNAレポートツール v13.3 (2026-06-24)</div>
+  <div class="version">COTECNAレポートツール v13.4 (2026-06-24)</div>
   <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
     <button class="btn btn-ghost btn-sm" id="plantMasterBtn" onclick="togglePlantMaster()" style="font-size:11px;">⚙ PLANTマスター</button>
   </div>
@@ -920,7 +920,7 @@ async function loadPhotosLocal(row){
   if(checkPhotoFiles.length){
     log(`   _CHECK_PHOTO ${checkPhotoFiles.length}枚 読込中...`,'info');
     S.balingRawFiles=[];
-    await Promise.all(checkPhotoFiles.map(async f=>{try{const b64raw=await fileToB64(f);const fp=f.webkitRelativePath.split('/');const cpIdx2=fp.indexOf('_CHECK_PHOTO');const sf=fp[cpIdx2+1]||'';const dm=sf.match(/^(\d{4})(\d{2})(\d{2})/);const kanekoCTDate=dm?`${dm[1]}-${dm[2]}-${dm[3]}`:(S.containers[0]?.date||'');const b64=kanekoCTDate?await new Promise((res)=>{const img=new Image();img.onload=()=>{const c=document.createElement('canvas');c.width=img.width;c.height=img.height;const ctx=c.getContext('2d');ctx.drawImage(img,0,0);const fs=Math.max(14,Math.round(img.height*0.035));ctx.font=`bold ${fs}px Arial`;const pad=Math.round(fs*0.5);const tw=ctx.measureText(S.overlayDate).width;const x=img.width-tw-pad*2;const y=img.height-pad;ctx.fillStyle='rgba(0,0,0,0.55)';ctx.fillRect(x-pad/2,y-fs-pad/2,tw+pad,fs+pad);ctx.fillStyle='#ffffff';ctx.fillText(kanekoCTDate,x,y);res(c.toDataURL('image/jpeg',0.92).split(',')[1]);};img.onerror=()=>res(b64raw);img.src='data:image/jpeg;base64,'+b64raw;}):b64raw;S.balingRawFiles.push({name:f.name,b64});}catch(e){}}));
+    await Promise.all(checkPhotoFiles.map(async f=>{try{const b64raw=await fileToB64(f);const fp=f.webkitRelativePath.split('/');const cpIdx2=fp.indexOf('_CHECK_PHOTO');const sf=fp[cpIdx2+1]||'';const dm=sf.match(/^(\d{4})(\d{2})(\d{2})/);const kanekoCTDate=dm?`${dm[1]}-${dm[2]}-${dm[3]}`:(S.containers[0]?.date||'');const b64=kanekoCTDate?await new Promise((res)=>{const img=new Image();img.onload=()=>{const c=document.createElement('canvas');c.width=img.width;c.height=img.height;const ctx=c.getContext('2d');ctx.drawImage(img,0,0);const fs=Math.max(14,Math.round(img.height*0.035));ctx.font=`bold ${fs}px Arial`;const pad=Math.round(fs*0.5);const tw=ctx.measureText(kanekoCTDate).width;const x=img.width-tw-pad*2;const y=img.height-pad;ctx.fillStyle='rgba(0,0,0,0.55)';ctx.fillRect(x-pad/2,y-fs-pad/2,tw+pad,fs+pad);ctx.fillStyle='#ffffff';ctx.fillText(kanekoCTDate,x,y);res(c.toDataURL('image/jpeg',0.92).split(',')[1]);};img.onerror=()=>res(b64raw);img.src='data:image/jpeg;base64,'+b64raw;}):b64raw;S.balingRawFiles.push({name:f.name,b64});}catch(e){}}));
     log(`   ✅ BALING写真 ${S.balingRawFiles.length}枚 読込完了`,'ok');
   }else{S.balingRawFiles=[];}
 

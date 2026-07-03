@@ -930,15 +930,25 @@ async function loadPhotosLocal(row){
     const partial=(row.partial||'').replace(/^P/i,''); // 数字部分のみ
     const archivedFiles=S.photoFiles.filter(f=>{
       const p=f.webkitRelativePath.split('/');
-      // _ARCHIVED/フォルダ名/ファイル or PHOTO/_ARCHIVED/フォルダ名/ファイル
+      // ケース1: _ARCHIVED/フォルダ名/ファイル or PHOTO/_ARCHIVED/フォルダ名/ファイル
       const arIdx=p.findIndex(d=>d==='_ARCHIVED');
-      if(arIdx<0) return false;
-      const folderName=p[arIdx+1]||'';
-      if(!folderName) return false;
-      // VO_NO.X.13.XXXXXX-PX または VO_NO.X.13.XXXXXX  PX などをマッチ
-      const voMatch=folderName.includes(voRaw);
-      const pMatch=folderName.includes(`-P${partial}`)||folderName.includes(`P${partial} `)||folderName.includes(`P${partial}　`);
-      return voMatch&&pMatch&&ext.test(p[p.length-1]);
+      if(arIdx>=0){
+        const folderName=p[arIdx+1]||'';
+        if(folderName){
+          const voMatch=folderName.includes(voRaw);
+          const pMatch=folderName.includes(`-P${partial}`)||folderName.includes(`P${partial} `)||folderName.includes(`P${partial}　`);
+          if(voMatch&&pMatch&&ext.test(p[p.length-1])) return true;
+        }
+      }
+      // ケース2: _ARCHIVEDフォルダなし。VO_NO.xxx-Pn 検査のご報告 のような
+      // フォルダ名がパスのどこかに直接存在する場合 (OOMOTO等の日付作業フォルダ構造)
+      const matchIdx=p.findIndex(seg=>{
+        const voMatch=seg.includes(voRaw);
+        const pMatch=seg.includes(`-P${partial}`)||seg.includes(`P${partial} `)||seg.includes(`P${partial}　`)||seg.includes(`P${partial}_`);
+        return voMatch&&pMatch;
+      });
+      if(matchIdx>=0&&ext.test(p[p.length-1])) return true;
+      return false;
     });
     if(archivedFiles.length){
       log(`   _ARCHIVED ${archivedFiles.length}枚 発見 → BALING読込中...`,'info');

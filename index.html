@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LEENAI COTECNAレポートツール v13.6</title>
+<title>LEENAI COTECNAレポートツール v13.7</title>
 <style>
 :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3350;--accent:#4f8ef7;--ok:#22c55e;--warn:#f59e0b;--error:#ef4444;--info:#38bdf8;--text:#e2e8f0;--text2:#8892a4;--text3:#4a5568;}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -119,7 +119,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 <body>
 <header>
   <div class="logo">LEE<span>NAI</span></div>
-  <div class="version">COTECNAレポートツール v13.6 (2026-07-03)</div>
+  <div class="version">COTECNAレポートツール v13.7 (2026-07-03)</div>
   <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
     <button class="btn btn-ghost btn-sm" id="plantMasterBtn" onclick="togglePlantMaster()" style="font-size:11px;">⚙ PLANTマスター</button>
   </div>
@@ -923,24 +923,27 @@ async function loadPhotosLocal(row){
     log(`   ✅ BALING写真 ${S.balingRawFiles.length}枚 読込完了`,'ok');
   }else{S.balingRawFiles=[];}
 
-  // ── _ARCHIVED フォルダ BALING写真 탐색 (OOMOTO等) ──
+  // ── _ARCHIVED / _INSPECTION フォルダ BALING写真 탐색 (OOMOTO等) ──
   // フォルダ名パターン: *VO_NO.{voNo}*{partial}* 検査のご報告*
+  // _INSPECTION: IV/_INSPECTION/日付_メール_VO_NO.xxx-Pn 検査のご報告/バラ検査写真/
   if(!S.balingRawFiles.length){
     const voRaw=(S.voNo||'').replace(/-P\d+$/,''); // X.13.097522 (partial除去)
     const partial=(row.partial||'').replace(/^P/i,''); // 数字部分のみ
     const archivedFiles=S.photoFiles.filter(f=>{
       const p=f.webkitRelativePath.split('/');
-      // ケース1: _ARCHIVED/フォルダ名/ファイル or PHOTO/_ARCHIVED/フォルダ名/ファイル
-      const arIdx=p.findIndex(d=>d==='_ARCHIVED');
-      if(arIdx>=0){
-        const folderName=p[arIdx+1]||'';
+      // ケース1: _ARCHIVED または _INSPECTION の直下フォルダ名にVO番号+Partialが含まれる場合
+      // 例: _ARCHIVED/VO_NO.X.13.xxx-P1 検査のご報告/photo.jpg
+      // 例: _INSPECTION/20260702_xxx_VO_NO.X.13.xxx-P1 検査のご報告/バラ検査写真 7.2/photo.jpg
+      const specialIdx=p.findIndex(d=>d==='_ARCHIVED'||d==='_INSPECTION');
+      if(specialIdx>=0){
+        const folderName=p[specialIdx+1]||'';
         if(folderName){
           const voMatch=folderName.includes(voRaw);
-          const pMatch=folderName.includes(`-P${partial}`)||folderName.includes(`P${partial} `)||folderName.includes(`P${partial}　`);
+          const pMatch=folderName.includes(`-P${partial}`)||folderName.includes(`P${partial} `)||folderName.includes(`P${partial}　`)||folderName.includes(`P${partial}_`);
           if(voMatch&&pMatch&&ext.test(p[p.length-1])) return true;
         }
       }
-      // ケース2: _ARCHIVEDフォルダなし。VO_NO.xxx-Pn 検査のご報告 のような
+      // ケース2: 特殊フォルダなし。VO_NO.xxx-Pn 検査のご報告 のような
       // フォルダ名がパスのどこかに直接存在する場合 (OOMOTO等の日付作業フォルダ構造)
       const matchIdx=p.findIndex(seg=>{
         const voMatch=seg.includes(voRaw);
@@ -951,7 +954,7 @@ async function loadPhotosLocal(row){
       return false;
     });
     if(archivedFiles.length){
-      log(`   _ARCHIVED ${archivedFiles.length}枚 発見 → BALING読込中...`,'info');
+      log(`   _ARCHIVED/_INSPECTION ${archivedFiles.length}枚 発見 → BALING読込中...`,'info');
       S.balingRawFiles=[];
       await Promise.all(archivedFiles.map(async f=>{
         try{
@@ -968,11 +971,11 @@ async function loadPhotosLocal(row){
           S.balingRawFiles.push({name:f.name,b64,folderType,item});
         }catch(e){}
       }));
-      log(`   ✅ _ARCHIVED BALING写真 ${S.balingRawFiles.length}枚 読込完了`,'ok');
+      log(`   ✅ _ARCHIVED/_INSPECTION BALING写真 ${S.balingRawFiles.length}枚 読込完了`,'ok');
       const sampleNames=S.balingRawFiles.slice(0,8).map(x=>x.name).join(' | ');
       log(`   [DEBUG] ファイル名サンプル: ${sampleNames}`,'info');
     }else{
-      log(`   ℹ️ _ARCHIVED 対象フォルダなし (VO:${voRaw} P${partial})`,'info');
+      log(`   ℹ️ _ARCHIVED/_INSPECTION 対象フォルダなし (VO:${voRaw} P${partial})`,'info');
     }
   }
   setProgress(40,'写真読込完了');}

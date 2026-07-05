@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LEENAI COTECNAレポートツール v13.12</title>
+<title>LEENAI COTECNAレポートツール v13.13</title>
 <style>
 :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3350;--accent:#4f8ef7;--ok:#22c55e;--warn:#f59e0b;--error:#ef4444;--info:#38bdf8;--text:#e2e8f0;--text2:#8892a4;--text3:#4a5568;}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -119,7 +119,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 <body>
 <header>
   <div class="logo">LEE<span>NAI</span></div>
-  <div class="version">COTECNAレポートツール v13.12 (2026-07-05)</div>
+  <div class="version">COTECNAレポートツール v13.13 (2026-07-05)</div>
   <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
     <button class="btn btn-ghost btn-sm" id="plantMasterBtn" onclick="togglePlantMaster()" style="font-size:11px;">⚙ PLANTマスター</button>
   </div>
@@ -1328,11 +1328,12 @@ const nos=Object.keys(S.vanPhotos).map(Number).sort((a,b)=>a-b);if(!nos.length){
     // ── right_door 2次精密判定 (FUJI) ──
     // Step1: 右側1枚閉扉＋スペックプレート確認 → Step2: コンテナ番号横書き確認
     const RIGHT_DOOR_STEP1=`この写真において、以下の条件を全て満たしていますか？
-① 写真の右側に、1枚だけ閉じたコンテナ扉が写っている
-   （左側の扉は開いており、内部の荷物が見える状態）
-② その扉の表面（こちらに向いている面）に
+① 写真の右側にコンテナの扉が写っており、
+   その扉の表面（こちらに向いている面）に
    MAX GROSS / TARE / PAYLOAD / NET / CU.CAP 等の
    スペックプレートが記載されている
+② 写真の左側または中央に古紙ベール（圧縮された紙の塊）が積まれており、
+   コンテナの内部が見えている
 全て満たす場合は「yes」、1つでも満たさない場合は「no」のみ返してください。`;
     const RIGHT_DOOR_STEP2=`コンテナ番号（英字4文字＋数字7桁）が横書きで正面から読める状態で写っていますか？「yes」または「no」のみ返してください。`;
     for(const no of nos){

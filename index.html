@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LEENAI COTECNAレポートツール v13.9</title>
+<title>LEENAI COTECNAレポートツール v13.11</title>
 <style>
 :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3350;--accent:#4f8ef7;--ok:#22c55e;--warn:#f59e0b;--error:#ef4444;--info:#38bdf8;--text:#e2e8f0;--text2:#8892a4;--text3:#4a5568;}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -119,7 +119,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 <body>
 <header>
   <div class="logo">LEE<span>NAI</span></div>
-  <div class="version">COTECNAレポートツール v13.9 (2026-07-05)</div>
+  <div class="version">COTECNAレポートツール v13.11 (2026-07-05)</div>
   <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
     <button class="btn btn-ghost btn-sm" id="plantMasterBtn" onclick="togglePlantMaster()" style="font-size:11px;">⚙ PLANTマスター</button>
   </div>
@@ -1262,8 +1262,10 @@ const nos=Object.keys(S.vanPhotos).map(Number).sort((a,b)=>a-b);if(!nos.length){
   if(S.isFuji){
     log('  📋 FUJIパターン: VAN UNIFIED_PROMPT + BALING ファイル名マッチ','ok');
     const VAN_SLOTS=['empty','half','full','right_door','inspector','cotecna_seal'];
+    const fujiSealCands={}; // CT番号 → cotecna_seal候補[]{b64,name} (2次精密判定用)
     for(const no of nos){
       S.classifiedVan[no]={};
+      fujiSealCands[no]=[];
       const p=S.vanPhotos[no]||{};
       const seqsAll=Object.keys(p).filter(k=>!k.startsWith('_')).map(Number).sort((a,b)=>a-b);
       log(`    CT${no}: ${seqsAll.length}枚 FUJI VAN分類中...`,'info');
@@ -1273,10 +1275,16 @@ const nos=Object.keys(S.vanPhotos).map(Number).sort((a,b)=>a-b);if(!nos.length){
           const fname=p[`_name_${seq}`]||'';
           try{
             const result=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:p[seq]}},{type:'text',text:UNIFIED_PROMPT}],20);
-            const slot=result.trim().toLowerCase();
+            let slot=result.trim().toLowerCase();
+            if(slot==='inspector_van') slot='inspector'; // UNIFIED_PROMPTの出力を正規化
             if(VAN_SLOTS.includes(slot)){
-              if(!S.classifiedVan[no][slot]){S.classifiedVan[no][slot]=p[seq];log(`    CT${no} [${fname}] → ${slot} ✅`,'ok');}
-              else{log(`    CT${no} [${fname}] → ${slot} (重複スキップ)`,'info');}
+              if(slot==='cotecna_seal'){
+                // cotecna_sealは全候補を収集 → 後で2次精密判定
+                fujiSealCands[no].push({b64:p[seq],name:fname});
+                log(`    CT${no} [${fname}] → cotecna_seal候補追加 (計${fujiSealCands[no].length}枚)`,'info');
+              }else if(!S.classifiedVan[no][slot]){
+                S.classifiedVan[no][slot]=p[seq];log(`    CT${no} [${fname}] → ${slot} ✅`,'ok');
+              }else{log(`    CT${no} [${fname}] → ${slot} (重複スキップ)`,'info');}
             }else if(slot==='rebale'){
               S.classifiedBaling.rebales.push(p[seq]);log(`    CT${no} [${fname}] → rebale (BALING) ✅`,'ok');
             }else{
@@ -1285,7 +1293,30 @@ const nos=Object.keys(S.vanPhotos).map(Number).sort((a,b)=>a-b);if(!nos.length){
           }catch(e){log(`    CT${no} [${fname}] VAN分類エラー`,'warn');}
         }));
       }
-      log(`    CT${no} VAN分類完了: ${Object.keys(S.classifiedVan[no]).join(',')||'(なし)'}`,'ok');
+      log(`    CT${no} VAN分類完了: ${Object.keys(S.classifiedVan[no]).join(',')||'(なし)'}  cotecna_seal候補${fujiSealCands[no].length}枚`,'ok');
+    }
+
+    // ── cotecna_seal 2次精密判定 (FUJI) ──
+    for(const no of nos){
+      const cands=fujiSealCands[no]||[];
+      if(cands.length===0){log(`  CT${no} cotecna_seal候補なし`,'warn');continue;}
+      if(cands.length===1){S.classifiedVan[no].cotecna_seal=cands[0].b64;log(`  CT${no} cotecna_seal 1枚確定 [${cands[0].name}]`,'ok');continue;}
+      log(`  CT${no} cotecna_seal候補 ${cands.length}枚 → 色判定中...`,'info');
+      // Step1: 黄色判定
+      const colorChecks=await Promise.all(cands.map(async({b64,name})=>{
+        try{const ans=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:'この写真は黄色または金色のシール・タグ・錠前が写っていますか？「yes」または「no」のみ'}],10);return{b64,name,yellow:ans.toLowerCase().includes('yes')};}
+        catch(e){return{b64,name,yellow:false};}
+      }));
+      const yellows=colorChecks.filter(r=>r.yellow);
+      if(yellows.length===1){S.classifiedVan[no].cotecna_seal=yellows[0].b64;log(`  CT${no} cotecna_seal → 黄色1枚で確定 [${yellows[0].name}]`,'ok');continue;}
+      // Step2: COTECNA文字+JP-番号確認
+      const verifyAll=await Promise.all((yellows.length>1?yellows:colorChecks).map(async({b64,name})=>{
+        try{const ans=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:'「COTECNA」の文字と「JP-」で始まる番号の両方が写っていますか？「yes」または「no」のみ'}],10);return{b64,name,ok:ans.toLowerCase().includes('yes')};}
+        catch(e){return{b64,name,ok:false};}
+      }));
+      const verified=verifyAll.find(r=>r.ok);
+      S.classifiedVan[no].cotecna_seal=(verified||cands[0]).b64;
+      log(`  CT${no} cotecna_seal → ${verified?'COTECNA文字確認':'候補先頭フォールバック'}で確定 [${(verified||cands[0]).name}]`,'ok');
     }
     // --- FUJI BALING: ファイル名マッチ + AI fallback ---
     if(S.balingRawFiles&&S.balingRawFiles.length){

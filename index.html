@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LEENAI COTECNAレポートツール v13.7</title>
+<title>LEENAI COTECNAレポートツール v13.8</title>
 <style>
 :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3350;--accent:#4f8ef7;--ok:#22c55e;--warn:#f59e0b;--error:#ef4444;--info:#38bdf8;--text:#e2e8f0;--text2:#8892a4;--text3:#4a5568;}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -119,7 +119,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 <body>
 <header>
   <div class="logo">LEE<span>NAI</span></div>
-  <div class="version">COTECNAレポートツール v13.7 (2026-07-03)</div>
+  <div class="version">COTECNAレポートツール v13.8 (2026-07-05)</div>
   <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
     <button class="btn btn-ghost btn-sm" id="plantMasterBtn" onclick="togglePlantMaster()" style="font-size:11px;">⚙ PLANTマスター</button>
   </div>
@@ -340,6 +340,32 @@ const SLOT_ORDER=['empty','half','full','right_door','inspector','cotecna_seal']
 const SLOT_CAPTIONS={empty:'Empty container',half:'Half load container',full:'Full load container',right_door:'Right door closed, with Container No.',inspector:'Inspector with closed container',cotecna_seal:'Cotecna container seal, closed up'};
 const IMG_CX=3303270,IMG_CY=2477135;
 const VAN_PROMPT=`この写真はコンテナ梱包の検査写真です。以下の6種類のうち最も当てはまるラベルを1つだけ返してください。\n\n【分類ラベルと判断基準】\nempty        - コンテナ内部が完全に空の写真。両扉を開いた状態で撮影し、荷物が一切なくコルゲートが見える。荷物が少しでも写っている場合はemptyと答えてはならない。\nhalf         - コンテナに荷物が半分程度積まれている写真。古紙ベールが見える。\nfull         - コンテナに荷物が満載されている写真。古紙ベールがぎっしり詰まっている。\nright_door   - コンテナの右扉だけを閉めた状態の写真。コンテナ番号（英字4桁+数字7桁）が写っていることが多い。\ninspector    - 白いヘルメットをかぶった検査員が写っている写真。コンテナの前に立っている。\ncotecna_seal - COTECNAコンテナ封印シールのクローズアップ写真。以下を両方確認すること：①シール・タグ・錠前のクローズアップ ②上部または中央に「COTECNA」の文字（一部でも可）があり、かつ「JP-」で始まる番号が写っている。黄色くても「COTECNA」と「JP-」の両方が見えなければcotecna_sealと答えてはならない。他社の黄色シールと混同注意。\n\n【回答ルール】\n以下のリストにある単語をそのまま1つだけ返してください。説明・理由・句読点は不要。\n\nempty / half / full / right_door / inspector / cotecna_seal`;
+// ── FUJI 分岐用プロンプト ──
+const FUJI_VAN_PROMPT=`【古紙輸出VAN検査 FUJI写真分類】
+この写真を以下のいずれか1つに分類してください。
+
+empty        - コンテナ内部が空。荷物なし、床・壁のみ。
+half         - コンテナに古紙ベールが半分程度積載されている。
+full         - コンテナに古紙ベールがいっぱいに積載されている。
+right_door   - コンテナの外側（扉・側面）が主体。コンテナ番号が見える写真。
+inspector    - 人物が写っている写真。検査員・作業員含む。コンテナ前に立っている。
+cotecna_seal - COTECNA文字とJP-XXXXXXのシール番号の両方が写っている。黄色くても両方ないとcotecna_sealにしない。
+rebale       - 圧縮・梱包された古紙ベール（直方体の固まり）がコンテナ外に並んでいる。再梱包後の状態。
+ignore       - 上記に当てはまらない。船会社シールのみ、計量書・搬入票等の書類、コンテナ側面のみ。
+
+1単語のみ返してください。説明不要。`;
+
+const FUJI_BALING_PROMPT=`【BALING検査写真分類 FUJI】
+この写真を以下のいずれか1つに分類してください。
+
+open_bale            - 開梱前の古紙（バラ状態、ほぐれた紙が散乱している）。
+inspector_with_goods - 検査員が古紙や機械の前に立っている。書類・ボードを持つ場合もある。
+goods_yard           - 梱包された古紙ベールが並ぶヤード全景。人物なし。
+rebale               - 再梱包されたベール（固められた直方体の固まり）。
+ignore               - 上記に当てはまらない。ベーラー機械のみ等。
+
+1単語のみ返してください。説明不要。`;
+
 // ── OKINAWA 分岐用プロンプト ──
 const UNIFIED_PROMPT=`この写真はコンテナ検査の写真です。以下の10種類のうち最も当てはまる1つを返してください。
 
@@ -805,7 +831,7 @@ async function proceedSelected(){
   showResults(allDl);document.getElementById('proceedBtn').disabled=false;
   document.getElementById('step2').classList.remove('active');document.getElementById('step2').classList.add('done');step3.classList.add('done');
 }
-function resetJobState(row){S.mode='folder';S.groups={};S.containers=row.ctList.map((ct,i)=>({no:i+1,container:ct.ctNo,seal:ct.seal,date:ct.date||''}));S.vanPhotos={};S.baraPhotos={};S.pressPhotos={};S.balingRawFiles=[];S.classifiedVan={};S.classifiedBaling={goods_yards:[],inspectors:[],open_bales:[],rebales:[]};S.logoB64=null;S.voNo=(row.voNo&&row.voNo!=='—'&&row.partial&&row.partial!=='—')?`${row.voNo}-${row.partial}`:(row.voNo&&row.voNo!=='—'?row.voNo:'');const MN=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];const fmtDate=s=>{const d=new Date(s);return MN[d.getMonth()]+`. ${d.getDate()}, ${d.getFullYear()}`};const fd=row.workDates[0]||'';const ld=row.workDates[row.workDates.length-1]||'';if(row.workDates.length>=2){const d0=new Date(fd),d1=new Date(ld);S.reportDate=MN[d0.getMonth()]+'. '+d0.getDate()+' &amp; '+d1.getDate()+', '+d0.getFullYear();}else{S.reportDate=fd?fmtDate(fd):'';};S.balingDateCount=row.workDates.length;S.inspPlace=row.pol||'';S.inspLocation='';S.baleCount=0;S.rootName=row.ivNo;S.fileList=[];}
+function resetJobState(row){S.mode='folder';S.groups={};S.containers=row.ctList.map((ct,i)=>({no:i+1,container:ct.ctNo,seal:ct.seal,date:ct.date||''}));S.vanPhotos={};S.baraPhotos={};S.pressPhotos={};S.balingRawFiles=[];S.classifiedVan={};S.classifiedBaling={goods_yards:[],inspectors:[],open_bales:[],rebales:[]};S.logoB64=null;S.voNo=(row.voNo&&row.voNo!=='—'&&row.partial&&row.partial!=='—')?`${row.voNo}-${row.partial}`:(row.voNo&&row.voNo!=='—'?row.voNo:'');const MN=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];const fmtDate=s=>{const d=new Date(s);return MN[d.getMonth()]+`. ${d.getDate()}, ${d.getFullYear()}`};const fd=row.workDates[0]||'';const ld=row.workDates[row.workDates.length-1]||'';if(row.workDates.length>=2){const d0=new Date(fd),d1=new Date(ld);S.reportDate=MN[d0.getMonth()]+'. '+d0.getDate()+' &amp; '+d1.getDate()+', '+d0.getFullYear();}else{S.reportDate=fd?fmtDate(fd):'';};S.balingDateCount=row.workDates.length;S.inspPlace=row.pol||'';S.inspLocation='';S.baleCount=0;S.rootName=row.ivNo;S.fileList=[];S.isFuji=false;}
 async function loadPhotosLocal(row){
   const ivNo=row.ivNo;
   const ext=/\.(jpe?g|png)$/i;
@@ -976,6 +1002,57 @@ async function loadPhotosLocal(row){
       log(`   [DEBUG] ファイル名サンプル: ${sampleNames}`,'info');
     }else{
       log(`   ℹ️ _ARCHIVED/_INSPECTION 対象フォルダなし (VO:${voRaw} P${partial})`,'info');
+    }
+  }
+
+  // ── FUJI 判定 + _FUJI/_inspection BALING写真 탐색 ──
+  // FUJI: packer名に'FUJI'を含み'FUJI_SH'(富士紙業)を含まない場合
+  const fujiPackerName=(row.packer||'').toUpperCase();
+  S.isFuji=(fujiPackerName==='FUJI'||fujiPackerName.startsWith('FUJI '))&&!fujiPackerName.includes('FUJI_SH');
+  if(S.isFuji) log('  📋 FUJI パターン検出','ok');
+
+  if(!S.balingRawFiles.length && S.isFuji){
+    // PHOTO/_FUJI/_inspection/{イメールフォルダ}/{CT番号}/ファイル 구조를 탐색
+    const fujiBaling=[];
+    S.photoFiles.forEach(f=>{
+      const p=f.webkitRelativePath.split('/');
+      const fujiIdx=p.findIndex(d=>d==='_FUJI');
+      if(fujiIdx<0) return;
+      const inspIdx=p.indexOf('_inspection',fujiIdx);
+      if(inspIdx<0) return;
+      if(!ext.test(p[p.length-1])) return;
+      // _FUJI/_inspection/{メール}/{CT番号}/ファイル → inspIdx+2がCT番号フォルダ
+      const ctFolderIdx=inspIdx+2;
+      if(p.length<=ctFolderIdx+1) return;
+      const ctFolder=p[ctFolderIdx];
+      if(!ctPattern.test(ctFolder)) return;
+      if(!ctNos.includes(ctFolder)) return;
+      // ファイル名でBALINGスロット判定
+      const fileName=p[p.length-1];
+      const fileBase=fileName.replace(/\.(jpe?g|png)$/i,'');
+      let fujiSlot=null;
+      if(/バラ/.test(fileBase)) fujiSlot='open_bale';
+      else if(/検査員/.test(fileBase)) fujiSlot='inspector_with_goods';
+      else if(/梱包/.test(fileBase)) fujiSlot='goods_yard';
+      else if(/ベーラー/.test(fileBase)) fujiSlot=null; // 무시
+      else fujiSlot='ai_needed'; // AI fallback
+      if(fujiSlot===null) return; // 무시
+      fujiBaling.push({f,ctNo:ctFolder,fujiSlot,name:fileName});
+    });
+    if(fujiBaling.length){
+      log(`   _FUJI/_inspection ${fujiBaling.length}枚 発見 → BALING読込中...`,'info');
+      S.balingRawFiles=[];
+      await Promise.all(fujiBaling.map(async item=>{
+        try{
+          const b64=await fileToB64(item.f);
+          S.balingRawFiles.push({name:item.name,b64,fujiSlot:item.fujiSlot,ctNo:item.ctNo});
+        }catch(e){}
+      }));
+      log(`   ✅ FUJI BALING写真 ${S.balingRawFiles.length}枚 読込完了`,'ok');
+      const fujiSample=S.balingRawFiles.slice(0,5).map(x=>`${x.name}(${x.fujiSlot})`).join(' | ');
+      log(`   [DEBUG] ${fujiSample}`,'info');
+    }else{
+      log(`   ℹ️ _FUJI/_inspection 対象なし (CT: ${ctNos.join(',')})`,'info');
     }
   }
   setProgress(40,'写真読込完了');}
@@ -1364,6 +1441,99 @@ const nos=Object.keys(S.vanPhotos).map(Number).sort((a,b)=>a-b);if(!nos.length){
     }
     showClassifyPreview(S.vanPhotos[nos[0]],Object.fromEntries(Object.entries(OOMOTO_SLOT_DEF).map(([pos,slot])=>[slot,Object.keys(S.vanPhotos[nos[0]]||{}).filter(k=>!k.startsWith('_')).map(Number).find(seq=>{const n=(S.vanPhotos[nos[0]]||{})[`_name_${seq}`]||'';return n.match(new RegExp('^\\\\d+\\\\s*\\\\('+pos+'\\\\)'));})]).filter(([,v])=>v!=null)));
     setProgress(80,'分類完了');log(`✅ OOMOTO分類完了`,'ok');return;
+  }
+
+  // ── FUJI 分岐: VAN AI分類(6スロット+rebale+ignore) + BALING(ファイル名マッチ+AI) ──
+  if(S.isFuji){
+    log('  📋 FUJIパターン: VAN AI分類 + BALING ファイル名マッチ','ok');
+
+    // --- FUJI VAN: 全写真をFUJI_VAN_PROMPTでAI分類 ---
+    for(const no of nos){
+      S.classifiedVan[no]={};
+      const p=S.vanPhotos[no]||{};
+      const seqsAll=Object.keys(p).filter(k=>!k.startsWith('_')).map(Number).sort((a,b)=>a-b);
+      log(`    CT${no}: ${seqsAll.length}枚 FUJI VAN分類中...`,'info');
+      const VAN_SLOTS=['empty','half','full','right_door','inspector','cotecna_seal'];
+      // 並列処理(1枚ずつ)
+      for(let i=0;i<seqsAll.length;i+=4){
+        await Promise.all(seqsAll.slice(i,i+4).map(async seq=>{
+          if(!p[seq]) return;
+          const fname=p[`_name_${seq}`]||'';
+          try{
+            const result=await callAI([
+              {type:'image',source:{type:'base64',media_type:'image/jpeg',data:p[seq]}},
+              {type:'text',text:FUJI_VAN_PROMPT}
+            ],20);
+            const slot=result.trim().toLowerCase();
+            if(VAN_SLOTS.includes(slot)){
+              if(!S.classifiedVan[no][slot]){
+                S.classifiedVan[no][slot]=p[seq];
+                log(`    CT${no} [${fname}] → ${slot} ✅`,'ok');
+              }else{
+                log(`    CT${no} [${fname}] → ${slot} (重複スキップ)`,'info');
+              }
+            }else if(slot==='rebale'){
+              S.classifiedBaling.rebales.push(p[seq]);
+              log(`    CT${no} [${fname}] → rebale (BALING) ✅`,'ok');
+            }else{
+              log(`    CT${no} [${fname}] → ${slot||'ignore'} (スキップ)`,'info');
+            }
+          }catch(e){
+            log(`    CT${no} [${fname}] VAN分類エラー`,'warn');
+          }
+        }));
+      }
+      log(`    CT${no} VAN分類完了: ${Object.keys(S.classifiedVan[no]).join(',')||'(なし)'}`,'ok');
+    }
+
+    // --- FUJI BALING: ファイル名マッチ + AI fallback ---
+    if(S.balingRawFiles&&S.balingRawFiles.length){
+      const knownFiles=S.balingRawFiles.filter(f=>f.fujiSlot&&f.fujiSlot!=='ai_needed');
+      const aiFiles=S.balingRawFiles.filter(f=>f.fujiSlot==='ai_needed');
+      log(`   BALING: ファイル名マッチ ${knownFiles.length}枚 / AI fallback ${aiFiles.length}枚`,'info');
+      // ファイル名マッチ分
+      knownFiles.forEach(({b64,fujiSlot,name})=>{
+        if(fujiSlot==='open_bale'){S.classifiedBaling.open_bales.push(b64);log(`   [BALING] ${name} → open_bale ✅`,'ok');}
+        else if(fujiSlot==='inspector_with_goods'){S.classifiedBaling.inspectors.push(b64);log(`   [BALING] ${name} → inspector ✅`,'ok');}
+        else if(fujiSlot==='goods_yard'){S.classifiedBaling.goods_yards.push(b64);log(`   [BALING] ${name} → goods_yard ✅`,'ok');}
+      });
+      // AI fallback分
+      if(aiFiles.length){
+        log(`   BALING AI fallback 開始 (${aiFiles.length}枚)...`,'info');
+        for(let i=0;i<aiFiles.length;i+=4){
+          await Promise.all(aiFiles.slice(i,i+4).map(async({b64,name})=>{
+            try{
+              const result=await callAI([
+                {type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},
+                {type:'text',text:FUJI_BALING_PROMPT}
+              ],20);
+              const slot=result.trim().toLowerCase();
+              if(slot==='open_bale'){S.classifiedBaling.open_bales.push(b64);}
+              else if(slot==='inspector_with_goods'){S.classifiedBaling.inspectors.push(b64);}
+              else if(slot==='goods_yard'){S.classifiedBaling.goods_yards.push(b64);}
+              else if(slot==='rebale'){S.classifiedBaling.rebales.push(b64);}
+              log(`   [BALING AI] ${name} → ${slot}`,'ok');
+            }catch(e){log(`   [BALING AI] ${name} エラー`,'warn');}
+          }));
+        }
+      }
+    }else{
+      log(`   ℹ️ FUJI BALING写真なし (_FUJI/_inspectionフォルダ未検出)`,'warn');
+    }
+
+    // --- OCR (CT番号/Seal番号) ---
+    const ncF=S.containers.some(c=>!c.container||c.container==='—'||c.container.match(/^\d+$/));
+    const nsF=S.containers.some(c=>!c.seal||!c.seal.toUpperCase().startsWith('JP-'));
+    if(ncF||nsF){
+      log(' 🔍 OCR処理中...','info');
+      await Promise.all(nos.map(async no=>{
+        const cont=S.containers.find(c=>c.no===no);if(!cont)return;const t=[];
+        if(ncF&&S.classifiedVan[no]?.right_door)t.push(callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:S.classifiedVan[no].right_door}},{type:'text',text:`コンテナ番号（英字4桁+数字7桁）番号のみ`}],30).then(v=>{const m=v.trim().match(/[A-Z]{4}\d{7}/i);if(m){cont.container=m[0].toUpperCase();log(`    CT${no}: ${cont.container}`,'ok');}}).catch(()=>{}));
+        if(nsF&&S.classifiedVan[no]?.cotecna_seal)t.push(callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:S.classifiedVan[no].cotecna_seal}},{type:'text',text:`写真に写っているCOTECNAシール番号を読み取ってください。「JP-」の後に続く数字を含め「JP-XXXXXXX」形式のみ返してください（例: JP-0403644）。番号以外は一切書かないでください。番号が読み取れない場合は「不明」とのみ返してください。`}],20).then(v=>{const raw=v.trim();const m=raw.match(/JP-?\d{4,8}/i);if(m){cont.seal=m[0].toUpperCase().replace(/^JP([^-])/,'JP-$1');log(`    CT${no} Seal: ${cont.seal}`,'ok');}}).catch(()=>{}));
+        await Promise.all(t);
+      }));
+    }
+    setProgress(80,'分類完了');log('✅ FUJI分類完了','ok');return;
   }
 
   // ── OKINAWA 分岐: VAN/BALING混在 → UNIFIED_PROMPT で一括分類 ──

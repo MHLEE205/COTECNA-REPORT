@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LEENAI COTECNAレポートツール v13.17</title>
+<title>LEENAI COTECNAレポートツール v13.18</title>
 <style>
 :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3350;--accent:#4f8ef7;--ok:#22c55e;--warn:#f59e0b;--error:#ef4444;--info:#38bdf8;--text:#e2e8f0;--text2:#8892a4;--text3:#4a5568;}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -119,7 +119,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 <body>
 <header>
   <div class="logo">LEE<span>NAI</span></div>
-  <div class="version">COTECNAレポートツール v13.17 (2026-07-05)</div>
+  <div class="version">COTECNAレポートツール v13.18 (2026-07-08)</div>
   <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
     <button class="btn btn-ghost btn-sm" id="plantMasterBtn" onclick="togglePlantMaster()" style="font-size:11px;">⚙ PLANTマスター</button>
   </div>
@@ -258,6 +258,25 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
       </div>
     </div>
   </div>
+  <!-- STEP 2b: CT順序確認 -->
+  <div class="step" id="step2b" style="display:none;">
+    <div class="step-hdr" style="cursor:default;">
+      <div class="step-num">2b</div>
+      <div class="step-title">CT順序確認</div>
+      <div class="step-sub" id="step2bSub">CHECK LISTでCT順序を確定してください</div>
+    </div>
+    <div class="step-body" style="display:block;">
+      <div id="orderConfirmArea"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:12px;border-top:1px solid var(--border);">
+        <button class="btn" onclick="cancelOrderConfirm()">← 戻る</button>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span id="orderWarnMsg" style="font-size:11px;color:var(--warn);display:none;"></span>
+          <button class="btn btn-ok" id="confirmOrderBtn" onclick="confirmAllAndGenerate()">✓ この順序でレポート生成開始</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="step" id="step3">
     <div class="step-hdr" onclick="toggleStep('step3')">
       <div class="step-num">3</div>
@@ -811,6 +830,201 @@ function onChkChange(){S.selectedKeys=[...document.querySelectorAll('.row-chk:ch
 async function proceedSelected(){
   if(!S.selectedKeys.length)return;S.apiKey=document.getElementById('apiKey').value.trim();if(!S.apiKey)return alert('APIキーを入力してください');
   document.getElementById('proceedBtn').disabled=true;
+  showOrderConfirmStep();
+}
+
+function showOrderConfirmStep(){
+  S.orderOverride={};S.orderMatchResults={};
+  const area=document.getElementById('orderConfirmArea');
+  area.innerHTML='';
+  const rows=S.selectedKeys.map(k=>S.inspList.find(r=>r.groupKey===k)).filter(Boolean);
+  rows.forEach(row=>{
+    const panel=document.createElement('div');
+    panel.id=`order-panel-${row.groupKey.replace(/[^a-z0-9]/gi,'_')}`;
+    panel.style.cssText='margin-bottom:20px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px;';
+    const compassCts=row.ctList.map(c=>c.ctNo);
+    // 初期順序はCOMPASS順
+    S.orderOverride[row.groupKey]=compassCts.slice();
+    panel.innerHTML=`
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div>
+          <span style="font-weight:700;font-size:13px;">${row.ivNo} / ${row.partial}</span>
+          <span style="color:var(--text2);font-size:11px;margin-left:8px;">${row.packer} / ${row.voNo} / CT ${row.ctList.length}本</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <input type="file" id="clf-${row.groupKey.replace(/[^a-z0-9]/gi,'_')}" accept=".pdf" style="display:none;" onchange="handleCheckListFile(event,'${row.groupKey}')">
+          <button class="btn" style="font-size:11px;padding:4px 10px;" onclick="document.getElementById('clf-${row.groupKey.replace(/[^a-z0-9]/gi,'_')}').click()">📄 CHECK LIST選択</button>
+          <span id="clf-status-${row.groupKey.replace(/[^a-z0-9]/gi,'_')}" style="font-size:11px;color:var(--text2);">未選択</span>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--warn);margin-bottom:8px;display:none;" id="clf-warn-${row.groupKey.replace(/[^a-z0-9]/gi,'_')}"></div>
+      <table style="width:100%;border-collapse:collapse;font-size:12px;">
+        <thead><tr style="background:var(--surface2);">
+          <th style="padding:6px 8px;text-align:left;font-size:11px;color:var(--text2);width:40px;">No</th>
+          <th style="padding:6px 8px;text-align:left;font-size:11px;color:var(--text2);">CT番号 <span style="font-weight:400;color:var(--text3);">(COMPASS確定値)</span></th>
+          <th style="padding:6px 8px;text-align:left;font-size:11px;color:var(--text2);width:120px;">OCR読取</th>
+          <th style="padding:6px 8px;text-align:left;font-size:11px;color:var(--text2);width:100px;">信頼度</th>
+          <th style="padding:6px 8px;text-align:center;font-size:11px;color:var(--text2);width:56px;">順序</th>
+        </tr></thead>
+        <tbody id="order-tbody-${row.groupKey.replace(/[^a-z0-9]/gi,'_')}"></tbody>
+      </table>`;
+    area.appendChild(panel);
+    renderOrderRows(row.groupKey,compassCts,[]);
+  });
+  // ステップ表示切替
+  const s2b=document.getElementById('step2b');
+  s2b.style.display='';s2b.classList.add('active','open');
+  s2b.scrollIntoView({behavior:'smooth'});
+  updateOrderWarnMsg();
+}
+
+function renderOrderRows(groupKey,orderedCts,matchResults){
+  const safeKey=groupKey.replace(/[^a-z0-9]/gi,'_');
+  const tbody=document.getElementById(`order-tbody-${safeKey}`);if(!tbody)return;
+  tbody.innerHTML='';
+  orderedCts.forEach((ctNo,idx)=>{
+    const m=matchResults.find(r=>r.compassCt===ctNo)||null;
+    const trustBadge=m?
+      (m.distance===0?`<span style="color:var(--ok);font-size:11px;">✅ 完全一致</span>`:
+       m.distance<=2?`<span style="color:var(--ok);font-size:11px;">✅ 近似(${m.distance})</span>`:
+       m.distance<=4?`<span style="color:var(--warn);font-size:11px;">⚠️ 要確認(${m.distance})</span>`:
+       `<span style="color:var(--err);font-size:11px;">❌ 乖離大(${m.distance})</span>`):
+      `<span style="color:var(--text3);font-size:11px;">— (未OCR)</span>`;
+    const ocrText=m?`<span style="font-family:monospace;font-size:11px;color:var(--text2);">${m.ocrCt}</span>`:'<span style="font-size:11px;color:var(--text3);">—</span>';
+    const rowBg=m&&m.distance>4?'background:rgba(255,80,80,0.05);':m&&m.distance>2?'background:rgba(240,165,0,0.05);':'';
+    const tr=document.createElement('tr');
+    tr.style.cssText=`border-bottom:1px solid var(--border);${rowBg}`;
+    tr.innerHTML=`
+      <td style="padding:6px 8px;"><span style="background:var(--surface2);border-radius:4px;padding:2px 7px;font-weight:700;">${idx+1}</span></td>
+      <td style="padding:6px 8px;font-family:monospace;font-weight:600;">${ctNo}</td>
+      <td style="padding:6px 8px;">${ocrText}</td>
+      <td style="padding:6px 8px;">${trustBadge}</td>
+      <td style="padding:6px 8px;text-align:center;">
+        <button class="btn" style="padding:1px 7px;font-size:12px;" onclick="moveOrderRow('${groupKey}',${idx},-1)" ${idx===0?'disabled':''}>↑</button>
+        <button class="btn" style="padding:1px 7px;font-size:12px;margin-left:2px;" onclick="moveOrderRow('${groupKey}',${idx},1)" ${idx===orderedCts.length-1?'disabled':''}>↓</button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function moveOrderRow(groupKey,idx,dir){
+  const arr=S.orderOverride[groupKey];if(!arr)return;
+  const ni=idx+dir;if(ni<0||ni>=arr.length)return;
+  [arr[idx],arr[ni]]=[arr[ni],arr[idx]];
+  const m=S.orderMatchResults&&S.orderMatchResults[groupKey]||[];
+  renderOrderRows(groupKey,arr,m);
+}
+
+async function handleCheckListFile(event,groupKey){
+  const file=event.target.files[0];if(!file)return;
+  const safeKey=groupKey.replace(/[^a-z0-9]/gi,'_');
+  const statusEl=document.getElementById(`clf-status-${safeKey}`);
+  const warnEl=document.getElementById(`clf-warn-${safeKey}`);
+  statusEl.textContent='読取中...';statusEl.style.color='var(--info)';
+  warnEl.style.display='none';
+  try{
+    const b64=await fileToB64pdf(file);
+    const row=S.inspList.find(r=>r.groupKey===groupKey);if(!row)return;
+    const compassCts=row.ctList.map(c=>c.ctNo);
+    const {orderedCts,matchResults,warnCount}=await ocrCheckList(b64,compassCts);
+    S.orderOverride[groupKey]=orderedCts;
+    if(!S.orderMatchResults)S.orderMatchResults={};
+    S.orderMatchResults[groupKey]=matchResults;
+    renderOrderRows(groupKey,orderedCts,matchResults);
+    statusEl.textContent=`✅ OCR完了 (${compassCts.length}件)`;statusEl.style.color='var(--ok)';
+    if(warnCount>0){warnEl.textContent=`⚠️ ${warnCount}件に要確認の行があります。内容を確認してください。`;warnEl.style.display='';}
+    updateOrderWarnMsg();
+  }catch(e){
+    statusEl.textContent='❌ 読取失敗';statusEl.style.color='var(--err)';
+    warnEl.textContent=`エラー: ${e.message}`;warnEl.style.display='';
+    console.error(e);
+  }
+}
+
+async function fileToB64pdf(file){
+  return new Promise((res,rej)=>{
+    const r=new FileReader();
+    r.onload=()=>res(r.result.split(',')[1]);
+    r.onerror=()=>rej(new Error('ファイル読込失敗'));
+    r.readAsDataURL(file);
+  });
+}
+
+function levenshtein(a,b){
+  const m=a.length,n=b.length;
+  const dp=[];
+  for(let i=0;i<=m;i++){dp[i]=[];for(let j=0;j<=n;j++)dp[i][j]=i===0?j:j===0?i:0;}
+  for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)
+    dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);
+  return dp[m][n];
+}
+
+async function ocrCheckList(b64,compassCts){
+  const prompt=`このCOTECNA CHECK LIST PDFからコンテナ番号の順序を読み取ってください。
+No列とContainer No列のペアを全て抽出してください。手書きでも最善の読み取りで。
+コンテナ番号が空欄の行は含めないでください。
+JSONのみ返してください（説明不要）:
+[{"no":1,"ct":"XXXX1234567"},{"no":2,"ct":"XXXX1234567"},...]`;
+  const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':S.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:[{type:'document',source:{type:'base64',media_type:'application/pdf',data:b64}},{type:'text',text:prompt}]}]})});
+  if(!resp.ok)throw new Error(`API ${resp.status}`);
+  const d=await resp.json();
+  let txt=d.content?.[0]?.text?.trim()||'';
+  txt=txt.replace(/```json|```/g,'').trim();
+  let ocrList=[];
+  try{ocrList=JSON.parse(txt);}catch(e){throw new Error('OCR結果のJSON解析失敗: '+txt.slice(0,100));}
+  // UNIQUE MATCH: OCR CT → COMPASS CT (1:1最近傍)
+  const ocrCts=ocrList.map(o=>({no:o.no,ct:(o.ct||'').toUpperCase().replace(/\s/g,'')})).sort((a,b)=>a.no-b.no);
+  const remaining=[...compassCts];
+  const matchResults=[];
+  // Step1: 完全一致を先に確定
+  const used=new Set();
+  ocrCts.forEach(o=>{
+    const exact=remaining.find(c=>c===o.ct&&!used.has(c));
+    if(exact){matchResults.push({no:o.no,ocrCt:o.ct,compassCt:exact,distance:0});used.add(exact);}
+  });
+  // Step2: 近似マッチ (未確定分)
+  ocrCts.forEach(o=>{
+    if(matchResults.find(m=>m.no===o.no))return;
+    const avail=remaining.filter(c=>!used.has(c));
+    if(!avail.length){matchResults.push({no:o.no,ocrCt:o.ct,compassCt:null,distance:999});return;}
+    let best=avail[0],bestD=levenshtein(o.ct,avail[0]);
+    avail.forEach(c=>{const d=levenshtein(o.ct,c);if(d<bestD){bestD=d;best=c;}});
+    matchResults.push({no:o.no,ocrCt:o.ct,compassCt:best,distance:bestD});
+    used.add(best);
+  });
+  // 未マッチのCOMPASS CT（OCRになかった）は末尾に追加
+  const unmatchedCompass=compassCts.filter(c=>!used.has(c));
+  // orderedCts: matchResults順 + 未マッチ分
+  const orderedCts=matchResults.filter(m=>m.compassCt).sort((a,b)=>a.no-b.no).map(m=>m.compassCt);
+  unmatchedCompass.forEach(c=>{if(!orderedCts.includes(c))orderedCts.push(c);});
+  const warnCount=matchResults.filter(m=>m.distance>2).length;
+  return {orderedCts,matchResults,warnCount};
+}
+
+function updateOrderWarnMsg(){
+  const warnEl=document.getElementById('orderWarnMsg');if(!warnEl)return;
+  if(!S.orderMatchResults){warnEl.style.display='none';return;}
+  let total=0;
+  Object.values(S.orderMatchResults).forEach(arr=>arr.forEach(m=>{if(m.distance>2)total++;}));
+  if(total>0){warnEl.textContent=`⚠️ 要確認の行が${total}件あります`;warnEl.style.display='';}
+  else{warnEl.style.display='none';}
+}
+
+function cancelOrderConfirm(){
+  document.getElementById('step2b').style.display='none';
+  document.getElementById('step2b').classList.remove('active','open');
+  document.getElementById('proceedBtn').disabled=false;
+  S.orderOverride={};S.orderMatchResults={};
+}
+
+async function confirmAllAndGenerate(){
+  // CHECK LIST未選択チェック
+  const noClf=S.selectedKeys.some(k=>!(S.orderMatchResults&&S.orderMatchResults[k]));
+  if(noClf){
+    const ok=confirm('CHECK LISTが選択されていない項目があります。\nCOMPASS順のままレポートを作成しますか？');
+    if(!ok){return;}
+  }
+  document.getElementById('confirmOrderBtn').disabled=true;
   const step3=document.getElementById('step3');step3.classList.add('active','open');step3.scrollIntoView({behavior:'smooth'});
   document.getElementById('resultSection').style.display='none';const allDl=[];
   for(const key of S.selectedKeys){
@@ -829,10 +1043,21 @@ async function proceedSelected(){
       allDl.push({buf:van,name:`[${voSafe}]_VAN.docx`,icon:'📄',label:`${row.ivNo}/${row.partial} VAN`},{buf:bal,name:`[${voSafe}]_BALING.docx`,icon:'📋',label:`${row.ivNo}/${row.partial} BALING`});
     }catch(e){log(`❌ ${e.message}`,'err');console.error(e);}
   }
-  showResults(allDl);document.getElementById('proceedBtn').disabled=false;
-  document.getElementById('step2').classList.remove('active');document.getElementById('step2').classList.add('done');step3.classList.add('done');
+  showResults(allDl);document.getElementById('confirmOrderBtn').disabled=false;
+  document.getElementById('step2').classList.remove('active');document.getElementById('step2').classList.add('done');
+  document.getElementById('step2b').classList.remove('active');document.getElementById('step2b').classList.add('done');
+  step3.classList.add('done');
 }
-function resetJobState(row){S.mode='folder';S.groups={};S.containers=row.ctList.map((ct,i)=>({no:i+1,container:ct.ctNo,seal:ct.seal,date:ct.date||''}));S.vanPhotos={};S.baraPhotos={};S.pressPhotos={};S.balingRawFiles=[];S.classifiedVan={};S.classifiedBaling={goods_yards:[],inspectors:[],open_bales:[],rebales:[]};S.logoB64=null;S.voNo=(row.voNo&&row.voNo!=='—'&&row.partial&&row.partial!=='—')?`${row.voNo}-${row.partial}`:(row.voNo&&row.voNo!=='—'?row.voNo:'');const MN=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];const fmtDate=s=>{const d=new Date(s);return MN[d.getMonth()]+`. ${d.getDate()}, ${d.getFullYear()}`};const fd=row.workDates[0]||'';const ld=row.workDates[row.workDates.length-1]||'';if(row.workDates.length>=2){const d0=new Date(fd),d1=new Date(ld);S.reportDate=MN[d0.getMonth()]+'. '+d0.getDate()+' &amp; '+d1.getDate()+', '+d0.getFullYear();}else{S.reportDate=fd?fmtDate(fd):'';};S.balingDateCount=row.workDates.length;S.inspPlace=row.pol||'';S.inspLocation='';S.baleCount=0;S.rootName=row.ivNo;S.fileList=[];S.isFuji=false;}
+function resetJobState(row){S.mode='folder';S.groups={};
+  // CT順序: orderOverrideがあればそれに従う (COMPASS CT番号は変更しない)
+  const override=S.orderOverride&&S.orderOverride[row.groupKey];
+  if(override&&override.length===row.ctList.length){
+    S.containers=override.map((ctNo,i)=>{const ct=row.ctList.find(c=>c.ctNo===ctNo)||row.ctList[i];return{no:i+1,container:ctNo,seal:ct?ct.seal:'',date:ct?ct.date||'':''};});
+    log(`   CT順序: CHECK LIST順で設定 (${override.join(' → ')})`, 'info');
+  } else {
+    S.containers=row.ctList.map((ct,i)=>({no:i+1,container:ct.ctNo,seal:ct.seal,date:ct.date||''}));
+    log(`   CT順序: COMPASS順 (${row.ctList.map(c=>c.ctNo).join(' → ')})`, 'info');
+  }S.vanPhotos={};S.baraPhotos={};S.pressPhotos={};S.balingRawFiles=[];S.classifiedVan={};S.classifiedBaling={goods_yards:[],inspectors:[],open_bales:[],rebales:[]};S.logoB64=null;S.voNo=(row.voNo&&row.voNo!=='—'&&row.partial&&row.partial!=='—')?`${row.voNo}-${row.partial}`:(row.voNo&&row.voNo!=='—'?row.voNo:'');const MN=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];const fmtDate=s=>{const d=new Date(s);return MN[d.getMonth()]+`. ${d.getDate()}, ${d.getFullYear()}`};const fd=row.workDates[0]||'';const ld=row.workDates[row.workDates.length-1]||'';if(row.workDates.length>=2){const d0=new Date(fd),d1=new Date(ld);S.reportDate=MN[d0.getMonth()]+'. '+d0.getDate()+' &amp; '+d1.getDate()+', '+d0.getFullYear();}else{S.reportDate=fd?fmtDate(fd):'';};S.balingDateCount=row.workDates.length;S.inspPlace=row.pol||'';S.inspLocation='';S.baleCount=0;S.rootName=row.ivNo;S.fileList=[];S.isFuji=false;}
 async function loadPhotosLocal(row){
   const ivNo=row.ivNo;
   const ext=/\.(jpe?g|png)$/i;

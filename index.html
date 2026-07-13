@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LEENAI COTECNAレポートツール v13.20</title>
+<title>LEENAI COTECNAレポートツール v13.21</title>
 <style>
 :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3350;--accent:#4f8ef7;--ok:#22c55e;--warn:#f59e0b;--error:#ef4444;--info:#38bdf8;--text:#e2e8f0;--text2:#8892a4;--text3:#4a5568;}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -119,7 +119,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 <body>
 <header>
   <div class="logo">LEE<span>NAI</span></div>
-  <div class="version">COTECNAレポートツール v13.20 (2026-07-13)</div>
+  <div class="version">COTECNAレポートツール v13.21 (2026-07-13)</div>
   <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
     <button class="btn btn-ghost btn-sm" id="plantMasterBtn" onclick="togglePlantMaster()" style="font-size:11px;">⚙ PLANTマスター</button>
   </div>
@@ -1965,11 +1965,14 @@ const nos=Object.keys(S.vanPhotos).map(Number).sort((a,b)=>a-b);if(!nos.length){
 その後に判断理由を1文で続けてください。
 例: yes: ベールと扉とコンテナ番号の全てが確認できます
 例: no: 左側に古紙ベールが見えません`;
-  const RD_STEP2_OK=`コンテナ番号（英字4文字＋数字7桁）が横書きで正面から読める状態で写っていますか？
-ただし、コンテナの両扉が閉まっている外観写真（片方の扉が開いていない）は「no」としてください。
+  const RD_STEP2A_CLOSED=`この写真はコンテナの両方の扉が閉まった状態の外観写真ですか？
 「yes」または「no」で答えてください。その後に判断理由を1文で続けてください。
-例: yes: TCLU6725266が横書きで正面から読め、片方の扉が開いています
-例: no: 両扉が閉まった外観写真です
+例: yes: 両扉が閉まった外観写真です
+例: no: 片方の扉が開いており内部が見えます
+例: no: コンテナ内部からの撮影です`;
+  const RD_STEP2_OK=`コンテナ番号（英字4文字＋数字7桁）が横書きで正面から読める状態で写っていますか？
+「yes」または「no」で答えてください。その後に判断理由を1文で続けてください。
+例: yes: TLLU5717881が横書きで正面から読めます
 例: no: 番号が縦書きまたは読み取れません`;
   for(const no of nos){
     const rdCands=vanCands[no]['right_door']||[];
@@ -1997,18 +2000,33 @@ const nos=Object.keys(S.vanPhotos).map(Number).sort((a,b)=>a-b);if(!nos.length){
       continue;
     }
     const rdStep2Targets=rdStep1Pass.length>0?rdStep1Pass:rdCands;
-    const rdStep2Results=await Promise.all(rdStep2Targets.map(async({seq,b64})=>{
+    // Step2-A: 両扉閉まり判定 → YES は除外
+    log(`  CT${no} right_door Step2-A 両扉チェック中... (${rdStep2Targets.length}枚)`,'info');
+    const rdStep2AResults=await Promise.all(rdStep2Targets.map(async({seq,b64})=>{
+      try{
+        const ans=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:RD_STEP2A_CLOSED}],15);
+        const closed=ans.toLowerCase().startsWith('yes');
+        const reason=ans.replace(/^(yes|no)[:\s]*/i,'').trim()||'—';
+        log(`    [Step2-A] seq:${seq} → ${closed?'両扉閉まり❌ 除外':'片扉開き✅ 残留'}  (${reason})`,'info');
+        return{seq,b64,closed};
+      }catch(e){log(`    [Step2-A] seq:${seq} → エラー`,'warn');return{seq,b64,closed:false};}
+    }));
+    const rdStep2APass=rdStep2AResults.filter(r=>!r.closed);
+    log(`  CT${no} right_door Step2-A通過: ${rdStep2APass.length}枚`,'info');
+    // Step2-B: 番号横書き確認
+    const rdStep2BTargets=rdStep2APass.length>0?rdStep2APass:rdStep2Targets;
+    const rdStep2BResults=await Promise.all(rdStep2BTargets.map(async({seq,b64})=>{
       try{
         const ans=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:RD_STEP2_OK}],15);
         const ok=ans.toLowerCase().startsWith('yes');
         const reason=ans.replace(/^(yes|no)[:\s]*/i,'').trim()||'—';
-        log(`    [Step2] seq:${seq} → ${ok?'YES ✅':'NO ❌'}  (${reason})`,'info');
+        log(`    [Step2-B] seq:${seq} → ${ok?'YES ✅':'NO ❌'}  (${reason})`,'info');
         return{seq,b64,ok};
-      }catch(e){log(`    [Step2] seq:${seq} → エラー`,'warn');return{seq,b64,ok:false};}
+      }catch(e){log(`    [Step2-B] seq:${seq} → エラー`,'warn');return{seq,b64,ok:false};}
     }));
-    const rdStep2Pass=rdStep2Results.find(r=>r.ok);
+    const rdStep2Pass=rdStep2BResults.find(r=>r.ok);
     vanCands[no]['right_door']=[rdStep2Pass||rdCands[0]];
-    log(`  CT${no} right_door → ${rdStep2Pass?'Step2番号確認':'候補先頭フォールバック'}で確定 (seq:${(rdStep2Pass||rdCands[0]).seq})`,'ok');
+    log(`  CT${no} right_door → ${rdStep2Pass?'Step2-B番号確認':'候補先頭フォールバック'}で確定 (seq:${(rdStep2Pass||rdCands[0]).seq})`,'ok');
   }
 
   // full/half 複数候補: 積載率スコアで振り分け

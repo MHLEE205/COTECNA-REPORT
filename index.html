@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LEENAI COTECNAレポートツール v13.18</title>
+<title>LEENAI COTECNAレポートツール v13.19</title>
 <style>
 :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3350;--accent:#4f8ef7;--ok:#22c55e;--warn:#f59e0b;--error:#ef4444;--info:#38bdf8;--text:#e2e8f0;--text2:#8892a4;--text3:#4a5568;}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -119,7 +119,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 <body>
 <header>
   <div class="logo">LEE<span>NAI</span></div>
-  <div class="version">COTECNAレポートツール v13.18 (2026-07-08)</div>
+  <div class="version">COTECNAレポートツール v13.19 (2026-07-13)</div>
   <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
     <button class="btn btn-ghost btn-sm" id="plantMasterBtn" onclick="togglePlantMaster()" style="font-size:11px;">⚙ PLANTマスター</button>
   </div>
@@ -1955,21 +1955,58 @@ const nos=Object.keys(S.vanPhotos).map(Number).sort((a,b)=>a-b);if(!nos.length){
     }
   }
 
-  // right_door 複数候補: 荷物+右扉確認
-  for(const no of nos){
-    const rdCands=vanCands[no]['right_door']||[];
-    if(rdCands.length>1){
-      const chk=await Promise.all(rdCands.map(async({seq,b64})=>{
-        try{const a=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:`以下の条件を全て満たす場合のみ「yes」を返してください：
+  // right_door 精密判定 (FUJI同等: Step1+Step2+ログ) v13.19
+  const RD_STEP1_OK=`以下の条件を全て満たす場合のみ「yes」を返してください：
 ① 写真の左側または中央に古紙ベール・荷物が積まれている
 ② 写真の右側にコンテナの扉（ドア）が写っている
 ③ コンテナ番号が横書きで正面から読める状態である
 ④ 内部側壁を下から上へ見上げた構図ではない（外部・空が大きく写っていない）
-全て満たす→「yes」、一つでも満たさない→「no」のみ返してください。`}],10);return{seq,b64,ok:a.toLowerCase().includes('yes')};}
-        catch(e){return{seq,b64,ok:false};}
-      }));
-      vanCands[no]['right_door']=[chk.find(r=>r.ok)||rdCands[0]];
+全て満たす場合は「yes」、一つでも満たさない場合は「no」で答えてください。
+その後に判断理由を1文で続けてください。
+例: yes: ベールと扉とコンテナ番号の全てが確認できます
+例: no: 左側に古紙ベールが見えません`;
+  const RD_STEP2_OK=`コンテナ番号（英字4文字＋数字7桁）が横書きで正面から読める状態で写っていますか？
+「yes」または「no」で答えてください。その後に判断理由を1文で続けてください。
+例: yes: TLLU5717881が横書きで正面から読めます
+例: no: 番号が縦書きまたは読み取れません`;
+  for(const no of nos){
+    const rdCands=vanCands[no]['right_door']||[];
+    if(rdCands.length===0) continue;
+    if(rdCands.length===1){
+      vanCands[no]['right_door']=[rdCands[0]];
+      log(`  CT${no} right_door 1枚確定 (seq:${rdCands[0].seq})`,'ok');
+      continue;
     }
+    log(`  CT${no} right_door候補 ${rdCands.length}枚 → Step1 形状確認中...`,'info');
+    const rdStep1Results=await Promise.all(rdCands.map(async({seq,b64})=>{
+      try{
+        const ans=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:RD_STEP1_OK}],20);
+        const ok=ans.toLowerCase().startsWith('yes');
+        const reason=ans.replace(/^(yes|no)[:\s]*/i,'').trim()||'—';
+        log(`    [Step1] seq:${seq} → ${ok?'YES ✅':'NO ❌'}  (${reason})`,'info');
+        return{seq,b64,ok};
+      }catch(e){log(`    [Step1] seq:${seq} → エラー`,'warn');return{seq,b64,ok:false};}
+    }));
+    const rdStep1Pass=rdStep1Results.filter(r=>r.ok);
+    log(`  CT${no} right_door Step1通過: ${rdStep1Pass.length}枚`,'info');
+    if(rdStep1Pass.length===1){
+      vanCands[no]['right_door']=[rdStep1Pass[0]];
+      log(`  CT${no} right_door → Step1で1枚確定 (seq:${rdStep1Pass[0].seq})`,'ok');
+      continue;
+    }
+    const rdStep2Targets=rdStep1Pass.length>0?rdStep1Pass:rdCands;
+    const rdStep2Results=await Promise.all(rdStep2Targets.map(async({seq,b64})=>{
+      try{
+        const ans=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:RD_STEP2_OK}],15);
+        const ok=ans.toLowerCase().startsWith('yes');
+        const reason=ans.replace(/^(yes|no)[:\s]*/i,'').trim()||'—';
+        log(`    [Step2] seq:${seq} → ${ok?'YES ✅':'NO ❌'}  (${reason})`,'info');
+        return{seq,b64,ok};
+      }catch(e){log(`    [Step2] seq:${seq} → エラー`,'warn');return{seq,b64,ok:false};}
+    }));
+    const rdStep2Pass=rdStep2Results.find(r=>r.ok);
+    vanCands[no]['right_door']=[rdStep2Pass||rdCands[0]];
+    log(`  CT${no} right_door → ${rdStep2Pass?'Step2番号確認':'候補先頭フォールバック'}で確定 (seq:${(rdStep2Pass||rdCands[0]).seq})`,'ok');
   }
 
   // full/half 複数候補: 積載率スコアで振り分け

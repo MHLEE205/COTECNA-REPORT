@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LEENAI COTECNAレポートツール v13.22</title>
+<title>LEENAI COTECNAレポートツール v13.23</title>
 <style>
 :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3350;--accent:#4f8ef7;--ok:#22c55e;--warn:#f59e0b;--error:#ef4444;--info:#38bdf8;--text:#e2e8f0;--text2:#8892a4;--text3:#4a5568;}
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -119,7 +119,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 <body>
 <header>
   <div class="logo">LEE<span>NAI</span></div>
-  <div class="version">COTECNAレポートツール v13.22 (2026-07-13)</div>
+  <div class="version">COTECNAレポートツール v13.23 (2026-07-23)</div>
   <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
     <button class="btn btn-ghost btn-sm" id="plantMasterBtn" onclick="togglePlantMaster()" style="font-size:11px;">⚙ PLANTマスター</button>
   </div>
@@ -465,7 +465,8 @@ const DEFAULT_PLANTS = [
   {plantId:"fcdfbf37-cb5b-f011-bec2-6045bd62e122",plantJa:"兼子(戸田)",plantEn:"TODA"},
   {plantId:"d31aed29-cb5b-f011-bec2-000d3a786f70",plantJa:"兼子(埼玉)",plantEn:"SAITAMA"},
   {plantId:"015cbf3d-cb5b-f011-bec2-6045bd62e122",plantJa:"兼子(市原)",plantEn:"ICHIHARA"},
-  {plantId:"bb0db02b-cb5b-f011-bec2-6045bd62e122",plantJa:"兼子(新潟)",plantEn:"NIIGATA"},
+  {plantId:"bb0db02b-cb5b-f011-bec2-6045bd62e122",plantJa:"兼子(船橋)",plantEn:"FUNABASHI"},
+  {plantId:"ebd2f274-cb5b-f011-bec2-6045bd62e122",plantJa:"兼子(船橋) PM",plantEn:"FUNABASHI"},
   {plantId:"1fb5f82f-cb5b-f011-bec2-000d3a786f70",plantJa:"大本",plantEn:"OOMOTO SHIRYO"},
   {plantId:"000eb02b-cb5b-f011-bec2-6045bd62e122",plantJa:"大中物産",plantEn:"SENDAI"},
   {plantId:"0a88a831-cb5b-f011-bec2-6045bd62e122",plantJa:"石坂グループ",plantEn:"ISHIZAKA GROUP"},
@@ -509,19 +510,21 @@ async function loadPlantMaster(){
 }
 async function getPlantEnById(plantId){
   if(!plantId)return '';
-  // まずDEFAULT_PLANTSから検索 (全員共有データ)
-  const def=DEFAULT_PLANTS.find(p=>p.plantId===plantId);
-  if(def&&def.plantEn)return def.plantEn;
-  // なければIndexedDB (個人登録データ) から検索
+  // まずIndexedDB (ユーザー編集値) を優先して検索
   try{
     const db=await openPlantDB();
-    return new Promise((res)=>{
+    const local=await new Promise((res)=>{
       const tx=db.transaction('plant_master','readonly');
       const req=tx.objectStore('plant_master').get(plantId);
-      req.onsuccess=()=>res(req.result?.plantEn||req.result?.plantJa||'');
+      req.onsuccess=()=>res(req.result?.plantEn||'');
       req.onerror=()=>res('');
     });
-  }catch(e){return '';}
+    if(local)return local;
+  }catch(e){}
+  // なければDEFAULT_PLANTSから検索 (共有デフォルト値)
+  const def=DEFAULT_PLANTS.find(p=>p.plantId===plantId);
+  if(def&&def.plantEn)return def.plantEn;
+  return '';
 }
 function togglePlantMaster(){
   const p=document.getElementById('plantMasterPanel');

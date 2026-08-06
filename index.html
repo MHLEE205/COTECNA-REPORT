@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LEENAI COTECNAレポートツール v13.28d</title>
+<title>LEENAI COTECNAレポートツール v13.28</title>
 <style>
 :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3350;--accent:#4f8ef7;--ok:#22c55e;--warn:#f59e0b;--error:#ef4444;--info:#38bdf8;--text:#e2e8f0;--text2:#8892a4;--text3:#4a5568;}
 [data-theme="light"]{--bg:#f4f6fb;--surface:#ffffff;--surface2:#f0f4ff;--border:#d1d5db;--accent:#2563eb;--ok:#16a34a;--warn:#d97706;--error:#dc2626;--info:#0284c7;--text:#111827;--text2:#6b7280;--text3:#9ca3af;}
@@ -121,7 +121,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 <body>
 <header>
   <div class="logo">LEE<span>NAI</span></div>
-  <div class="version">COTECNAレポートツール v13.28d (診断版 2026-08-06)</div>
+  <div class="version">COTECNAレポートツール v13.28 (2026-08-06)</div>
   <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
     <button class="btn btn-ghost btn-sm" id="plantMasterBtn" onclick="togglePlantMaster()" style="font-size:11px;">⚙ PLANTマスター</button>
     <button class="btn btn-ghost btn-sm" id="themeBtn" onclick="toggleTheme()" style="font-size:11px;">🌙 ダーク</button>
@@ -1221,8 +1221,9 @@ async function loadPhotosLocal(row){
           const pathParts=f.webkitRelativePath.split('/');
           const folderPath=pathParts.join('/');
           const folderPathL=folderPath.toLowerCase();
-          const folderType=folderPath.includes('バラ')?'bara':
-                           folderPath.includes('プレス')?'press':'other';
+          const folderPathNFC=folderPath.normalize('NFC');
+          const folderType=folderPathNFC.includes('バラ')?'bara':
+                           folderPathNFC.includes('プレス')?'press':'other';
           // ITEM抽出: フォルダ名から (OCC)/(OMG)/(ONP)/(MIX)等を検出
           const itemMatch=folderPath.match(/\(([A-Z]{2,4})\)/);
           const item=itemMatch?itemMatch[1]:'';

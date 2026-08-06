@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LEENAI COTECNAレポートツール v13.25</title>
+<title>LEENAI COTECNAレポートツール v13.26</title>
 <style>
 :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3350;--accent:#4f8ef7;--ok:#22c55e;--warn:#f59e0b;--error:#ef4444;--info:#38bdf8;--text:#e2e8f0;--text2:#8892a4;--text3:#4a5568;}
 [data-theme="light"]{--bg:#f4f6fb;--surface:#ffffff;--surface2:#f0f4ff;--border:#d1d5db;--accent:#2563eb;--ok:#16a34a;--warn:#d97706;--error:#dc2626;--info:#0284c7;--text:#111827;--text2:#6b7280;--text3:#9ca3af;}
@@ -121,7 +121,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 <body>
 <header>
   <div class="logo">LEE<span>NAI</span></div>
-  <div class="version">COTECNAレポートツール v13.25</div>
+  <div class="version">COTECNAレポートツール v13.26 (2026-08-06)</div>
   <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
     <button class="btn btn-ghost btn-sm" id="plantMasterBtn" onclick="togglePlantMaster()" style="font-size:11px;">⚙ PLANTマスター</button>
     <button class="btn btn-ghost btn-sm" id="themeBtn" onclick="toggleTheme()" style="font-size:11px;">🌙 ダーク</button>
@@ -1226,7 +1226,16 @@ async function loadPhotosLocal(row){
           // ITEM抽出: フォルダ名から (OCC)/(OMG)/(ONP)/(MIX)等を検出
           const itemMatch=folderPath.match(/\(([A-Z]{2,4})\)/);
           const item=itemMatch?itemMatch[1]:'';
-          S.balingRawFiles.push({name:f.name,b64,folderType,item});
+          // 日付抽出: 「バラ検査写真 8.5」「プレス検査写真 8.6」などから月.日を抽出
+          const dtMatch=folderPath.match(/検査写真[\s　]+(\d{1,2})[./](\d{1,2})/);
+          let dateTag='';
+          if(dtMatch){
+            const refYear=(row.workDates[0]||'').split('-')[0]||String(new Date().getFullYear());
+            const mm=String(parseInt(dtMatch[1])).padStart(2,'0');
+            const dd=String(parseInt(dtMatch[2])).padStart(2,'0');
+            dateTag=`${refYear}-${mm}-${dd}`;
+          }
+          S.balingRawFiles.push({name:f.name,b64,f,folderType,item,dateTag});
         }catch(e){}
       }));
       log(`   ✅ _ARCHIVED/_INSPECTION BALING写真 ${S.balingRawFiles.length}枚 読込完了`,'ok');
@@ -1355,62 +1364,88 @@ async function classifyAll(){S.classifiedVan={};S.classifiedBaling={goods_yards:
       // バラ(OCC/OMG別): AI で inspector を判定、残りは全て open_bale
       // 最終的に OCC→OMG順で結合し、rebale と open_bale の ITEM順を一致させる
 
-      const ITEMS=[...new Set([...pressFiles,...baraFiles].map(f=>f.item||''))].sort(
-        (a,b)=>ITEM_ORDER.indexOf(a||'')===-1?999:ITEM_ORDER.indexOf(a||'')-(ITEM_ORDER.indexOf(b||'')===-1?999:ITEM_ORDER.indexOf(b||''))
-      );
-      log(`  検出ITEM: [${ITEMS.join(',')}]`,'info');
+      // ── 日付別グループ化 (날짜 오름차순) ──
+      const dateGroupMap={};
+      [...baraFiles,...pressFiles].forEach(fi=>{
+        const dt=fi.dateTag||'unknown';
+        if(!dateGroupMap[dt])dateGroupMap[dt]={bara:[],press:[]};
+        (fi.folderType==='bara'?dateGroupMap[dt].bara:dateGroupMap[dt].press).push(fi);
+      });
+      const sortedDates=Object.keys(dateGroupMap).filter(d=>d!=='unknown').sort();
+      if(dateGroupMap['unknown'])sortedDates.push('unknown');
+      log(`  📅 日付グループ: [${sortedDates.join(' | ')}]`,'info');
 
       const allGoodsYards=[], allRebales=[], allInspectors=[], allOpenBales=[];
 
-      for(const item of ITEMS){
-        const pFiles=pressFiles.filter(f=>(f.item||'')===item);
-        const bFiles=baraFiles.filter(f=>(f.item||'')===item);
-        log(`  ITEM=${item||'不明'}: プレス${pFiles.length}枚 バラ${bFiles.length}枚`,'info');
+      for(const dt of sortedDates){
+        const grp=dateGroupMap[dt];
+        log(`  📅 ${dt}: バラ${grp.bara.length}枚 プレス${grp.press.length}枚`,'info');
+        const ITEMS=[...new Set([...grp.press,...grp.bara].map(fi=>fi.item||''))].sort(
+          (a,b)=>{const oi=ITEM_ORDER.indexOf(a||'');const oj=ITEM_ORDER.indexOf(b||'');return (oi===-1?999:oi)-(oj===-1?999:oj);}
+        );
 
-        // プレス: AI で goods_yard 判定、残りはrebale
-        const pGoods=[], pRebales=[];
-        for(let i=0;i<pFiles.length;i+=4){
-          await Promise.all(pFiles.slice(i,i+4).map(async({name,b64})=>{
-            try{
-              const l=(await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:BALING_PROMPT}],20)).trim().toLowerCase();
-              if(l==='goods_yard'){pGoods.push({b64,name,item});log(`    [プレス/${item}] ${name} → goods_yard`,'ok');}
-              else{pRebales.push({b64,name,item});log(`    [プレス/${item}] ${name} → rebale`,'ok');}
-            }catch(e){
-              pRebales.push({b64,name,item});
-              log(`    [プレス/${item}] ${name} エラー→rebale`,'warn');
-            }
-          }));
-        }
-        allGoodsYards.push(...pGoods);
-        allRebales.push(...pRebales);
-        log(`  [プレス/${item}] goods_yard=${pGoods.length} rebale=${pRebales.length}`,'info');
+        for(const item of ITEMS){
+          const pFiles=grp.press.filter(fi=>(fi.item||'')===item);
+          const bFiles=grp.bara.filter(fi=>(fi.item||'')===item);
+          log(`    ITEM=${item||'不明'}: プレス${pFiles.length}枚 バラ${bFiles.length}枚`,'info');
 
-        // バラ: AI で inspector 判定、残りはopen_bale
-        const bInsp=[], bOpen=[];
-        for(let i=0;i<bFiles.length;i+=4){
-          await Promise.all(bFiles.slice(i,i+4).map(async({name,b64})=>{
-            try{
-              const l=(await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:BALING_PROMPT}],20)).trim().toLowerCase();
-              if(l==='inspector'){bInsp.push({b64,name,item});log(`    [バラ/${item}] ${name} → inspector`,'ok');}
-              else{bOpen.push({b64,name,item});log(`    [バラ/${item}] ${name} → open_bale`,'ok');}
-            }catch(e){
-              bOpen.push({b64,name,item});
-              log(`    [バラ/${item}] ${name} エラー→open_bale`,'warn');
-            }
-          }));
+          // プレス: AI判定 + 日付オーバーレイ
+          const pGoods=[], pRebales=[];
+          for(let i=0;i<pFiles.length;i+=4){
+            await Promise.all(pFiles.slice(i,i+4).map(async(fi)=>{
+              let {name,b64,f:fileObj}=fi;
+              // 日付チェック & オーバーレイ
+              if(fileObj&&dt&&dt!=='unknown'){
+                try{
+                  const dAns=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:DATE_CHECK_PROMPT}],5);
+                  if(dAns.trim().toLowerCase().includes('no')){
+                    b64=await fileToB64WithDate(fileObj,dt);
+                    log(`    [プレス/${dt}/${item}] ${name} → 日付オーバーレイ追加`,'ok');
+                  }
+                }catch(e){}
+              }
+              try{
+                const l=(await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:BALING_PROMPT}],20)).trim().toLowerCase();
+                if(l==='goods_yard'){pGoods.push({b64,name,item,dt});log(`    [プレス/${dt}/${item}] ${name} → goods_yard`,'ok');}
+                else{pRebales.push({b64,name,item,dt});log(`    [プレス/${dt}/${item}] ${name} → rebale`,'ok');}
+              }catch(e){pRebales.push({b64,name,item,dt});log(`    [プレス/${dt}/${item}] ${name} エラー→rebale`,'warn');}
+            }));
+          }
+          allGoodsYards.push(...pGoods);
+          allRebales.push(...pRebales);
+
+          // バラ: AI判定 + 日付オーバーレイ
+          const bInsp=[], bOpen=[];
+          for(let i=0;i<bFiles.length;i+=4){
+            await Promise.all(bFiles.slice(i,i+4).map(async(fi)=>{
+              let {name,b64,f:fileObj}=fi;
+              if(fileObj&&dt&&dt!=='unknown'){
+                try{
+                  const dAns=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:DATE_CHECK_PROMPT}],5);
+                  if(dAns.trim().toLowerCase().includes('no')){
+                    b64=await fileToB64WithDate(fileObj,dt);
+                    log(`    [バラ/${dt}/${item}] ${name} → 日付オーバーレイ追加`,'ok');
+                  }
+                }catch(e){}
+              }
+              try{
+                const l=(await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:BALING_PROMPT}],20)).trim().toLowerCase();
+                if(l==='inspector'){bInsp.push({b64,name,item,dt});log(`    [バラ/${dt}/${item}] ${name} → inspector`,'ok');}
+                else{bOpen.push({b64,name,item,dt});log(`    [バラ/${dt}/${item}] ${name} → open_bale`,'ok');}
+              }catch(e){bOpen.push({b64,name,item,dt});log(`    [バラ/${dt}/${item}] ${name} エラー→open_bale`,'warn');}
+            }));
+          }
+          allInspectors.push(...bInsp);
+          allOpenBales.push(...bOpen.slice(0,pRebales.length));
+          log(`    [バラ/${dt}/${item}] inspector=${bInsp.length} open_bale=${Math.min(bOpen.length,pRebales.length)}`,'info');
         }
-        allInspectors.push(...bInsp);
-        // open_baleはrebale数に合わせてITEM内でスライス
-        allOpenBales.push(...bOpen.slice(0,pRebales.length));
-        log(`  [バラ/${item}] inspector=${bInsp.length} open_bale=${Math.min(bOpen.length,pRebales.length)}`,'info');
       }
 
-      S.classifiedBaling.goods_yards=allGoodsYards.map(f=>f.b64).slice(0,dateCount);
-      S.classifiedBaling.rebales=allRebales.map(f=>f.b64);
-      S.classifiedBaling.inspectors=allInspectors.map(f=>f.b64).slice(0,dateCount);
-      S.classifiedBaling.open_bales=allOpenBales.map(f=>f.b64);
-      log(`  rebale ITEM=[${allRebales.map(f=>f.item||'-').join(',')}]`,'info');
-      log(`  open_bale ITEM=[${allOpenBales.map(f=>f.item||'-').join(',')}]`,'info');
+      S.classifiedBaling.goods_yards=allGoodsYards.map(fi=>fi.b64).slice(0,dateCount);
+      S.classifiedBaling.rebales=allRebales.map(fi=>fi.b64);
+      S.classifiedBaling.inspectors=allInspectors.map(fi=>fi.b64).slice(0,dateCount);
+      S.classifiedBaling.open_bales=allOpenBales.map(fi=>fi.b64);
+      log(`  日付順: ${sortedDates.join(' → ')}`,'info');
       log(`  ✅ BALING分類完了: goods_yard=${S.classifiedBaling.goods_yards.length}枚 rebale=${S.classifiedBaling.rebales.length}枚 inspector=${S.classifiedBaling.inspectors.length}枚 open_bale=${S.classifiedBaling.open_bales.length}枚`,'ok');
 
     }else{

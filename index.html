@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LEENAI COTECNAレポートツール v13.30</title>
+<title>LEENAI COTECNAレポートツール v13.28</title>
 <style>
 :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3350;--accent:#4f8ef7;--ok:#22c55e;--warn:#f59e0b;--error:#ef4444;--info:#38bdf8;--text:#e2e8f0;--text2:#8892a4;--text3:#4a5568;}
 [data-theme="light"]{--bg:#f4f6fb;--surface:#ffffff;--surface2:#f0f4ff;--border:#d1d5db;--accent:#2563eb;--ok:#16a34a;--warn:#d97706;--error:#dc2626;--info:#0284c7;--text:#111827;--text2:#6b7280;--text3:#9ca3af;}
@@ -121,7 +121,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 <body>
 <header>
   <div class="logo">LEE<span>NAI</span></div>
-  <div class="version">COTECNAレポートツール v13.30 (2026-08-07)</div>
+  <div class="version">COTECNAレポートツール v13.28 (2026-08-06)</div>
   <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
     <button class="btn btn-ghost btn-sm" id="plantMasterBtn" onclick="togglePlantMaster()" style="font-size:11px;">⚙ PLANTマスター</button>
     <button class="btn btn-ghost btn-sm" id="themeBtn" onclick="toggleTheme()" style="font-size:11px;">🌙 ダーク</button>
@@ -204,12 +204,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
         <span id="loginStatusTxt" style="font-size:12px;color:var(--text2);">未ログイン — Dataverse 認証</span>
         <button class="btn btn-primary btn-sm" id="loginBtn" onclick="doLogin()">🔐 ログイン</button>
       </div>
-      <div class="login-row" style="margin-top:8px;">
-        <div class="login-dot" id="graphLoginDot"></div>
-        <span id="graphLoginTxt" style="font-size:12px;color:var(--text2);">未ログイン — SharePoint 認証</span>
-        <button class="btn btn-sm" id="graphLoginBtn" onclick="doGraphLogin()" style="margin-left:auto;">📁 SharePoint ログイン</button>
-      </div>
-      <div class="hint">① Dataverse → ② SharePoint の順にログインしてください</div>
+      <div class="hint">✦ SharePoint ログイン不要 — Dataverse のみ使用します</div>
     </div>
   </div>
   <div class="step" id="step2">
@@ -219,14 +214,15 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
       <div class="step-sub" id="step2Sub">PHOTOフォルダ未選択</div>
     </div>
     <div class="step-body">
-      <div class="folder-banner" id="folderBanner" style="cursor:default;">
-        <span style="font-size:20px;">📡</span>
-        <div class="folder-path" id="folderPath">SharePoint PHOTO フォルダ — ログイン後に自動参照</div>
-        <div id="graphPhotoStatus" style="font-size:11px;color:var(--text2);margin-left:auto;"></div>
-      </div>
-      <!-- ローカルフォルダ選択 (フォールバック用、非表示) -->
+      <label for="folderInput">
+        <div class="folder-banner" id="folderBanner">
+          <span style="font-size:20px;">📁</span>
+          <div class="folder-path" id="folderPath">PHOTOフォルダが選択されていません</div>
+          <button class="btn btn-ghost btn-sm" onclick="event.preventDefault()">フォルダ選択</button>
+        </div>
+      </label>
       <input type="file" id="folderInput" webkitdirectory style="display:none" onchange="onFolderSelected(this)">
-      <div class="hint">SharePoint 未ログイン時は <a href="#" onclick="document.getElementById('folderInput').click();return false;" style="color:var(--accent);">ローカルフォルダ選択</a> で代用できます</div>
+      <div class="hint">OneDrive 同期済み PHOTO フォルダを選択してください</div>
       <div class="filter-bar mt8">
         <label>検査日:</label>
         <input type="date" id="dateFrom">
@@ -362,10 +358,6 @@ const REDIRECT_URI=location.href.split('?')[0].split('#')[0];
 const DV_URL='https://orgde512c6f.crm7.dynamics.com';
 const DV_API=`${DV_URL}/api/data/v9.2`;
 const SCOPE=`${DV_URL}/user_impersonation offline_access`;
-const GRAPH_SCOPE='User.Read Files.ReadWrite.All offline_access';
-const SP_DRIVE_ID='b!ZK58_9YllU-vETQD3Xz0TbOInXbVCXJHnQ2280KJBArFLeM_18EgRbSeoO-TW__U';
-const SP_PATH_PHOTO='古紙/-. 古紙書類/▲ LEENAI 通関作業中/PHOTO';
-const GRAPH_BASE_URL='https://graph.microsoft.com/v1.0/';
 const SLOT_ORDER=['empty','half','full','right_door','inspector','cotecna_seal'];
 const SLOT_CAPTIONS={empty:'Empty container',half:'Half load container',full:'Full load container',right_door:'Right door closed, with Container No.',inspector:'Inspector with closed container',cotecna_seal:'Cotecna container seal, closed up'};
 const IMG_CX=3303270,IMG_CY=2477135;
@@ -458,341 +450,11 @@ const S={apiKey:'',dvToken:null,photoFiles:[],photoFolderName:'',inspLocation:''
 function toggleStep(id){const el=document.getElementById(id);if(!el)return;const isOpen=el.classList.contains('open')||el.classList.contains('active');document.querySelectorAll('.step').forEach(s=>s.classList.remove('open'));if(!isOpen)el.classList.add('open');}
 function b64url(buf){return btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');}
 async function sha256b64(str){return b64url(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str)));}
-// ── SharePoint Graph 認証 ──
-let S_graphToken=null, S_graphExpiry=0, S_graphRefreshToken=null;
-
-function spEnc(p){return p.split('/').map(s=>encodeURIComponent(s)).join('/');}
-function spItemUrl(path){return `${GRAPH_BASE_URL}drives/${SP_DRIVE_ID}/root:/${spEnc(path)}`;}
-
-async function graphFetchSP(url, opts={}, _retry=0){
-  if(!S_graphToken) throw new Error('SharePoint未ログイン');
-  if(S_graphExpiry && Date.now() > S_graphExpiry - 120000) await refreshGraphTokenSP();
-  const headers=Object.assign({'Authorization':`Bearer ${S_graphToken}`,'Accept':'application/json'}, opts.headers||{});
-  const res=await fetch(url, Object.assign({}, opts, {headers}));
-  if(res.status===401 && _retry===0 && S_graphRefreshToken){
-    if(await refreshGraphTokenSP()) return graphFetchSP(url, opts, 1);
-  }
-  if((res.status===429||res.status>=500) && _retry<3){
-    await new Promise(r=>setTimeout(r, Math.min(8000, 1000*Math.pow(2,_retry))));
-    return graphFetchSP(url, opts, _retry+1);
-  }
-  return res;
-}
-
-async function spList(spPath){
-  let url=`${spItemUrl(spPath)}:/children?$select=name,id,size,folder&$top=200`;
-  const out=[];
-  while(url){
-    const res=await graphFetchSP(url);
-    if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(`SP LIST ${res.status}: ${e?.error?.message||''}`);}
-    const d=await res.json();
-    out.push(...(d.value||[]));
-    url=d['@odata.nextLink']||null;
-    if(out.length>5000) break;
-  }
-  return out;
-}
-
-async function spListRecursive(spPath, depth=0){
-  if(depth>6) return [];
-  const items=await spList(spPath);
-  const result=[];
-  for(const item of items){
-    const fullPath=`${spPath}/${item.name}`;
-    if(item.folder){
-      const children=await spListRecursive(fullPath, depth+1);
-      result.push(...children);
-    } else {
-      result.push({name:item.name, path:fullPath, id:item.id});
-    }
-  }
-  return result;
-}
-
-async function spDownloadB64(itemId){
-  const res=await graphFetchSP(`${GRAPH_BASE_URL}drives/${SP_DRIVE_ID}/items/${itemId}/content`);
-  if(!res.ok) throw new Error(`SP DL ${res.status}`);
-  const blob=await res.blob();
-  return new Promise((resolve,reject)=>{
-    const r=new FileReader();
-    r.onload=()=>resolve(r.result.split(',')[1]);
-    r.onerror=()=>reject(new Error('FileReader失敗'));
-    r.readAsDataURL(blob);
-  });
-}
-
-async function doGraphLogin(){
-  const v=b64url(crypto.getRandomValues(new Uint8Array(64)));
-  const st=b64url(crypto.getRandomValues(new Uint8Array(16)));
-  const ch=await sha256b64(v);
-  sessionStorage.setItem('cotecna_graph_pkce_v',v);
-  sessionStorage.setItem('cotecna_graph_pkce_s',st);
-  const p=new URLSearchParams({
-    client_id:CLIENT_ID, response_type:'code',
-    redirect_uri:REDIRECT_URI, scope:GRAPH_SCOPE,
-    state:'graph_'+st, code_challenge:ch, code_challenge_method:'S256',
-    prompt:'select_account'
-  });
-  location.href=`https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/authorize?${p}`;
-}
-
-async function handleGraphCallback(code, st){
-  const savedSt=sessionStorage.getItem('cotecna_graph_pkce_s');
-  if(st!==savedSt){console.warn('Graph state mismatch'); return false;}
-  const v=sessionStorage.getItem('cotecna_graph_pkce_v');
-  const res=await fetch(`https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/token`,{
-    method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'},
-    body:new URLSearchParams({
-      client_id:CLIENT_ID, grant_type:'authorization_code',
-      code, redirect_uri:REDIRECT_URI,
-      code_verifier:v, scope:GRAPH_SCOPE
-    })
-  });
-  const d=await res.json();
-  if(d.error){console.error('Graph token error:', d.error_description); return false;}
-  S_graphToken=d.access_token;
-  S_graphExpiry=Date.now()+(d.expires_in-60)*1000;
-  S_graphRefreshToken=d.refresh_token||null;
-  sessionStorage.setItem('cotecna_graph_token', S_graphToken);
-  sessionStorage.setItem('cotecna_graph_expiry', String(S_graphExpiry));
-  if(S_graphRefreshToken) sessionStorage.setItem('cotecna_graph_refresh', S_graphRefreshToken);
-  sessionStorage.removeItem('cotecna_graph_pkce_v');
-  sessionStorage.removeItem('cotecna_graph_pkce_s');
-  updateGraphLoginUI();
-  return true;
-}
-
-async function refreshGraphTokenSP(){
-  if(!S_graphRefreshToken) return false;
-  try{
-    const res=await fetch(`https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/token`,{
-      method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'},
-      body:new URLSearchParams({
-        client_id:CLIENT_ID, grant_type:'refresh_token',
-        refresh_token:S_graphRefreshToken, scope:GRAPH_SCOPE
-      })
-    });
-    const d=await res.json();
-    if(d.error) return false;
-    S_graphToken=d.access_token;
-    S_graphExpiry=Date.now()+(d.expires_in-60)*1000;
-    if(d.refresh_token) S_graphRefreshToken=d.refresh_token;
-    sessionStorage.setItem('cotecna_graph_token', S_graphToken);
-    sessionStorage.setItem('cotecna_graph_expiry', String(S_graphExpiry));
-    return true;
-  }catch(e){return false;}
-}
-
-function updateGraphLoginUI(){
-  const dot=document.getElementById('graphLoginDot');
-  const txt=document.getElementById('graphLoginTxt');
-  const btn=document.getElementById('graphLoginBtn');
-  const folderPath=document.getElementById('folderPath');
-  if(!dot||!txt||!btn) return;
-  if(S_graphToken){
-    dot.classList.add('ok');
-    txt.textContent='ログイン済み — SharePoint 接続完了';
-    btn.textContent='✅ 接続済み';
-    btn.disabled=true;
-    if(folderPath) folderPath.textContent='SharePoint PHOTO フォルダ — 自動取得 ✅';
-  } else {
-    dot.classList.remove('ok');
-    txt.textContent='未ログイン — SharePoint 認証';
-    btn.textContent='📁 SharePoint ログイン';
-    btn.disabled=false;
-  }
-  checkFetchReady();
-}
-
-// ── Graph経由でPHOTO取得 ──
-async function loadPhotosGraph(row){
-  const ext=/\.(jpe?g|png)$/i;
-  const ctPattern=/^[A-Z]{4}\d{7}$/;
-  const voRaw=row.voNo?row.voNo.replace(/\s/g,''):'';
-  const partial=row.partial?row.partial.replace(/^P/i,''):'';
-  const ctNos=row.ctList.map(c=>c.ctNo).filter(Boolean);
-  const ivNo=row.ivNo;
-
-  log(' 📡 SharePoint PHOTO フォルダ スキャン中...','info');
-  const statusEl=document.getElementById('graphPhotoStatus');
-  if(statusEl) statusEl.textContent='スキャン中...';
-
-  // 1. PHOTO直下1レベル取得
-  const topItems=await spList(SP_PATH_PHOTO);
-  const specialFolderNames=['_ARCHIVED','_FUJI','_NEEDS_REVIEW','_CHECK_BKG','_CORRECTION','_CT_RENAME_LOG','_OCR_TRAINING'];
-
-  // 対象フォルダを選定
-  const targetFolders=[];
-  for(const item of topItems){
-    if(!item.folder) continue;
-    const n=item.name;
-    // IV_NO フォルダ
-    if(n===ivNo){targetFolders.push({name:n,path:`${SP_PATH_PHOTO}/${n}`,type:'iv'});}
-    // 特殊フォルダ
-    else if(specialFolderNames.includes(n)){targetFolders.push({name:n,path:`${SP_PATH_PHOTO}/${n}`,type:'special'});}
-  }
-  log(` 📂 スキャン対象: [${targetFolders.map(f=>f.name).join(', ')}]`,'info');
-
-  // 2. 各フォルダを再帰スキャン
-  const allEntries=[]; // {name, path, id}
-  let scanned=0;
-  for(const folder of targetFolders){
-    log(`   📁 ${folder.name} スキャン中...`,'info');
-    const entries=await spListRecursive(folder.path);
-    allEntries.push(...entries);
-    scanned+=entries.length;
-    if(statusEl) statusEl.textContent=`${scanned} ファイル発見中...`;
-  }
-
-  log(` 📊 合計 ${allEntries.length} ファイル発見`,'info');
-
-  // 3. File-like オブジェクトを構築 (既存loadPhotosLocalと同じ構造)
-  // ただしb64はまだ取得せず、パス情報だけ格納
-  // CT番号フォルダ判定など既存ロジックを再現
-  const ctFileMap={};
-  const archivedEntries=[];
-  const fujiEntries=[];
-  const needsReviewEntries=[];
-
-  for(const entry of allEntries){
-    if(!ext.test(entry.name)) continue;
-    const parts=entry.path.split('/');
-    // partsは ['古紙', '-. 古紙書類', '▲ LEENAI 通関作業中', 'PHOTO', ...]
-
-    // PHOTOからの相対パス
-    const photoIdx=parts.findIndex(p=>p==='PHOTO');
-    if(photoIdx<0) continue;
-    const rel=parts.slice(photoIdx+1); // ['NA2608-02', 'CMAU4346655', 'xxx.jpg']
-
-    if(rel.length<2) continue;
-
-    // 特殊フォルダ判定
-    const top=rel[0];
-    if(top==='_ARCHIVED'||top==='_INSPECTION'||(top===ivNo&&rel.includes('_INSPECTION'))){
-      archivedEntries.push(entry);
-    } else if(top==='_FUJI'){
-      fujiEntries.push(entry);
-    } else if(top==='_NEEDS_REVIEW'){
-      needsReviewEntries.push(entry);
-    } else if(rel.length>=2&&ctPattern.test(rel[1])){
-      // IV_NO/CT番号/xxx.jpg
-      const ctNo=rel[1];
-      if(ctNos.includes(ctNo)){
-        if(!ctFileMap[ctNo]) ctFileMap[ctNo]=[];
-        ctFileMap[ctNo].push(entry);
-      }
-    } else if(rel.length>=2&&ctNos.includes(rel[0])){
-      // CT番号/xxx.jpg (直下)
-      if(!ctFileMap[rel[0]]) ctFileMap[rel[0]]=[];
-      ctFileMap[rel[0]].push(entry);
-    }
-  }
-
-  // 4. VAN写真ダウンロード
-  const found=Object.keys(ctFileMap);
-  log(` CT番号検索: ${found.length}件発見 [${found.join(', ')}]`,'ok');
-  if(statusEl) statusEl.textContent=`${found.length}CT 写真DL中...`;
-
-  // S.groups 形式に変換 (既存buildVanDocxと互換)
-  S.photoFiles=[]; // Graph経由なのでローカルファイルなし
-  // CT毎にダウンロードしてS.classifiedVanプレ入力
-  const ctNosNordered=row.ctList.map(c=>c.ctNo).filter(Boolean);
-  const ctNums={};
-  S.containers.forEach((c,i)=>{ctNums[c.container]=i+1;});
-
-  for(const ctNo of ctNosNordered){
-    const entries=ctFileMap[ctNo]||[];
-    if(!entries.length){log(` ⚠️ CT${ctNums[ctNo]||'?'} (${ctNo}): 写真なし`,'warn'); continue;}
-    log(` ✅ CT${ctNums[ctNo]||'?'} (${ctNo}): ${entries.length}枚 DL開始`,'info');
-    if(statusEl) statusEl.textContent=`CT${ctNums[ctNo]||'?'} ${ctNo} ダウンロード中...`;
-    // ファイルオブジェクト風に変換 (webkitRelativePathを模倣)
-    for(const entry of entries){
-      // パスを PHOTO/{ivNo}/{ctNo}/filename.jpg 形式で模倣
-      const fakePath=`PHOTO/${ivNo}/${ctNo}/${entry.name}`;
-      // b64取得
-      try{
-        const b64=await spDownloadB64(entry.id);
-        // ダミーFileオブジェクト生成
-        const fakeFile={name:entry.name, webkitRelativePath:fakePath, _b64:b64, _isGraph:true};
-        S.photoFiles.push(fakeFile);
-      }catch(e){log(`   ⚠️ DL失敗: ${entry.name} (${e.message})`,'warn');}
-    }
-    log(` ✅ CT${ctNums[ctNo]||'?'} (${ctNo}): ${entries.length}枚 完了`,'ok');
-  }
-
-  // BALING: _ARCHIVED/_NEEDS_REVIEW処理
-  const balingCandidates=[...archivedEntries,...needsReviewEntries];
-  if(balingCandidates.length){
-    log(` _ARCHIVED/_INSPECTION ${balingCandidates.length}枚 発見 → BALING読込中...`,'info');
-    S.balingRawFiles=[];
-    for(const entry of balingCandidates){
-      if(!ext.test(entry.name)) continue;
-      try{
-        const b64=await spDownloadB64(entry.id);
-        const fakeFile={name:entry.name, webkitRelativePath:entry.path.replace(SP_PATH_PHOTO.split('/').slice(0,-1).join('/')+'/','PHOTO/'), _b64:b64, _isGraph:true};
-        const pathParts=entry.path.split('/');
-        const folderPath=pathParts.join('/').normalize('NFC');
-        const folderPathNFC=folderPath;
-        const folderType=folderPathNFC.includes('バラ')?'bara':folderPathNFC.includes('プレス')?'press':'other';
-        const itemMatch=folderPath.match(/\(([A-Z]{2,4})\)/);
-        const item=itemMatch?itemMatch[1]:'';
-        const dtMatch=folderPath.match(/検査写真[\s\u3000]+(\d{1,2})[./](\d{1,2})/);
-        let dateTag='';
-        if(dtMatch){
-          const refYear=(row.workDates[0]||'').split('-')[0]||String(new Date().getFullYear());
-          dateTag=`${refYear}-${String(parseInt(dtMatch[1])).padStart(2,'0')}-${String(parseInt(dtMatch[2])).padStart(2,'0')}`;
-        }
-        S.balingRawFiles.push({name:entry.name, b64, f:fakeFile, folderType, item, dateTag});
-      }catch(e){log(`   ⚠️ BALING DL失敗: ${entry.name}`,'warn');}
-    }
-    log(` ✅ _ARCHIVED/_INSPECTION BALING写真 ${S.balingRawFiles.length}枚 読込完了`,'ok');
-  }
-
-  // FUJI BALING
-  if(fujiEntries.length){
-    log(` _FUJI ${fujiEntries.length}枚 発見 → FUJI BALING読込中...`,'info');
-    if(!S.balingRawFiles) S.balingRawFiles=[];
-    const fujiBaling=fujiEntries.filter(e=>{
-      const p=e.path;
-      return ext.test(e.name)&&(p.includes(voRaw)||p.includes(row.voNo||''))&&p.includes(`P${partial}`);
-    });
-    for(const entry of fujiBaling){
-      try{
-        const b64=await spDownloadB64(entry.id);
-        const pathParts=entry.path.split('/');
-        const ctNoInPath=pathParts.find(p=>ctPattern.test(p))||'';
-        const fujiSlot=entry.name.normalize('NFC').match(/^バラ/)?'open_bale':
-                       entry.name.normalize('NFC').match(/^検査員/)?'inspector_with_goods':
-                       entry.name.normalize('NFC').match(/^梱包/)?'goods_yard':'other';
-        S.balingRawFiles.push({name:entry.name, b64, f:{name:entry.name,webkitRelativePath:entry.path,_isGraph:true}, fujiSlot, ctNo:ctNoInPath, dateTag:''});
-      }catch(e){log(`   ⚠️ FUJI DL失敗: ${entry.name}`,'warn');}
-    }
-    log(` ✅ FUJI BALING写真 ${S.balingRawFiles.length}枚 読込完了`,'ok');
-  }
-
-  if(statusEl) statusEl.textContent=`✅ ${S.photoFiles.length}枚 取得完了`;
-  log(` ✅ 写真読込完了 (Graph経由)`,'ok');
-}
-
 async function doLogin(){const v=b64url(crypto.getRandomValues(new Uint8Array(32)));const c=await sha256b64(v);sessionStorage.setItem('pkce_v',v);const p=new URLSearchParams({client_id:CLIENT_ID,response_type:'code',redirect_uri:REDIRECT_URI,scope:SCOPE,code_challenge:c,code_challenge_method:'S256',response_mode:'query'});location.href=`https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/authorize?${p}`;}
 async function handleCallback(){const params=new URLSearchParams(location.search);const code=params.get('code');const verifier=sessionStorage.getItem('pkce_v');if(!code||!verifier)return;history.replaceState({},'',location.pathname);document.getElementById('loginBtn').innerHTML='<span class="spinner"></span> 認証中...';try{const r=await fetch(`https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/token`,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({grant_type:'authorization_code',client_id:CLIENT_ID,code,redirect_uri:REDIRECT_URI,code_verifier:verifier,scope:SCOPE})});const data=await r.json();if(data.error)throw new Error(data.error_description||data.error);S.dvToken=data.access_token;sessionStorage.setItem('cotecna_dv_token',S.dvToken);sessionStorage.removeItem('pkce_v');updateLoginUI();flog('✅ COMPASSログイン成功','ok');document.getElementById('step1').classList.remove('active');document.getElementById('step1').classList.add('done');document.getElementById('step2').classList.add('active','open');}catch(e){alert('ログインエラー: '+e.message);}finally{document.getElementById('loginBtn').textContent='🔄 再ログイン';}}
 function updateLoginUI(){const ok=!!S.dvToken;document.getElementById('loginDot').className='login-dot'+(ok?' ok':'');document.getElementById('loginStatusTxt').textContent=ok?'✅ ログイン済み':'未ログイン — Dataverse 認証';document.getElementById('loginStatusTxt').style.color=ok?'var(--ok)':'var(--text2)';document.getElementById('loginBtn').textContent=ok?'🔄 再ログイン':'🔐 ログイン';document.getElementById('step1Sub').textContent=ok?'✅ ログイン済み':'未ログイン';checkFetchReady();}
-function checkFetchReady(){document.getElementById('fetchBtn').disabled=!(S.dvToken&&(S.photoFiles.length||S_graphToken));}
-window.onload=async()=>{const saved=localStorage.getItem('cotecna_api_key');if(saved){S.apiKey=saved;document.getElementById('apiKey').value=saved;document.getElementById('apiDot').classList.add('ok');}const now=new Date(),from=new Date(now);from.setDate(from.getDate()-3);document.getElementById('dateTo').value=now.toISOString().slice(0,10);document.getElementById('dateFrom').value=from.toISOString().slice(0,10);const savedTok=sessionStorage.getItem('cotecna_dv_token');if(savedTok){S.dvToken=savedTok;updateLoginUI();document.getElementById('step1').classList.remove('active');document.getElementById('step1').classList.add('done');document.getElementById('step2').classList.add('active','open');}// Graph 토큰 복원
-const savedGraphTok=sessionStorage.getItem('cotecna_graph_token');
-const savedGraphExp=sessionStorage.getItem('cotecna_graph_expiry');
-const savedGraphRef=sessionStorage.getItem('cotecna_graph_refresh');
-if(savedGraphTok){S_graphToken=savedGraphTok; S_graphExpiry=parseInt(savedGraphExp||'0'); S_graphRefreshToken=savedGraphRef||null; updateGraphLoginUI();}
-if(location.search.includes('code=')){
-  const p=new URLSearchParams(location.search);
-  const st=p.get('state')||'';
-  if(st.startsWith('graph_')){
-    await handleGraphCallback(p.get('code'), st.replace('graph_',''));
-    history.replaceState({},'',location.href.split('?')[0]);
-  } else {
-    await handleCallback();
-  }
-}};
+function checkFetchReady(){document.getElementById('fetchBtn').disabled=!(S.dvToken&&S.photoFiles.length);}
+window.onload=async()=>{const saved=localStorage.getItem('cotecna_api_key');if(saved){S.apiKey=saved;document.getElementById('apiKey').value=saved;document.getElementById('apiDot').classList.add('ok');}const now=new Date(),from=new Date(now);from.setDate(from.getDate()-3);document.getElementById('dateTo').value=now.toISOString().slice(0,10);document.getElementById('dateFrom').value=from.toISOString().slice(0,10);const savedTok=sessionStorage.getItem('cotecna_dv_token');if(savedTok){S.dvToken=savedTok;updateLoginUI();document.getElementById('step1').classList.remove('active');document.getElementById('step1').classList.add('done');document.getElementById('step2').classList.add('active','open');}if(location.search.includes('code='))await handleCallback();};
 // ── DEFAULT PLANT MASTER (ハードコード: 全員共有) ──
 const DEFAULT_PLANTS = [
   {plantId:"030eb02b-cb5b-f011-bec2-6045bd62e122",plantJa:"ステップスナイン",plantEn:"STEPS NINE"},
@@ -962,7 +624,7 @@ function flog(msg,type=''){const box=document.getElementById('fetchLog');if(!box
 // ══════════════════════════════════════════════════════════════════
 async function fetchList(){
   if(!S.dvToken){alert('COMPASSにログインしてください');return;}
-  if(!S.photoFiles.length&&!S_graphToken){alert('PHOTOフォルダを選択してください');return;}
+  if(!S.photoFiles.length){alert('PHOTOフォルダを選択してください');return;}
   const dateFrom=document.getElementById('dateFrom').value;
   const dateTo=document.getElementById('dateTo').value;
   if(!dateFrom||!dateTo){alert('日付を入力してください');return;}
@@ -1379,7 +1041,7 @@ async function confirmAllAndGenerate(){
     clearLog();resetJobState(row);
     try{
       setPhase(1);setProgress(5,'写真読込中...');S.overlayDate=null;
-      if(S_graphToken){await loadPhotosGraph(row);}else{await loadPhotosLocal(row);}
+      await loadPhotosLocal(row);
       setPhase(2);setProgress(45,'AI分類中...');S.logoB64=DEFAULT_LOGO_B64;await classifyAll();
       setPhase(3);setProgress(88,'VAN FORM 生成中...');const van=buildVanDocx();setProgress(92,'INSPECTION PLACE 取得中...');log(`   PLANT GUID: ${row.plantGuid||'(なし)'}`, 'info');const plantEn=row.plantGuid?await getPlantEnById(row.plantGuid):'';log(`   PLANT EN: ${plantEn||'(未登録)'}`, 'info');S.inspLocation=plantEn?`${row.packer} / ${plantEn}`:(row.packer||'');setProgress(95,'BALING FORM 生成中...');const bal=buildBalingDocx();
       setProgress(100,`✅ ${row.ivNo}/${row.partial} 完了`);setAllDone();log(`🎉 完了`,'ok');

@@ -601,6 +601,7 @@ function updateGraphLoginUI(){
     btn.textContent='📁 SharePoint ログイン';
     btn.disabled=false;
   }
+  checkFetchReady();
 }
 
 // ── Graph経由でPHOTO取得 ──
@@ -776,7 +777,7 @@ async function loadPhotosGraph(row){
 async function doLogin(){const v=b64url(crypto.getRandomValues(new Uint8Array(32)));const c=await sha256b64(v);sessionStorage.setItem('pkce_v',v);const p=new URLSearchParams({client_id:CLIENT_ID,response_type:'code',redirect_uri:REDIRECT_URI,scope:SCOPE,code_challenge:c,code_challenge_method:'S256',response_mode:'query'});location.href=`https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/authorize?${p}`;}
 async function handleCallback(){const params=new URLSearchParams(location.search);const code=params.get('code');const verifier=sessionStorage.getItem('pkce_v');if(!code||!verifier)return;history.replaceState({},'',location.pathname);document.getElementById('loginBtn').innerHTML='<span class="spinner"></span> 認証中...';try{const r=await fetch(`https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/token`,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({grant_type:'authorization_code',client_id:CLIENT_ID,code,redirect_uri:REDIRECT_URI,code_verifier:verifier,scope:SCOPE})});const data=await r.json();if(data.error)throw new Error(data.error_description||data.error);S.dvToken=data.access_token;sessionStorage.setItem('cotecna_dv_token',S.dvToken);sessionStorage.removeItem('pkce_v');updateLoginUI();flog('✅ COMPASSログイン成功','ok');document.getElementById('step1').classList.remove('active');document.getElementById('step1').classList.add('done');document.getElementById('step2').classList.add('active','open');}catch(e){alert('ログインエラー: '+e.message);}finally{document.getElementById('loginBtn').textContent='🔄 再ログイン';}}
 function updateLoginUI(){const ok=!!S.dvToken;document.getElementById('loginDot').className='login-dot'+(ok?' ok':'');document.getElementById('loginStatusTxt').textContent=ok?'✅ ログイン済み':'未ログイン — Dataverse 認証';document.getElementById('loginStatusTxt').style.color=ok?'var(--ok)':'var(--text2)';document.getElementById('loginBtn').textContent=ok?'🔄 再ログイン':'🔐 ログイン';document.getElementById('step1Sub').textContent=ok?'✅ ログイン済み':'未ログイン';checkFetchReady();}
-function checkFetchReady(){document.getElementById('fetchBtn').disabled=!(S.dvToken&&S.photoFiles.length);}
+function checkFetchReady(){document.getElementById('fetchBtn').disabled=!(S.dvToken&&(S.photoFiles.length||S_graphToken));}
 window.onload=async()=>{const saved=localStorage.getItem('cotecna_api_key');if(saved){S.apiKey=saved;document.getElementById('apiKey').value=saved;document.getElementById('apiDot').classList.add('ok');}const now=new Date(),from=new Date(now);from.setDate(from.getDate()-3);document.getElementById('dateTo').value=now.toISOString().slice(0,10);document.getElementById('dateFrom').value=from.toISOString().slice(0,10);const savedTok=sessionStorage.getItem('cotecna_dv_token');if(savedTok){S.dvToken=savedTok;updateLoginUI();document.getElementById('step1').classList.remove('active');document.getElementById('step1').classList.add('done');document.getElementById('step2').classList.add('active','open');}// Graph 토큰 복원
 const savedGraphTok=sessionStorage.getItem('cotecna_graph_token');
 const savedGraphExp=sessionStorage.getItem('cotecna_graph_expiry');
@@ -961,7 +962,7 @@ function flog(msg,type=''){const box=document.getElementById('fetchLog');if(!box
 // ══════════════════════════════════════════════════════════════════
 async function fetchList(){
   if(!S.dvToken){alert('COMPASSにログインしてください');return;}
-  if(!S.photoFiles.length){alert('PHOTOフォルダを選択してください');return;}
+  if(!S.photoFiles.length&&!S_graphToken){alert('PHOTOフォルダを選択してください');return;}
   const dateFrom=document.getElementById('dateFrom').value;
   const dateTo=document.getElementById('dateTo').value;
   if(!dateFrom||!dateTo){alert('日付を入力してください');return;}

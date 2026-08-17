@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LEENAI COTECNAレポートツール v13.28</title>
+<title>LEENAI COTECNAレポートツール v13.29</title>
 <style>
 :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3350;--accent:#4f8ef7;--ok:#22c55e;--warn:#f59e0b;--error:#ef4444;--info:#38bdf8;--text:#e2e8f0;--text2:#8892a4;--text3:#4a5568;}
 [data-theme="light"]{--bg:#FAF9F8;--surface:#FFFFFF;--surface2:#F3F2F1;--surface3:#EDEBE9;--border:#E1DFDD;--text:#201F1E;--text2:#605E5C;--text3:#A19F9D;--accent:#0F6CBD;}
@@ -132,7 +132,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 </div>
 <header>
   <div class="logo">LEE<span>NAI</span></div>
-  <div class="version">COTECNAレポートツール v13.28 (2026-08-06)</div>
+  <div class="version">COTECNAレポートツール v13.29 (2026-08-17)</div>
   <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
     <button class="btn btn-ghost btn-sm" id="plantMasterBtn" onclick="togglePlantMaster()" style="font-size:11px;">⚙ PLANTマスター</button>
     <button class="btn btn-ghost btn-sm" id="themeBtn" onclick="toggleTheme()" style="font-size:11px;">🌙 ダーク</button>
@@ -465,7 +465,7 @@ async function doLogin(){const v=b64url(crypto.getRandomValues(new Uint8Array(32
 async function handleCallback(){const params=new URLSearchParams(location.search);const code=params.get('code');const verifier=sessionStorage.getItem('pkce_v');if(!code||!verifier)return;history.replaceState({},'',location.pathname);document.getElementById('loginBtn').innerHTML='<span class="spinner"></span> 認証中...';try{const r=await fetch(`https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/token`,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({grant_type:'authorization_code',client_id:CLIENT_ID,code,redirect_uri:REDIRECT_URI,code_verifier:verifier,scope:SCOPE})});const data=await r.json();if(data.error)throw new Error(data.error_description||data.error);S.dvToken=data.access_token;sessionStorage.setItem('cotecna_dv_token',S.dvToken);sessionStorage.removeItem('pkce_v');updateLoginUI();flog('✅ COMPASSログイン成功','ok');document.getElementById('step1').classList.remove('active');document.getElementById('step1').classList.add('done');document.getElementById('step2').classList.add('active','open');}catch(e){alert('ログインエラー: '+e.message);}finally{document.getElementById('loginBtn').textContent='🔄 再ログイン';}}
 function updateLoginUI(){const ok=!!S.dvToken;if(ok){const gate=document.getElementById('loginGate');if(gate)gate.style.display='none';}document.getElementById('loginDot').className='login-dot'+(ok?' ok':'');document.getElementById('loginStatusTxt').textContent=ok?'✅ ログイン済み':'未ログイン — Dataverse 認証';document.getElementById('loginStatusTxt').style.color=ok?'var(--ok)':'var(--text2)';document.getElementById('loginBtn').textContent=ok?'🔄 再ログイン':'🔐 ログイン';document.getElementById('step1Sub').textContent=ok?'✅ ログイン済み':'未ログイン';checkFetchReady();}
 function checkFetchReady(){document.getElementById('fetchBtn').disabled=!(S.dvToken&&S.photoFiles.length);}
-window.onload=async()=>{const saved=localStorage.getItem('cotecna_api_key');if(saved){S.apiKey=saved;document.getElementById('apiKey').value=saved;document.getElementById('apiDot').classList.add('ok');}const now=new Date(),from=new Date(now);from.setDate(from.getDate()-3);document.getElementById('dateTo').value=now.toISOString().slice(0,10);document.getElementById('dateFrom').value=from.toISOString().slice(0,10);const savedTok=sessionStorage.getItem('cotecna_dv_token');if(savedTok){S.dvToken=savedTok;updateLoginUI();document.getElementById('step1').classList.remove('active');document.getElementById('step1').classList.add('done');document.getElementById('step2').classList.add('active','open');}if(location.search.includes('code='))await handleCallback();};
+window.onload=async()=>{const saved=localStorage.getItem('cotecna_api_key');if(saved){S.apiKey=saved;document.getElementById('apiKey').value=saved;document.getElementById('apiDot').classList.add('ok');}const now=new Date(),from=new Date(now);from.setDate(from.getDate()-5);document.getElementById('dateTo').value=now.toISOString().slice(0,10);document.getElementById('dateFrom').value=from.toISOString().slice(0,10);const savedTok=sessionStorage.getItem('cotecna_dv_token');if(savedTok){S.dvToken=savedTok;updateLoginUI();document.getElementById('step1').classList.remove('active');document.getElementById('step1').classList.add('done');document.getElementById('step2').classList.add('active','open');}if(location.search.includes('code='))await handleCallback();};
 // ── DEFAULT PLANT MASTER (ハードコード: 全員共有) ──
 const DEFAULT_PLANTS = [
   {plantId:"030eb02b-cb5b-f011-bec2-6045bd62e122",plantJa:"ステップスナイン",plantEn:"STEPS NINE"},
@@ -782,6 +782,7 @@ async function fetchList(){
           groupKey, ivNo, voNo,
           partial: partial||'—',
           bkgNo: bkg.cr49f_booking_no||'—',
+          bkgGuid,
           packer, pol,
           plantGuid: ct['_crcf9_parker_plant_id_value']||'',
           workDates:[], ctList:[],
@@ -793,6 +794,36 @@ async function fetchList(){
       if(d&&!groupMap[groupKey].workDates.includes(d))groupMap[groupKey].workDates.push(d);
       groupMap[groupKey].ctList.push({ctNo:ct.crcf9_container_no||'—',sealShip:ct.crcf9_seal_no||'',seal:'',date:d});
     }
+
+    // STEP 9: BKG別 全CT補完照会 (日付範囲外のCTを補完)
+    flog(`  📋 BKG別 全CT補完照会中...`,'info');
+    let _addedCt=0;
+    const _bkgIds=[...new Set(Object.values(groupMap).map(g=>g.bkgGuid).filter(Boolean))];
+    await Promise.all(_bkgIds.map(async bkgId=>{
+      try{
+        const allCtData=await dvGet(
+          `${DV_API}/crcf9_container_informations`+
+          `?$filter=${encodeURIComponent(`crcf9_inspection eq true and _crcf9_booking_id_value eq ${bkgId}`)}`+
+          `&$select=crcf9_container_no,crcf9_partial_no,crcf9_work_date,crcf9_seal_no,_crcf9_parker_plant_id_value`+
+          `&$top=100`
+        );
+        if(!allCtData.value?.length)return;
+        const bkg=bkgMap[bkgId];if(!bkg)return;
+        const ivNo=bkg.cr49f_invoice_no||bkgId;
+        for(const ct of allCtData.value){
+          const partial=ct.crcf9_partial_no||'';
+          const groupKey=`${ivNo}::${partial}`;
+          if(!groupMap[groupKey])continue;
+          const ctNo=ct.crcf9_container_no||'—';
+          if(groupMap[groupKey].ctList.some(c=>c.ctNo===ctNo))continue;
+          const d=ct.crcf9_work_date?.slice(0,10)||'';
+          if(d&&!groupMap[groupKey].workDates.includes(d))groupMap[groupKey].workDates.push(d);
+          groupMap[groupKey].ctList.push({ctNo,sealShip:ct.crcf9_seal_no||'',seal:'',date:d});
+          _addedCt++;
+        }
+      }catch(e){flog(`  ⚠️ BKG補完 ${bkgId.slice(0,8)}: ${e.message.slice(0,40)}`,'warn');}
+    }));
+    flog(`  ✅ CT補完完了: ${_addedCt}件追加`,'ok');
 
     const list=Object.values(groupMap);
     list.forEach(r=>r.workDates.sort());

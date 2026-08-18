@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LEENAI COTECNAレポートツール v13.30</title>
+<title>LEENAI COTECNAレポートツール v13.32</title>
 <style>
 :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3350;--accent:#4f8ef7;--ok:#22c55e;--warn:#f59e0b;--error:#ef4444;--info:#38bdf8;--text:#e2e8f0;--text2:#8892a4;--text3:#4a5568;}
 [data-theme="light"]{--bg:#FAF9F8;--surface:#FFFFFF;--surface2:#F3F2F1;--surface3:#EDEBE9;--border:#E1DFDD;--text:#201F1E;--text2:#605E5C;--text3:#A19F9D;--accent:#0F6CBD;}
@@ -125,7 +125,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
   <div style="font-size:40px;font-weight:800;letter-spacing:3px;color:var(--text);">LEEN<span style="color:var(--accent)">AI</span></div>
   <div style="font-size:11px;color:var(--accent);font-weight:700;letter-spacing:1px;">SYS-C-02</div>
   <div style="font-size:16px;color:var(--text);font-weight:700;">COTECNAレポートツール</div>
-  <div style="font-size:12px;color:var(--text2);">v13.28 (2026-08-06)</div>
+  <div style="font-size:12px;color:var(--text2);">v13.32 (2026-08-18)</div>
   <div style="width:48px;height:1px;background:var(--border);margin:12px 0;"></div>
   <div style="font-size:12px;color:var(--text3);text-align:center;line-height:1.8;">このツールを使用するには<br>COMPASSアカウントでのログインが必要です</div>
   <button onclick="doLogin()" style="margin-top:8px;background:var(--accent);color:#fff;border:none;padding:11px 32px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Segoe UI',sans-serif;display:inline-flex;align-items:center;gap:8px;">🔑 COMPASSログイン</button>
@@ -133,7 +133,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 </div>
 <header>
   <div class="logo">LEE<span>NAI</span></div>
-  <div class="version">COTECNAレポートツール v13.30 (2026-08-17)</div>
+  <div class="version">COTECNAレポートツール v13.32 (2026-08-18)</div>
   <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
     <button class="btn btn-ghost btn-sm" id="plantMasterBtn" onclick="togglePlantMaster()" style="font-size:11px;">⚙ PLANTマスター</button>
     <button class="btn btn-ghost btn-sm" id="sealExcelBtn" onclick="exportSealExcel()" style="font-size:11px;color:var(--ok);" disabled>📊 SEAL Excel出力</button>
@@ -182,10 +182,10 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
         </div>
         <!-- 통계 바 -->
         <div class="test-bar" id="testStatBar" style="display:none;">
-          <div class="test-stat">전체: <b id="statTotal">0</b></div>
-          <div class="test-stat" style="color:var(--ok);">✅ 일치: <b id="statOk">0</b></div>
-          <div class="test-stat" style="color:#e05252;">❌ 수정: <b id="statNg">0</b></div>
-          <div class="test-stat">정확도: <b id="statAcc">-</b></div>
+          <div class="test-stat">全体: <b id="statTotal">0</b></div>
+          <div class="test-stat" style="color:var(--ok);">✅ 一致: <b id="statOk">0</b></div>
+          <div class="test-stat" style="color:#e05252;">❌ 修正: <b id="statNg">0</b></div>
+          <div class="test-stat">精度: <b id="statAcc">-</b></div>
           <button class="btn" onclick="suggestPrompt()" style="margin-left:auto;padding:4px 12px;font-size:12px;">💡 プロンプト改善提案</button>
         </div>
         <!-- 분류 결과 그리드 -->
@@ -601,12 +601,16 @@ async function exportSealExcel(){
     }
     // 全レコードをソート: work_date ASC → iv_no ASC
     const rows=Object.values(master.records).sort((a,b)=>{
-      if(a.work_date!==b.work_date)return a.work_date.localeCompare(b.work_date);
+      const da=a.work_date||'',db=b.work_date||'';
+      if(da!==db)return da.localeCompare(db);
       return (a.iv_no||'').localeCompare(b.iv_no||'');
     });
-    // Excel生成
+    // Excel生成 (全値を文字列に正規化)
     const headers=['検査日','IV番号','VO番号','Partial','CT番号','COTECNA SEAL','PACKER','営業所(JP)','営業所(EN)'];
-    const data=[headers,...rows.map(r=>[r.work_date,r.iv_no,r.vo_no,r.partial,r.ct_no,r.seal_no,r.packer,r.plant_jp,r.plant_en])];
+    const data=[headers,...rows.map(r=>[
+      r.work_date||'',r.iv_no||'',r.vo_no||'',r.partial||'',
+      r.ct_no||'',r.seal_no||'',r.packer||'',r.plant_jp||'',r.plant_en||''
+    ])];
     const ws=XLSX.utils.aoa_to_sheet(data);
     // 列幅設定
     ws['!cols']=[{wch:12},{wch:14},{wch:14},{wch:8},{wch:14},{wch:12},{wch:12},{wch:14},{wch:16}];
@@ -1756,7 +1760,7 @@ const nos=Object.keys(S.vanPhotos).map(Number).sort((a,b)=>a-b);if(!nos.length){
           if(!p[seq]) return;
           const fname=p[`_name_${seq}`]||'';
           try{
-            const result=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:p[seq]}},{type:'text',text:UNIFIED_PROMPT}],20);
+            const result=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:p[seq]}},{type:'text',text:(window.UNIFIED_PROMPT_OVERRIDE||UNIFIED_PROMPT)}],20);
             let slot=result.trim().toLowerCase();
             if(slot==='inspector_van') slot='inspector'; // UNIFIED_PROMPTの出力を正規化
             if(VAN_SLOTS.includes(slot)){
@@ -2092,7 +2096,7 @@ const nos=Object.keys(S.vanPhotos).map(Number).sort((a,b)=>a-b);if(!nos.length){
         await Promise.all(t);
       }));
     }
-    showClassifyPreview(S.vanPhotos[nos[0]],Object.fromEntries(Object.entries(OOMOTO_SLOT_DEF).map(([pos,slot])=>[slot,Object.keys(S.vanPhotos[nos[0]]||{}).filter(k=>!k.startsWith('_')).map(Number).find(seq=>{const n=(S.vanPhotos[nos[0]]||{})[`_name_${seq}`]||'';return n.match(new RegExp('^\\\\d+\\\\s*\\\\('+pos+'\\\\)'));})]).filter(([,v])=>v!=null)));
+    showClassifyPreview(S.vanPhotos[nos[0]],Object.fromEntries(Object.entries(OOMOTO_SLOT_DEF).map(([pos,slot])=>[slot,Object.keys(S.vanPhotos[nos[0]]||{}).filter(k=>!k.startsWith('_')).map(Number).find(seq=>{const n=(S.vanPhotos[nos[0]]||{})[`_name_${seq}`]||'';return n.match(new RegExp('^\\d+\\s*\\('+pos+'\\)'));})]).filter(([,v])=>v!=null)));
     setProgress(80,'分類完了');log(`✅ OOMOTO分類完了`,'ok');return;
   }
 
@@ -2119,7 +2123,7 @@ const nos=Object.keys(S.vanPhotos).map(Number).sort((a,b)=>a-b);if(!nos.length){
       try{
         const imgContent={type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}};
         const [lRes,dRes]=await Promise.all([
-          callAI([imgContent,{type:'text',text:UNIFIED_PROMPT}],20),
+          callAI([imgContent,{type:'text',text:(window.UNIFIED_PROMPT_OVERRIDE||UNIFIED_PROMPT)}],20),
           callAI([imgContent,{type:'text',text:DATE_CHECK_PROMPT}],5)
         ]);
         label=lRes.trim().toLowerCase();

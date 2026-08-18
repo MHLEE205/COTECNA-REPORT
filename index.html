@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LEENAI COTECNAレポートツール v13.32</title>
+<title>LEENAI COTECNAレポートツール v13.33</title>
 <style>
 :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3350;--accent:#4f8ef7;--ok:#22c55e;--warn:#f59e0b;--error:#ef4444;--info:#38bdf8;--text:#e2e8f0;--text2:#8892a4;--text3:#4a5568;}
 [data-theme="light"]{--bg:#FAF9F8;--surface:#FFFFFF;--surface2:#F3F2F1;--surface3:#EDEBE9;--border:#E1DFDD;--text:#201F1E;--text2:#605E5C;--text3:#A19F9D;--accent:#0F6CBD;}
@@ -125,7 +125,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
   <div style="font-size:40px;font-weight:800;letter-spacing:3px;color:var(--text);">LEEN<span style="color:var(--accent)">AI</span></div>
   <div style="font-size:11px;color:var(--accent);font-weight:700;letter-spacing:1px;">SYS-C-02</div>
   <div style="font-size:16px;color:var(--text);font-weight:700;">COTECNAレポートツール</div>
-  <div style="font-size:12px;color:var(--text2);">v13.32 (2026-08-18)</div>
+  <div style="font-size:12px;color:var(--text2);">v13.33 (2026-08-18)</div>
   <div style="width:48px;height:1px;background:var(--border);margin:12px 0;"></div>
   <div style="font-size:12px;color:var(--text3);text-align:center;line-height:1.8;">このツールを使用するには<br>COMPASSアカウントでのログインが必要です</div>
   <button onclick="doLogin()" style="margin-top:8px;background:var(--accent);color:#fff;border:none;padding:11px 32px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Segoe UI',sans-serif;display:inline-flex;align-items:center;gap:8px;">🔑 COMPASSログイン</button>
@@ -133,7 +133,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 </div>
 <header>
   <div class="logo">LEE<span>NAI</span></div>
-  <div class="version">COTECNAレポートツール v13.32 (2026-08-18)</div>
+  <div class="version">COTECNAレポートツール v13.33 (2026-08-18)</div>
   <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
     <button class="btn btn-ghost btn-sm" id="plantMasterBtn" onclick="togglePlantMaster()" style="font-size:11px;">⚙ PLANTマスター</button>
     <button class="btn btn-ghost btn-sm" id="sealExcelBtn" onclick="exportSealExcel()" style="font-size:11px;color:var(--ok);" disabled>📊 SEAL Excel出力</button>
@@ -608,8 +608,8 @@ async function exportSealExcel(){
     // Excel生成 (全値を文字列に正規化)
     const headers=['検査日','IV番号','VO番号','Partial','CT番号','COTECNA SEAL','PACKER','営業所(JP)','営業所(EN)'];
     const data=[headers,...rows.map(r=>[
-      r.work_date||'',r.iv_no||'',r.vo_no||'',r.partial||'',
-      r.ct_no||'',r.seal_no||'',r.packer||'',r.plant_jp||'',r.plant_en||''
+      String(r.work_date||''),String(r.iv_no||''),String(r.vo_no||''),String(r.partial||''),
+      String(r.ct_no||''),String(r.seal_no||''),String(r.packer||''),String(r.plant_jp||''),String(r.plant_en||'')
     ])];
     const ws=XLSX.utils.aoa_to_sheet(data);
     // 列幅設定
@@ -617,7 +617,14 @@ async function exportSealExcel(){
     const wb=XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb,'COTECNA SEAL',ws);
     const today=new Date().toISOString().slice(0,10).replace(/-/g,'');
-    XLSX.writeFile(wb,`COTECNA_SEAL_MASTER_${today}.xlsx`);
+    const fname=`COTECNA_SEAL_MASTER_${today}.xlsx`;
+    const wbout=XLSX.write(wb,{bookType:'xlsx',type:'array'});
+    const blob=new Blob([wbout],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+    const dlUrl=URL.createObjectURL(blob);
+    const dlA=document.createElement('a');
+    dlA.href=dlUrl;dlA.download=fname;
+    document.body.appendChild(dlA);dlA.click();
+    setTimeout(()=>{document.body.removeChild(dlA);URL.revokeObjectURL(dlUrl);},100);
     log(`📊 Excel出力完了: ${rows.length}件`,'ok');
   }catch(e){alert('Excel出力エラー: '+e.message);}
   finally{if(btn){btn.disabled=!grToken;btn.textContent='📊 SEAL Excel出力';}}

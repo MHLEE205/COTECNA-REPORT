@@ -1,26 +1,22 @@
 ﻿<!DOCTYPE html>
-<html lang="ja" data-theme="leenai">
+<html lang="ja" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LEENAI COTECNAレポートツール v13.36</title>
+<link id="leenaiFavicon" rel="icon">
+<link rel="stylesheet" href="https://mhlee205.github.io/LEENAI_COMMON/v1/leenai-common.css">
+<script src="https://mhlee205.github.io/LEENAI_COMMON/v1/leenai-common.js"></script>
+<script>if(!window.LEENAI){document.addEventListener('DOMContentLoaded',function(){document.body.innerHTML='<div style="padding:40px;font-family:sans-serif">共通ファイルの読み込みに失敗しました。ページを再読み込みしてください。</div>';});}</script>
 <style>
-:root{--bg:#0f1117;--surface:#1a1d27;--surface2:#22263a;--border:#2e3350;--accent:#4f8ef7;--ok:#22c55e;--warn:#f59e0b;--error:#ef4444;--info:#38bdf8;--text:#e2e8f0;--text2:#8892a4;--text3:#4a5568;}
-[data-theme="light"]{--bg:#FAF9F8;--surface:#FFFFFF;--surface2:#F3F2F1;--surface3:#EDEBE9;--border:#E1DFDD;--text:#201F1E;--text2:#605E5C;--text3:#A19F9D;--accent:#0F6CBD;}
-[data-theme="leenai"]{--bg:#E9EEE8;--surface:#F4F5F7;--surface2:#E1E8E0;--surface3:#D5DFD3;--border:#B9C7B7;--text:#1F2A22;--text2:#4F5E52;--text3:#6D7B71;--accent:#2F6B45;--accent2:#3F6FA8;}
-[data-theme="focus"]{--bg:#E7EAF0;--surface:#F4F5F7;--surface2:#DDE2EA;--surface3:#CFD6E2;--border:#AEB8C8;--text:#202733;--text2:#515C6C;--text3:#697587;--accent:#315F9E;--accent2:#2F7D6A;}
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Segoe UI','Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:13px;}
-header{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;}
-.logo{font-size:17px;font-weight:700;letter-spacing:1px;}.logo span{color:var(--accent);}
-.version{color:var(--text2);font-size:11px;background:var(--surface2);padding:2px 8px;border-radius:4px;}
-.api-mini{margin-left:auto;display:flex;align-items:center;gap:8px;}
+body{min-height:100vh;font-size:13px;}
+.api-mini{display:flex;align-items:center;gap:8px;}
 .api-mini input{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:5px 10px;border-radius:6px;width:220px;font-size:12px;font-family:monospace;}
 .api-mini input:focus{outline:none;border-color:var(--accent);}
 .api-dot{width:8px;height:8px;border-radius:50%;background:var(--text3);}.api-dot.ok{background:var(--ok);}
 .main{max-width:960px;margin:0 auto;padding:20px 16px;}
 .steps{display:flex;flex-direction:column;gap:12px;}
-.step{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:border-color .2s;}
+.step{background:var(--read);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:border-color .2s;}
 .step.active{border-color:var(--accent);}.step.done{border-color:var(--ok);opacity:.92;}
 .step-hdr{display:flex;align-items:center;gap:10px;padding:12px 18px;cursor:pointer;user-select:none;}
 .step-hdr:hover{background:rgba(79,142,247,.03);}
@@ -38,7 +34,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 .filter-bar input[type=date]{background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:5px 9px;border-radius:6px;font-size:12px;font-family:inherit;outline:none;}
 .filter-bar input[type=date]:focus{border-color:var(--accent);}
 .btn{padding:7px 16px;border-radius:8px;border:none;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:5px;font-family:inherit;}
-.btn-primary{background:var(--accent);color:#fff;}.btn-primary:hover{background:#3d7be0;}
+.btn-primary{background:var(--accent-btn);color:#fff;}.btn-primary:hover{filter:brightness(1.08);}
 .btn-primary:disabled,.btn-ok:disabled{background:var(--border);color:var(--text3);cursor:not-allowed;}
 .btn-ok{background:var(--ok);color:#fff;}.btn-ok:hover{filter:brightness(1.1);}
 .btn-ghost{background:var(--surface2);color:var(--text);border:1px solid var(--border);}.btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
@@ -50,7 +46,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 .section-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border);}
 .section-hdr .count{font-size:11px;color:var(--text2);font-weight:600;text-transform:uppercase;letter-spacing:.5px;}
 .dash-table{width:100%;border-collapse:collapse;font-size:12px;}
-.dash-table th{background:var(--surface2);color:var(--text2);padding:7px 10px;text-align:left;font-weight:600;border-bottom:1px solid var(--border);white-space:nowrap;font-size:11px;}
+.dash-table th{background:var(--frame);color:var(--text);padding:7px 10px;text-align:left;font-weight:700;border-bottom:1px solid var(--border);white-space:nowrap;font-size:11px;}
 .dash-table td{padding:7px 10px;border-bottom:1px solid rgba(46,51,80,.4);vertical-align:middle;}
 .dash-table tr:hover td{background:rgba(79,142,247,.04);}
 .iv-link{color:var(--accent);font-weight:700;cursor:pointer;}.iv-link:hover{text-decoration:underline;}
@@ -89,7 +85,6 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 .chip-dot{width:6px;height:6px;border-radius:50%;background:var(--ok);}
 .mt8{margin-top:8px;}.mt12{margin-top:12px;}
 .hint{color:var(--text2);font-size:11px;margin-top:4px;}
-.powered{text-align:center;font-size:10px;color:var(--text3);padding:16px 0;letter-spacing:.4px;}
 @media(max-width:600px){.class-grid{grid-template-columns:repeat(3,1fr);}.dl-row{flex-direction:column;}.api-mini{display:none;}}
 
 /* ── TEST MODE ── */
@@ -121,31 +116,8 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
-<div id="loginGate" style="display:flex;position:fixed;inset:0;background:var(--bg);z-index:9999;flex-direction:column;align-items:center;justify-content:center;gap:16px;">
-  <div style="font-size:40px;font-weight:800;letter-spacing:3px;color:var(--text);">LEEN<span style="color:var(--accent)">AI</span></div>
-  <div style="font-size:11px;color:var(--accent);font-weight:700;letter-spacing:1px;">SYS-C-02</div>
-  <div style="font-size:16px;color:var(--text);font-weight:700;">COTECNAレポートツール</div>
-  <div style="font-size:12px;color:var(--text2);">v13.36 (2026-08-18)</div>
-  <div style="width:48px;height:1px;background:var(--border);margin:12px 0;"></div>
-  <div style="font-size:12px;color:var(--text3);text-align:center;line-height:1.8;">このツールを使用するには<br>COMPASSアカウントでのログインが必要です</div>
-  <button onclick="doLogin()" style="margin-top:8px;background:var(--accent);color:#fff;border:none;padding:11px 32px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Segoe UI',sans-serif;display:inline-flex;align-items:center;gap:8px;">🔑 COMPASSログイン</button>
-  <div id="gateStatus" style="font-size:11px;color:var(--text2);height:18px;"></div>
-</div>
-<header>
-  <div class="logo">LEE<span>NAI</span></div>
-  <div class="version">COTECNAレポートツール v13.36 (2026-08-18)</div>
-  <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
-    <button class="btn btn-ghost btn-sm" id="plantMasterBtn" onclick="togglePlantMaster()" style="font-size:11px;">⚙ PLANTマスター</button>
-    <button class="btn btn-ghost btn-sm" id="sealExcelBtn" onclick="exportSealExcel()" style="font-size:11px;color:var(--ok);" disabled>📊 SEAL Excel出力</button>
-    <button class="btn btn-ghost btn-sm" id="themeBtn" onclick="toggleTheme()" style="font-size:11px;">🌙 ダーク</button>
-  </div>
-  <div class="api-mini">
-    <span style="color:var(--text2);font-size:11px;">API KEY</span>
-    <div class="api-dot" id="apiDot"></div>
-    <input type="password" id="apiKey" placeholder="sk-ant-..." maxlength="200">
-    <button class="btn btn-ghost btn-sm" onclick="saveApiKey()">保存</button>
-  </div>
-</header>
+<div id="app" style="display:none">
+<!-- ln-header は LEENAI が挿入 -->
 <div class="main">
 <div class="steps">
   
@@ -205,28 +177,9 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
   </div>
   <!-- ── レポートモード ── -->
   <div id="reportModeSection">
-<div class="step active" id="step1">
-    <div class="step-hdr" onclick="toggleStep('step1')">
-      <div class="step-num">1</div>
-      <div class="step-title">COMPASSログイン</div>
-      <div class="step-sub" id="step1Sub">未ログイン</div>
-    </div>
-    <div class="step-body">
-      <div class="login-row">
-        <div class="login-dot" id="loginDot"></div>
-        <span id="loginStatusTxt" style="font-size:12px;color:var(--text2);">未ログイン — Dataverse 認証</span>
-        <button class="btn btn-primary btn-sm" id="loginBtn" onclick="doLogin()">🔐 ログイン</button>
-      </div>
-      <div style="display:flex;align-items:center;gap:8px;margin-top:4px;">
-          <div id="grLoginDot" style="width:8px;height:8px;border-radius:50%;background:var(--text3);flex-shrink:0;"></div>
-          <span id="grLoginTxt" style="font-size:11px;color:var(--text2);">未接続 — SharePoint (COMPASSログイン後に自動接続)</span>
-      </div>
-      <div class="hint">① COMPASS → ② SharePoint の順に自動ログインします (SEALマスター保存・Excel出力用)</div>
-    </div>
-  </div>
-  <div class="step" id="step2">
+<div class="step active open" id="step2">
     <div class="step-hdr" onclick="toggleStep('step2')">
-      <div class="step-num">2</div>
+      <div class="step-num">1</div>
       <div class="step-title">自主検査リスト照会</div>
       <div class="step-sub" id="step2Sub">PHOTOフォルダ未選択</div>
     </div>
@@ -299,7 +252,7 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
 
   <div class="step" id="step3">
     <div class="step-hdr" onclick="toggleStep('step3')">
-      <div class="step-num">3</div>
+      <div class="step-num">2</div>
       <div class="step-title">自動処理</div>
       <div class="step-sub">写真読込 → AI分類 → レポート生成</div>
     </div>
@@ -365,21 +318,16 @@ header{background:var(--surface);border-bottom:1px solid var(--border);padding:1
     </div>
   </div>
 </div>
-<div class="powered">✦ Powered by LEENAI Automation System</div>
-</div>
+</div><!-- /main -->
+<!-- ln-footer は LEENAI が挿入 -->
+</div><!-- /app -->
 <script>
 'use strict';
-const CLIENT_ID='f071a165-5e9b-44bf-b6a1-baba654524db';
-const TENANT_ID='a56988ff-c2b8-4df8-9727-889ad4205198';
-const REDIRECT_URI=location.href.split('?')[0].split('#')[0];
 const DV_URL='https://orgde512c6f.crm7.dynamics.com';
 const DV_API=`${DV_URL}/api/data/v9.2`;
-const SCOPE=`${DV_URL}/user_impersonation offline_access`;
-const GR_SCOPE='https://graph.microsoft.com/Files.ReadWrite offline_access';
 const SEAL_DRIVE_ID='b!ZK58_9YllU-vETQD3Xz0TbOInXbVCXJHnQ2280KJBArFLeM_18EgRbSeoO-TW__U';
 const SEAL_JSON_PATH='古紙/-. AI 活用/C-02-COTECNA/cotecna_seal_master.json';
 const GR_API='https://graph.microsoft.com/v1.0';
-let grToken=null;
 const SLOT_ORDER=['empty','half','full','right_door','inspector','cotecna_seal'];
 const SLOT_CAPTIONS={empty:'Empty container',half:'Half load container',full:'Full load container',right_door:'Right door closed, with Container No.',inspector:'Inspector with closed container',cotecna_seal:'Cotecna container seal, closed up'};
 const IMG_CX=3303270,IMG_CY=2477135;
@@ -470,48 +418,12 @@ const BALING_PROMPT=`この写真は古紙（廃紙）バーリング検査の�
 const S={apiKey:'',dvToken:null,photoFiles:[],photoFolderName:'',inspLocation:'',inspList:[],selectedKeys:[],mode:'folder',groups:{},containers:[],vanPhotos:{},baraPhotos:{},pressPhotos:{},classifiedVan:{},classifiedBaling:{},logoB64:null,voNo:'',reportDate:'',inspPlace:'',baleCount:0,rootName:'',fileList:[],balingDateCount:1};
 
 function toggleStep(id){const el=document.getElementById(id);if(!el)return;const isOpen=el.classList.contains('open')||el.classList.contains('active');document.querySelectorAll('.step').forEach(s=>s.classList.remove('open'));if(!isOpen)el.classList.add('open');}
-function b64url(buf){return btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');}
-async function sha256b64(str){return b64url(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(str)));}
-// ── Graph 認証 (CLEARANCE_COMPASS と同方式) ──
-async function startGraphLogin(){
-  const v=b64url(crypto.getRandomValues(new Uint8Array(32)));
-  const c=await sha256b64(v);
-  sessionStorage.setItem('gr_pkce',JSON.stringify({v}));
-  const p=new URLSearchParams({client_id:CLIENT_ID,response_type:'code',redirect_uri:REDIRECT_URI,
-    scope:GR_SCOPE,response_mode:'query',code_challenge:c,code_challenge_method:'S256',state:'graph_1'});
-  location.href=`https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/authorize?${p}`;
-}
-async function handleGraphCallback(code){
-  const d=JSON.parse(sessionStorage.getItem('gr_pkce')||'{}');
-  if(!d.v)return;
-  sessionStorage.removeItem('gr_pkce');
-  const r=await fetch(`https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/token`,{
-    method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},
-    body:new URLSearchParams({grant_type:'authorization_code',client_id:CLIENT_ID,
-      code,redirect_uri:REDIRECT_URI,code_verifier:d.v,scope:GR_SCOPE})
-  });
-  const data=await r.json();
-  if(data.error)throw new Error(data.error_description||data.error);
-  grToken=data.access_token;
-  sessionStorage.setItem('cotecna_gr_token',grToken);
-  updateGrLoginUI();
-  // DV トークン復元してからSTEP2へ
-  const dvSaved=sessionStorage.getItem('cotecna_dv_token');
-  if(dvSaved){S.dvToken=dvSaved;updateLoginUI();
-    document.getElementById('step1').classList.remove('active');
-    document.getElementById('step1').classList.add('done');
-    document.getElementById('step2').classList.add('active','open');}
-}
 async function grFetch(url,opts={}){
-  if(!grToken)throw new Error('Graph未ログイン');
-  const headers=Object.assign({'Authorization':`Bearer ${grToken}`},opts.headers||{});
+  const tok=await LEENAI.auth.token('graph');
+  if(!tok)throw new Error('Graph未ログイン');
+  const headers=Object.assign({'Authorization':`Bearer ${tok}`},opts.headers||{});
   const res=await fetch(url,Object.assign({},opts,{headers}));
-  if(res.status===401){
-    grToken=null;
-    sessionStorage.removeItem('cotecna_gr_token');
-    updateGrLoginUI();
-    throw new Error('GRAPH_401');
-  }
+  if(res.status===401){throw new Error('GRAPH_401');}
   return res;
 }
 function grItemUrl(path){
@@ -539,18 +451,9 @@ async function spWriteJson(path,data){
   if(!r.ok)throw new Error(`SP WRITE ${r.status}`);
   return await r.json();
 }
-function updateGrLoginUI(){
-  const dot=document.getElementById('grLoginDot');
-  const txt=document.getElementById('grLoginTxt');
-  if(dot)dot.style.background=grToken?'var(--ok)':'var(--text3)';
-  if(txt)txt.textContent=grToken?'✅ SharePoint接続済み':'未接続';
-  const exBtn=document.getElementById('sealExcelBtn');
-  if(exBtn)exBtn.disabled=!grToken;
-}
-
 // ── SEAL 記録保存 ──
 async function saveSealRecords(row){
-  if(!grToken){log('  ⚠️ Graph未ログイン — SEAL記録スキップ','warn');return;}
+  if(LEENAI.auth.status.graph!=='ok'){log('  ⚠️ Graph未ログイン — SEAL記録スキップ','warn');return;}
   try{
     let master=await spReadJson(SEAL_JSON_PATH);
     if(!master||typeof master.records!=='object'){
@@ -601,7 +504,7 @@ async function saveSealRecords(row){
 
 // ── SEAL Excel 出力 ──
 async function exportSealExcel(){
-  if(!grToken){alert('SharePoint未ログイン。ログインしてから再試行してください。');return;}
+  if(LEENAI.auth.status.graph!=='ok'){alert('SharePoint未ログイン。ログインしてから再試行してください。');return;}
   const btn=document.getElementById('sealExcelBtn');
   if(btn){btn.disabled=true;btn.textContent='⏳ 読込中...';}
   try{
@@ -634,25 +537,44 @@ async function exportSealExcel(){
   }catch(e){
     const msg=e&&e.message?e.message:String(e);
     if(msg==='GRAPH_401'){
-      const ok=confirm('SharePoint認証が期限切れです。\n再ログインしてから再度お試しください。\n\n今すぐ再ログインしますか？');
-      if(ok)startGraphLogin();
+      LEENAI.toast('SharePoint認証が期限切れです。再ログインしてください。','warn');
+      setTimeout(function(){LEENAI.logout();},2000);
     }else{alert('Excel出力エラー: '+msg);}
   }
-  finally{if(btn){btn.disabled=!grToken;btn.textContent='📊 SEAL Excel出力';}}
+  finally{
+    if(btn){
+      const grOk=LEENAI.auth.status.graph==='ok';
+      btn.disabled=!grOk;btn.textContent='📊 SEAL Excel出力';
+    }
+  }
 }
 
-async function doLogin(){const v=b64url(crypto.getRandomValues(new Uint8Array(32)));const c=await sha256b64(v);sessionStorage.setItem('pkce_v',v);const p=new URLSearchParams({client_id:CLIENT_ID,response_type:'code',redirect_uri:REDIRECT_URI,scope:SCOPE,code_challenge:c,code_challenge_method:'S256',response_mode:'query'});location.href=`https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/authorize?${p}`;}
-async function handleCallback(){const params=new URLSearchParams(location.search);const code=params.get('code');const verifier=sessionStorage.getItem('pkce_v');if(!code||!verifier)return;history.replaceState({},'',location.pathname);document.getElementById('loginBtn').innerHTML='<span class="spinner"></span> 認証中...';try{const r=await fetch(`https://login.microsoftonline.com/${TENANT_ID}/oauth2/v2.0/token`,{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams({grant_type:'authorization_code',client_id:CLIENT_ID,code,redirect_uri:REDIRECT_URI,code_verifier:verifier,scope:SCOPE})});const data=await r.json();if(data.error)throw new Error(data.error_description||data.error);S.dvToken=data.access_token;sessionStorage.setItem('cotecna_dv_token',S.dvToken);sessionStorage.removeItem('pkce_v');updateLoginUI();flog('✅ COMPASSログイン成功','ok');document.getElementById('step1').classList.remove('active');document.getElementById('step1').classList.add('done');document.getElementById('step2').classList.add('active','open');if(!grToken)await startGraphLogin();}catch(e){alert('ログインエラー: '+e.message);}finally{document.getElementById('loginBtn').textContent='🔄 再ログイン';}}
-function updateLoginUI(){const ok=!!S.dvToken;if(ok){const gate=document.getElementById('loginGate');if(gate)gate.style.display='none';}document.getElementById('loginDot').className='login-dot'+(ok?' ok':'');document.getElementById('loginStatusTxt').textContent=ok?'✅ ログイン済み':'未ログイン — Dataverse 認証';document.getElementById('loginStatusTxt').style.color=ok?'var(--ok)':'var(--text2)';document.getElementById('loginBtn').textContent=ok?'🔄 再ログイン':'🔐 ログイン';document.getElementById('step1Sub').textContent=ok?'✅ ログイン済み':'未ログイン';checkFetchReady();}
-function checkFetchReady(){document.getElementById('fetchBtn').disabled=!(S.dvToken&&S.photoFiles.length);}
-window.onload=async()=>{const saved=localStorage.getItem('cotecna_api_key');if(saved){S.apiKey=saved;document.getElementById('apiKey').value=saved;document.getElementById('apiDot').classList.add('ok');}const now=new Date(),from=new Date(now);from.setDate(from.getDate()-5);document.getElementById('dateTo').value=now.toISOString().slice(0,10);document.getElementById('dateFrom').value=from.toISOString().slice(0,10);const savedTok=sessionStorage.getItem('cotecna_dv_token');if(savedTok){S.dvToken=savedTok;updateLoginUI();document.getElementById('step1').classList.remove('active');document.getElementById('step1').classList.add('done');document.getElementById('step2').classList.add('active','open');}const savedGr=sessionStorage.getItem('cotecna_gr_token');
-if(savedGr){grToken=savedGr;updateGrLoginUI();}
-if(location.search.includes('code=')){
-  const _sp=new URLSearchParams(location.search);
-  const _st=_sp.get('state')||'';
-  if(_st.startsWith('graph_')){await handleGraphCallback(_sp.get('code'));}
-  else{await handleCallback();}
-}};
+function checkFetchReady(){document.getElementById('fetchBtn').disabled=!S.photoFiles.length;}
+function startTool(){
+  var saved=localStorage.getItem('cotecna_api_key');
+  if(saved){S.apiKey=saved;document.getElementById('apiKey').value=saved;document.getElementById('apiDot').classList.add('ok');}
+  var now=new Date(),from=new Date(now);from.setDate(from.getDate()-5);
+  document.getElementById('dateTo').value=now.toISOString().slice(0,10);
+  document.getElementById('dateFrom').value=from.toISOString().slice(0,10);
+  /* ヘッダーに API KEY + ボタンを追加 */
+  var apiDiv=document.createElement('div');
+  apiDiv.className='api-mini';
+  apiDiv.innerHTML='<span style="color:var(--text2);font-size:11px;">API KEY</span>'
+    +'<div class="api-dot" id="apiDot2"></div>'
+    +'<input type="password" id="apiKey2" placeholder="sk-ant-..." maxlength="200">'
+    +'<button class="ln-btn-ghost" style="font-size:12px;" onclick="saveApiKey()">保存</button>';
+  /* APIキー同期 */
+  LEENAI.addHeaderButton({label:'⚙ PLANTマスター',onClick:togglePlantMaster});
+  LEENAI.addHeaderButton({label:'📊 SEAL Excel出力',onClick:exportSealExcel,title:'SharePoint SEAL記録をExcel出力'});
+}
+LEENAI.init({
+  sys:'C-02',
+  name:'COTECNAレポートツール',
+  version:'14.0',
+  date:'2026-10-08',
+  desc:'COMPASS データと写真から COTECNA 検査レポートを自動生成します',
+  onReady:startTool,
+});
 // ── DEFAULT PLANT MASTER (ハードコード: 全員共有) ──
 const DEFAULT_PLANTS = [
   {plantId:"030eb02b-cb5b-f011-bec2-6045bd62e122",plantJa:"ステップスナイン",plantEn:"STEPS NINE"},
@@ -737,7 +659,7 @@ function togglePlantMaster(){
 }
 
 async function fetchPlantMaster(){
-  if(!S.dvToken){alert('COMPASSにログインしてください');return;}
+  if(LEENAI.auth.status.dataverse!=='ok'){alert('COMPASSにログインしてください');return;}
   const msg=document.getElementById('plantMasterMsg');
   const tbody=document.getElementById('plantMasterBody');
   msg.textContent='取得中...';
@@ -809,7 +731,7 @@ async function savePlantMasterAll(){
 
 function saveApiKey(){const v=document.getElementById('apiKey').value.trim();if(!v)return alert('APIキーを入力してください');S.apiKey=v;localStorage.setItem('cotecna_api_key',v);document.getElementById('apiDot').classList.add('ok');flog('✅ APIキー保存','ok');}
 function onFolderSelected(input){const files=Array.from(input.files);if(!files.length)return;S.photoFiles=files;S.photoFolderName=files[0].webkitRelativePath.split('/')[0];const ivSet=new Set(files.map(f=>f.webkitRelativePath.split('/')[1]).filter(Boolean));document.getElementById('folderPath').innerHTML=`<b>${S.photoFolderName}</b>　IVフォルダ ${ivSet.size}件 · ファイル ${files.length}個`;document.getElementById('folderBanner').classList.add('ok');document.getElementById('step2Sub').textContent=`${S.photoFolderName} (${ivSet.size}件)`;checkFetchReady();}
-async function dvGet(url){const r=await fetch(url,{headers:{Authorization:`Bearer ${S.dvToken}`,'OData-MaxVersion':'4.0','OData-Version':'4.0',Accept:'application/json;odata.metadata=minimal'}});if(!r.ok){if(r.status===401){S.dvToken=null;sessionStorage.removeItem('cotecna_dv_token');updateLoginUI();}throw new Error(`DV ${r.status}: ${(await r.text()).slice(0,120)}`);}return r.json();}
+async function dvGet(url){const tok=await LEENAI.auth.token('dataverse');const r=await fetch(url,{headers:{Authorization:`Bearer ${tok}`,'OData-MaxVersion':'4.0','OData-Version':'4.0',Accept:'application/json;odata.metadata=minimal'}});if(!r.ok){throw new Error(`DV ${r.status}: ${(await r.text()).slice(0,120)}`);}return r.json();}
 function flog(msg,type=''){const box=document.getElementById('fetchLog');if(!box)return;box.style.display='block';const div=document.createElement('div');div.className=type?`log-${type}`:'';div.textContent=msg;box.appendChild(div);box.scrollTop=box.scrollHeight;}
 
 // ══════════════════════════════════════════════════════════════════
@@ -821,7 +743,7 @@ function flog(msg,type=''){const box=document.getElementById('fetchLog');if(!box
 //  デバッグ: 第1 CT の全フィールド名をログ出力
 // ══════════════════════════════════════════════════════════════════
 async function fetchList(){
-  if(!S.dvToken){alert('COMPASSにログインしてください');return;}
+  if(LEENAI.auth.status.dataverse!=='ok'){alert('COMPASSにログインしてください');return;}
   if(!S.photoFiles.length){alert('PHOTOフォルダを選択してください');return;}
   const dateFrom=document.getElementById('dateFrom').value;
   const dateTo=document.getElementById('dateTo').value;
@@ -2629,27 +2551,6 @@ function setAllDone(){for(let i=1;i<=3;i++){const el=document.getElementById(`ph
 function showClassifyPreview(fp,sm){const w=document.getElementById('classPreview'),g=document.getElementById('classGrid');if(!w||!g)return;g.innerHTML='';w.style.display='block';for(const slot of SLOT_ORDER){const seq=sm[slot];const d=document.createElement('div');d.className='class-slot'+(seq?' slot-ok':'');if(seq&&fp[seq])d.innerHTML=`<img src="data:image/jpeg;base64,${fp[seq]}" alt="${slot}">`;else d.innerHTML=`<div class="slot-empty">なし</div>`;d.innerHTML+=`<div class="slot-name">${slot}</div>`;g.appendChild(d);}}
 function showResults(downloads){const s=document.getElementById('resultSection'),r=document.getElementById('dlRow'),c=document.getElementById('chipRow');s.style.display='block';r.innerHTML=downloads.map(d=>{const blob=new Blob([d.buf],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});const url=URL.createObjectURL(blob);return `<a class="dl-btn" href="${url}" download="${d.name}"><span style="font-size:1rem;">${d.icon}</span><div><span class="dl-name">${d.label}</span><span class="dl-size">${(d.buf.length/1024).toFixed(0)}KB · ${d.name}</span></div></a>`;}).join('');c.innerHTML=`<div class="chip"><div class="chip-dot"></div>${Math.floor(downloads.length/2)}件完了</div><div class="chip"><div class="chip-dot"></div>AI分類 ✅</div>`;s.scrollIntoView({behavior:'smooth'});}
 
-// -- テーマ --
-function updateThemeBtn(t){
-  const b=document.getElementById('themeBtn');
-  if(!b) return;
-  const labels={dark:'🌙 ダーク',light:'☀️ ライト',leenai:'🌿 LEENAI',focus:'🎯 FOCUS'};
-  b.textContent=labels[t]||'🌿 LEENAI';
-}
-function toggleTheme(){
-  const html=document.documentElement;
-  const current=html.getAttribute('data-theme')||'leenai';
-  const order=['dark','light','leenai','focus'];
-  const next=order[(order.indexOf(current)+1)%order.length];
-  html.setAttribute('data-theme',next);
-  localStorage.setItem('leenai_c02_theme',next);
-  updateThemeBtn(next);
-}
-(function(){
-  const saved=localStorage.getItem('leenai_c02_theme')||'leenai';
-  document.documentElement.setAttribute('data-theme',saved);
-  document.addEventListener('DOMContentLoaded',()=>updateThemeBtn(saved));
-})();
 </script>
   </div><!-- /reportModeSection -->
 </body>

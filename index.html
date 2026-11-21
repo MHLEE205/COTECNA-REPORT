@@ -218,7 +218,8 @@ body{min-height:100vh;font-size:13px;}
 </div>
 
 <script>
-/* ✦ Powered by LEENAI Automation System — C-02 COTECNA レポート v15.0 (2026-11-21)
+/* ✦ Powered by LEENAI Automation System — C-02 COTECNA レポート v15.1 (2026-11-21)
+   v15.1: VAN 写真をセル幅に収める (1 ページ 6 枚) · BALING の日付 = その組を検査した CT の作業日 (CHECK LIST の Checked 順)
    v15.0: 写真 = SharePoint PHOTO_V2 を Graph で読む (フォルダ選択・業者別分岐・ファイル名規則を廃止)。
           CT 番号 = COMPASS (形님 決定 D1)。CT の順番 = COTECNA 検査書類 (CHECK LIST) の順 (D2)。
           開梱/再梱包の組 = 検査書類の検査数ちょうど (D3)・同じ grade どうし (D4)。
@@ -237,7 +238,9 @@ const SEAL_JSON_PATH='古紙/-. AI 活用/C-02-COTECNA/cotecna_seal_master.json'
 const SLOT_ORDER=['empty','half','full','right_door','inspector','cotecna_seal'];
 const SLOT_CAPTIONS={empty:'Empty container',half:'Half load container',full:'Full load container',right_door:'Right door closed, with Container No.',inspector:'Inspector with closed container',cotecna_seal:'Cotecna container seal, closed up'};
 const SLOT_JA={empty:'空',half:'半積',full:'満載',right_door:'右扉',inspector:'検査員',cotecna_seal:'COTECNA シール'};
-const IMG_CX=3303270,IMG_CY=2477135;
+/* v15.1: 写真の幅をセルの中 (5316 − 余白 216 = 5100 dxa) に収める。v15.0 まではセルより 0.18cm 広く、
+   右端 (日付) が切れる · Word では列が広がって 1 ページに 6 枚収まらない原因 (形님 指摘 2026-11-21) */
+const IMG_CX=3200400,IMG_CY=2400300;
 const GRAPH_BASE='https://graph.microsoft.com/v1.0/';
 const IMG_RE=/\.(jpe?g|png)$/i;
 
@@ -867,9 +870,24 @@ async function prepareBaling(job,row,cotItems,kinds,docDates){
   B.goods=best('goods_yard');B.insp=best('inspector');
   if(B.goods.length<nDates)addIssue(job,'red',`ヤード全景 (Goods at Yard) が ${nDates} 枚必要ですが ${B.goods.length} 枚です`,{kind:'baling'});
   if(B.insp.length<nDates)addIssue(job,'red',`古紙の前の検査員 (Inspector with Goods) が ${nDates} 枚必要ですが ${B.insp.length} 枚です`,{kind:'baling'});
-  /* 写真ごとの検査日 (D6) */
-  const dates=uniq(row.workDates.concat(docDates));
-  B.photos.forEach(p=>{p.date=pickInspDate(dates,setYmd(p.setName));});
+  /* 検査日 (D6 · v15.1): 開梱・再梱包の組 = その組を検査した CT の作業日。
+     CHECK LIST の No 順に、各 CT の Checked の数だけ その CT の作業日 (COMPASS) を割り当てる。
+     作業が 2 日にわたる場合 (例 16 日・17 日) も CT ごとの正しい日になる (v15.0 は全部を写真の届いた日で決めていた)。
+     ヤード全景・検査員 = 最初の検査日。 */
+  const dates=uniq(row.workDates.concat(docDates)).sort();
+  const seqByItem={};
+  rows.slice().sort((a,b)=>(a.no||0)-(b.no||0)).forEach(r=>{
+    const c=job.cts.find(x=>x.docRow===r);
+    for(let i=0;i<(r.checked||0);i++)(seqByItem[r.item||'']=seqByItem[r.item||'']||[]).push((c&&c.date)||'');
+  });
+  const usedN={};
+  B.pairs.forEach(x=>{
+    const it=x.item||'',k=usedN[it]||0;usedN[it]=k+1;
+    const seq=seqByItem[it]||[];
+    x.date=seq[k]||pickInspDate(dates,setYmd(x.open.setName));
+  });
+  B.goods.concat(B.insp).forEach(p=>{p.date=dates[0]||'';});
+  if(B.pairs.some(x=>!x.date)||B.goods.concat(B.insp).some(p=>!p.date))addIssue(job,'red','BALING 写真の検査日が分かりません',{kind:'date'});
 }
 
 async function finishJob(job){
@@ -917,7 +935,7 @@ function renderJob(job){
     h+=`<div class="ct-block"><div class="ct-title">BALING <small>写真 ${B.photos.length} 枚 · 検査数 ${esc(needTxt)} · 組 ${B.pairs.length} · 全景 ${B.goods.length} · 検査員 ${B.insp.length}</small></div><div class="pair-grid">`;
     B.goods.forEach(p=>{h+=`<div class="pair"><div class="imgs"><img src="${imgSrc(p)}" alt="Goods at Yard"></div><div class="cap">Goods at Yard · ${esc(p.date)}</div></div>`;});
     B.insp.forEach(p=>{h+=`<div class="pair"><div class="imgs"><img src="${imgSrc(p)}" alt="Inspector with Goods"></div><div class="cap">Inspector · ${esc(p.date)}</div></div>`;});
-    B.pairs.forEach((x,i)=>{h+=`<div class="pair"><div class="imgs"><img src="${imgSrc(x.open)}" alt="Open bale ${i+1}"><img src="${imgSrc(x.rebale)}" alt="Re-bale ${i+1}"></div><div class="cap">#${i+1} ${esc(x.item||'')} · ${esc(x.open.name)}</div></div>`;});
+    B.pairs.forEach((x,i)=>{h+=`<div class="pair"><div class="imgs"><img src="${imgSrc(x.open)}" alt="Open bale ${i+1}"><img src="${imgSrc(x.rebale)}" alt="Re-bale ${i+1}"></div><div class="cap">#${i+1} ${esc(x.item||'')} · ${esc(x.date||'')}</div></div>`;});
     h+='</div></div>';
   }
   if(job.state!=='run'){
@@ -991,7 +1009,7 @@ async function buildReports(job){
     const B=job.baling;
     if(!Object.keys(B.short||{}).length&&B.pairs.length){
       const pairs=[];
-      for(const x of B.pairs)pairs.push({open:await finalB64(x.open,x.open.date,x.open.hasDate),rebale:await finalB64(x.rebale,x.rebale.date,x.rebale.hasDate)});
+      for(const x of B.pairs)pairs.push({open:await finalB64(x.open,x.date,x.open.hasDate),rebale:await finalB64(x.rebale,x.date,x.rebale.hasDate)});
       const g=[],ins=[];
       for(const p of B.goods)g.push(await finalB64(p,p.date,p.hasDate));
       for(const p of B.insp)ins.push(await finalB64(p,p.date,p.hasDate));
@@ -1066,7 +1084,7 @@ function startTool(){
 LEENAI.init({
   sys:'C-02',
   name:'COTECNAレポートツール',
-  version:'15.0',
+  version:'15.1',
   date:'2026-11-21',
   desc:'COMPASS・COTECNA 検査書類・SharePoint の写真から COTECNA 検査レポート (VAN・BALING) を作成します',
   onReady:startTool,

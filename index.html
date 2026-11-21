@@ -218,8 +218,9 @@ body{min-height:100vh;font-size:13px;}
 </div>
 
 <script>
-/* ✦ Powered by LEENAI Automation System — C-02 COTECNA レポート v15.3 (2026-11-21)
+/* ✦ Powered by LEENAI Automation System — C-02 COTECNA レポート v15.4 (2026-11-21)
    v15.1: VAN 写真をセル幅に収める (1 ページ 6 枚) · BALING の日付 = その組を検査した CT の作業日 (CHECK LIST の Checked 順)
+   v15.4: 토르 実データ検証の結果 — 1 PDF に複数 Partial · 検査員の紙の食い違いは黄 · BALING の答えの長さ · 品目は CT の CHECK LIST から · 検査場所の業者名重複
    v15.3: COMPASS でコンテナ番号が未入力の CT を CT として扱わない (空の番号が _書類 フォルダに当たっていた) · 写真フォルダは CT 番号の形 (英字4+数字7) のものだけ
    v15.2: Word の段落既定 (後 8pt · 1.08 行) で VAN が 1 ページ 4 枚になる問題 → 文書の段落既定を前後 0 · 1 行に固定
    v15.0: 写真 = SharePoint PHOTO_V2 を Graph で読む (フォルダ選択・業者別分岐・ファイル名規則を廃止)。
@@ -519,18 +520,21 @@ const DOC_PROMPT=`COTECNA の検査書類 (PDF) です。CHECK LIST & CONTAINER 
 - total_checked は CHECK LIST 合計行の Checked 合計、pir_checked は PIR の「Total Number of bales checked」。
 - inspect_place は CHECK LIST の INSPECTOR PLACE (無ければ PIR の Place of Inspection の 1 行目)。
 - 読めない値は null。CHECK LIST が無い書類なら rows は []。
+- 1 つの PDF に複数の Partial (例 P19 と P20) の書類が入っていることがある。その場合は Partial ごとに lists に分けて全部返す。
 JSON だけを返す:
-{"vo":"X.13.099741","partial":"P17","inspect_place":"OOMOTO SHIRYO","dates":["2026-11-05"],"total_checked":13,"pir_checked":13,"total_bales":431,"rows":[{"no":1,"ct":"CMAU8876442","seal":"JP-9054236","item":"OMG","checked":1,"bales":21}]}`;
+{"lists":[{"vo":"X.13.099741","partial":"P17","inspect_place":"OOMOTO SHIRYO","dates":["2026-11-05"],"total_checked":13,"pir_checked":13,"total_bales":431,"rows":[{"no":1,"ct":"CMAU8876442","seal":"JP-9054236","item":"OMG","checked":1,"bales":21}]}]}`;
 async function readDoc(item){
   if(S.docCache[item.id])return S.docCache[item.id];
   const blob=await grBlob(item.id);
   const b64=await blobToB64(blob);
-  const txt=await callAI([{type:'document',source:{type:'base64',media_type:'application/pdf',data:b64}},{type:'text',text:DOC_PROMPT}],4000);
-  const d=parseJson(txt);
-  d.rows=(d.rows||[]).map(r=>({no:r.no,ct:normCt(r.ct),seal:normSeal(r.seal),item:normItem(r.item),checked:toInt(r.checked),bales:toInt(r.bales)}));
-  d.file=item.name;
-  S.docCache[item.id]=d;
-  return d;
+  const txt=await callAI([{type:'document',source:{type:'base64',media_type:'application/pdf',data:b64}},{type:'text',text:DOC_PROMPT}],8000);
+  const j=parseJson(txt);
+  /* v15.4: 1 つの PDF に複数 Partial の CHECK LIST (例 NA2610-10 の P19 · P20 共用 FAX) → 配列で返す */
+  const lists=Array.isArray(j)?j:(Array.isArray(j.lists)?j.lists:[j]);
+  const out=lists.map(d=>Object.assign({},d,{file:item.name,
+    rows:(d.rows||[]).map(r=>({no:r.no,ct:normCt(r.ct),seal:normSeal(r.seal),item:normItem(r.item),checked:toInt(r.checked),bales:toInt(r.bales)}))}));
+  S.docCache[item.id]=out;
+  return out;
 }
 function toInt(v){if(v==null||v==='')return null;const n=parseInt(String(v).replace(/[^\d-]/g,''),10);return isNaN(n)?null:n;}
 function normCt(s){return String(s||'').toUpperCase().replace(/[^A-Z0-9]/g,'');}
@@ -687,7 +691,7 @@ async function classifyBaling(photos,items){
     const part=ph.slice(k,k+BALING_CHUNK),content=[];
     part.forEach((p,i)=>{content.push({type:'text',text:`[写真 ${i+1}] ${p.setName?p.setName+'/':''}${p.name}${p.hint?' (参考: '+p.hint+')':''}`});content.push(imgBlock(p.ai));});
     content.push({type:'text',text:balingPrompt(items)});
-    const arr=parseJson(await callAI(content,Math.min(8000,200+part.length*60)));
+    const arr=parseJson(await callAI(content,Math.min(16000,600+part.length*150)));   /* v15.4: 19 枚で答えが切れた (KANEKO P22) → 余裕を大きく */
     (Array.isArray(arr)?arr:[]).forEach(a=>{const p=part[(+a.photo)-1];if(!p)return;
       p.type=['goods_yard','inspector','open_bale','rebale','other'].includes(a.type)?a.type:'other';
       p.item=normItem(a.item)||p.item||'';p.hasDate=a.has_date!==false;p.sharp=+a.sharp||3;});
@@ -754,7 +758,7 @@ async function runJob(row){
   const docItems=docFolder?(await grListItem(docFolder.id)||[]).filter(x=>/\.pdf$/i.test(x.name)):[];
   const docs=[];
   for(const d of docItems){
-    try{log('  検査書類を読む: '+d.name);docs.push(await readDoc(d));}
+    try{log('  検査書類を読む: '+d.name);docs.push(...(await readDoc(d)));}
     catch(e){addIssue(job,'yellow','検査書類を読めません: '+d.name+' ('+e.message+')');}
   }
   if(row.noCtIds&&row.noCtIds.length)addIssue(job,'red',`COMPASS でコンテナ番号が未入力の CT が ${row.noCtIds.length} 件あります (レポートに入りません)`,{kind:'compass'});
@@ -803,7 +807,9 @@ async function runJob(row){
 
   /* 4) 検査場所 (営業所の英語名) */
   const en=await plantEnOf(row.plantJa);
-  job.place=en?`${row.packer} / ${en}`:(doc&&doc.inspect_place?`${row.packer} / ${doc.inspect_place}`:'');
+  const ip=(doc&&doc.inspect_place||'').trim();
+  /* v15.4: INSPECTOR PLACE が業者名で始まるときは前に業者名を重ねない (「MATEC / MATEC / HASSAMU」 の防止) */
+  job.place=en?`${row.packer} / ${en}`:(ip?(ip.toUpperCase().startsWith(String(row.packer||'').toUpperCase())?ip:`${row.packer} / ${ip}`):'');
   if(!job.place)addIssue(job,'red','検査場所 (営業所の英語名) が分かりません — 下の欄に入れてください',{kind:'place'});
   else if(!en)addIssue(job,'yellow','検査場所は検査書類の INSPECTOR PLACE を使いました: '+job.place,{kind:'place'});
 
@@ -826,7 +832,8 @@ function verifyCt(job,c,row){
     addIssue(job,'red',`${c.ctNo}: 右扉写真の番号 ${c.reads.ct} が COMPASS と違います (別の CT の写真かもしれません)`,{ct:c.ctNo,slot:'right_door',kind:'slot'});
   /* 検査員の紙 (VO-Partial) */
   const b=boardOk(c.reads.board,row.voNo,row.partial);
-  if(c.slots.inspector&&b===false)addIssue(job,'red',`${c.ctNo}: 検査員の紙 「${c.reads.board}」 が ${row.voNo}-${row.partial} と違います`,{ct:c.ctNo,slot:'inspector',kind:'slot'});
+  /* v15.4: 黄 (止めない)。紙は業者の手書き · 書き間違いがある (NA2610-12 P18 の紙は 5 本とも「P8」)。写真は C-01 が CT ごとに分けたもの (D1) */
+  if(c.slots.inspector&&b===false)addIssue(job,'yellow',`${c.ctNo}: 検査員の紙 「${c.reads.board}」 が ${row.voNo}-${row.partial} と違います (業者の書き間違いの可能性 · レポートはこのまま)`,{ct:c.ctNo,slot:'inspector',kind:'board'});
 }
 
 async function prepareBaling(job,row,cotItems,kinds,docDates){
@@ -842,7 +849,8 @@ async function prepareBaling(job,row,cotItems,kinds,docDates){
   for(const s of mine){
     const m=meta(s.name);
     const list=(await grListItem(s.id)||[]).filter(x=>x.file&&IMG_RE.test(x.name));
-    list.forEach(x=>B.photos.push({id:x.id,name:x.name,thumb:thumbUrl(x),setName:s.name,item:'',hint:m.item?'品目 '+m.item:''}));
+    const setItem=String(m.item||'').includes('/')?'':normItem(m.item);
+    list.forEach(x=>B.photos.push({id:x.id,name:x.name,thumb:thumbUrl(x),setName:s.name,item:'',setItem,hint:m.item?'品目 '+m.item:''}));
   }
   /* CT フォルダに混ざっていた BALING 写真 (沖縄紙業など) も含めて全部を同じ基準で分類する */
   const fromSets=B.photos;
@@ -852,6 +860,12 @@ async function prepareBaling(job,row,cotItems,kinds,docDates){
   if(!items.length&&kinds){items=uniq((kinds.baling||[]).flatMap(s=>String(s.item||'').split('/').map(normItem)));}
   try{if(fromSets.length)await classifyBaling(fromSets,items);}catch(e){addIssue(job,'red','BALING の AI 分類に失敗 ('+e.message+')',{kind:'baling'});}
   B.photos.filter(p=>p.hasDate==null).forEach(p=>{p.hasDate=true;});
+  /* v15.4: 品目 (grade) は確かな情報を優先 — CT フォルダの写真 = その CT の CHECK LIST の品目 · 1 品目だけのセット = その品目 · ほかは AI */
+  B.photos.forEach(p=>{
+    const ct=job.cts.find(c=>c.ctNo===p.setName);
+    if(ct&&ct.docRow&&ct.docRow.item)p.item=ct.docRow.item;
+    else if(p.setItem&&(!items.length||items.includes(p.setItem)))p.item=p.setItem;
+  });
   /* 必要な組の数 (D3) */
   const rows=(doc&&doc.rows)||[];
   const total=doc?(doc.total_checked??doc.pir_checked??null):null;
@@ -1092,7 +1106,7 @@ function startTool(){
 LEENAI.init({
   sys:'C-02',
   name:'COTECNAレポートツール',
-  version:'15.3',
+  version:'15.4',
   date:'2026-11-21',
   desc:'COMPASS・COTECNA 検査書類・SharePoint の写真から COTECNA 検査レポート (VAN・BALING) を作成します',
   onReady:startTool,

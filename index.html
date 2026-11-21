@@ -51,8 +51,6 @@ body{min-height:100vh;font-size:13px;}
 .dash-table tr:hover td{background:rgba(79,142,247,.04);}
 .iv-link{color:var(--accent);font-weight:700;cursor:pointer;}.iv-link:hover{text-decoration:underline;}
 .sbadge{display:inline-flex;align-items:center;gap:3px;padding:1px 8px;border-radius:10px;font-size:10px;font-weight:700;}
-.sbadge-oomoto{background:rgba(245,158,11,.15);color:#fcd34d;}
-.sbadge-kaneko{background:rgba(34,197,94,.15);color:#86efac;}
 .sbadge-other{background:rgba(79,142,247,.15);color:var(--accent);}
 .date-range{font-size:11px;color:var(--text2);line-height:1.5;}
 .log-box{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;max-height:200px;overflow-y:auto;font-size:11px;font-family:'Consolas',monospace;line-height:1.7;}
@@ -87,124 +85,74 @@ body{min-height:100vh;font-size:13px;}
 .hint{color:var(--text2);font-size:11px;margin-top:4px;}
 @media(max-width:600px){.class-grid{grid-template-columns:repeat(3,1fr);}.dl-row{flex-direction:column;}.api-mini{display:none;}}
 
-/* ── TEST MODE ── */
-.mode-tab{display:flex;gap:6px;margin-bottom:16px;}
-.mode-tab-btn{padding:6px 18px;border-radius:20px;border:1px solid var(--border);background:var(--surface2);color:var(--text2);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;}
-.mode-tab-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
-.test-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-top:14px;}
-.test-card{background:var(--surface2);border:2px solid var(--border);border-radius:10px;overflow:hidden;transition:border-color .2s;}
-.test-card.ok{border-color:var(--ok);}
-.test-card.ng{border-color:#e05252;}
-.test-card.pending{border-color:var(--accent);}
-.test-card img{width:100%;height:140px;object-fit:cover;display:block;}
-.test-card-body{padding:8px;}
-.test-fname{font-size:10px;color:var(--text3);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.test-label-row{display:flex;align-items:center;gap:4px;margin-bottom:6px;}
-.test-badge{padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700;}
-.badge-van{background:rgba(79,142,247,.15);color:var(--accent);}
-.badge-baling{background:rgba(80,200,120,.15);color:var(--ok);}
-.badge-err{background:rgba(224,82,82,.15);color:#e05252;}
-.test-select{width:100%;font-size:11px;padding:3px 4px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text1);}
-.test-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px;}
-.test-stat{font-size:12px;color:var(--text2);}
-.test-stat b{color:var(--text1);}
-.prompt-box{width:100%;min-height:260px;font-size:11px;font-family:monospace;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--text1);resize:vertical;margin-top:8px;}
-.prompt-section{margin-top:14px;}
-.prompt-label{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:4px;}
-.suggest-box{background:rgba(79,142,247,.07);border:1px solid var(--accent);border-radius:8px;padding:12px;margin-top:10px;font-size:12px;white-space:pre-wrap;color:var(--text1);}
+
+/* ── v15.0 ── */
+.key-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+.key-row input{background:var(--read);border:1px solid var(--border);color:var(--text);padding:5px 10px;border-radius:6px;width:240px;font-size:12px;font-family:Consolas,monospace;}
+.job{background:var(--read);border:1px solid var(--border);border-radius:10px;margin-top:12px;overflow:hidden;}
+.job.ok{border-color:var(--ok);}.job.ng{border-color:var(--error);}
+.job-hdr{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--frame);flex-wrap:wrap;}
+.job-hdr b{font-size:13px;}
+.job-sub{font-size:11px;color:var(--text2);}
+.job-state{margin-left:auto;font-size:12px;font-weight:700;}
+.job-state.ok{color:var(--ok);}.job-state.ng{color:var(--error);}.job-state.run{color:var(--info);}
+.job-body{padding:10px 14px;}
+.issues{margin:6px 0 10px;padding:0;list-style:none;font-size:12px;}
+.issues li{padding:4px 0;border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.issues li.red{color:var(--error);}.issues li.yellow{color:var(--warn);}
+.issues li.done{color:var(--text2);text-decoration:line-through;}
+.ct-block{margin-top:10px;}
+.ct-title{font-size:12px;font-weight:700;margin-bottom:4px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.ct-title small{font-weight:400;color:var(--text2);}
+.slot-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;}
+.slot{border:2px solid var(--border);border-radius:6px;overflow:hidden;background:var(--surface2);cursor:pointer;position:relative;}
+.slot.ok{border-color:var(--ok);}.slot.red{border-color:var(--error);}.slot.yellow{border-color:var(--warn);}
+.slot img{width:100%;height:84px;object-fit:cover;display:block;}
+.slot .cap{font-size:10px;padding:3px 4px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.slot .none{height:84px;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--error);}
+.pair-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:6px;}
+.pair{border:1px solid var(--border);border-radius:6px;overflow:hidden;background:var(--surface2);}
+.pair .imgs{display:grid;grid-template-columns:1fr 1fr;}
+.pair img{width:100%;height:70px;object-fit:cover;display:block;}
+.pair .cap{font-size:10px;padding:2px 4px;color:var(--text2);}
+.picker{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;z-index:900;}
+.picker.on{display:flex;}
+.picker-box{background:var(--read);border:1px solid var(--border);border-radius:10px;max-width:900px;width:92vw;max-height:84vh;overflow:auto;padding:14px;}
+.picker-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-top:10px;}
+.picker-grid div{border:2px solid var(--border);border-radius:6px;overflow:hidden;cursor:pointer;}
+.picker-grid div:hover,.picker-grid div:focus{border-color:var(--accent);outline:none;}
+.picker-grid img{width:100%;height:100px;object-fit:cover;display:block;}
+.picker-grid span{display:block;font-size:10px;padding:2px 4px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.inp{background:var(--read);border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:5px;font-size:12px;}
+@media(max-width:700px){.slot-grid{grid-template-columns:repeat(3,1fr);}}
 </style>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
 <div id="app" style="display:none">
 <!-- ln-header は LEENAI が挿入 -->
 <div class="main">
 <div class="steps">
-  
-  <!-- ── モードタブ ── -->
-  <div class="mode-tab">
-    <button class="mode-tab-btn active" id="tabReport" onclick="switchMode('report')">📄 レポート生成</button>
-    <button class="mode-tab-btn" id="tabTest" onclick="switchMode('test')">🧪 プロンプトテスト</button>
-  </div>
-  <!-- ── テストモード ── -->
-  <div id="testModeSection" style="display:none;">
-    <div class="step active open">
-      <div class="step-hdr" style="cursor:default;">
-        <div class="step-num">🧪</div>
-        <div class="step-title">UNIFIED_PROMPT テストモード</div>
-        <div class="step-sub">写真を選択してAI分類を即時確認・修正</div>
-      </div>
-      <div class="step-body" style="display:block;">
-        <!-- 폴더 선택 -->
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
-          <label class="btn btn-ok" style="cursor:pointer;padding:6px 14px;font-size:12px;">
-            📁 写真フォルダ選択
-            <input type="file" id="testFolderInput" webkitdirectory style="display:none;" onchange="onTestFolderSelected(this)">
-          </label>
-          <span id="testFolderInfo" style="font-size:12px;color:var(--text2);">未選択</span>
-          <button class="btn btn-ok" id="testRunBtn" onclick="runTest()" disabled style="padding:6px 14px;font-size:12px;">▶ 分類実行</button>
-          <button class="btn" id="testRerunBtn" onclick="runTest()" style="display:none;padding:6px 14px;font-size:12px;">🔄 再テスト</button>
-        </div>
-        <!-- 진행 바 -->
-        <div id="testProgress" style="display:none;margin-bottom:10px;">
-          <div style="background:var(--surface2);border-radius:4px;height:6px;overflow:hidden;">
-            <div id="testProgressFill" style="height:100%;background:var(--accent);width:0%;transition:width .3s;"></div>
-          </div>
-          <div id="testProgressLabel" style="font-size:11px;color:var(--text2);margin-top:4px;"></div>
-        </div>
-        <!-- 통계 바 -->
-        <div class="test-bar" id="testStatBar" style="display:none;">
-          <div class="test-stat">全体: <b id="statTotal">0</b></div>
-          <div class="test-stat" style="color:var(--ok);">✅ 一致: <b id="statOk">0</b></div>
-          <div class="test-stat" style="color:#e05252;">❌ 修正: <b id="statNg">0</b></div>
-          <div class="test-stat">精度: <b id="statAcc">-</b></div>
-          <button class="btn" onclick="suggestPrompt()" style="margin-left:auto;padding:4px 12px;font-size:12px;">💡 プロンプト改善提案</button>
-        </div>
-        <!-- 분류 결과 그리드 -->
-        <div class="test-grid" id="testGrid"></div>
-        <!-- 프롬프트 편집 섹션 -->
-        <div class="prompt-section" id="testPromptSection" style="display:none;">
-          <div class="prompt-label">📝 UNIFIED_PROMPT 編集（変更後「再テスト」で即確認）</div>
-          <textarea class="prompt-box" id="testPromptBox"></textarea>
-          <div style="display:flex;gap:8px;margin-top:6px;">
-            <button class="btn btn-ok" onclick="applyPrompt()" style="padding:5px 14px;font-size:12px;">✅ このプロンプトを適用</button>
-            <button class="btn" onclick="resetPrompt()" style="padding:5px 14px;font-size:12px;">↩ 元に戻す</button>
-          </div>
-          <div id="suggestResult" style="display:none;" class="suggest-box"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!-- ── レポートモード ── -->
-  <div id="reportModeSection">
-<div class="step active open" id="step2">
-    <div class="step-hdr" onclick="toggleStep('step2')">
+
+  <div class="step active open" id="step1">
+    <div class="step-hdr" onclick="toggleStep('step1')">
       <div class="step-num">1</div>
-      <div class="step-title">自主検査リスト照会</div>
-      <div class="step-sub" id="step2Sub">PHOTOフォルダ未選択</div>
+      <div class="step-title">自主検査リスト</div>
+      <div class="step-sub" id="step1Sub">検査日を選んで照会</div>
     </div>
     <div class="step-body">
-      <div class="api-mini" style="margin-bottom:12px;">
-        <span style="color:var(--text2);font-size:11px;">API KEY</span>
-        <div class="api-dot" id="apiDot"></div>
-        <input type="password" id="apiKey" placeholder="sk-ant-..." maxlength="200">
-        <button class="ln-btn-ghost" style="font-size:12px;" onclick="saveApiKey()">保存</button>
+      <div class="key-row">
+        <span class="api-dot" id="apiDot"></span>
+        <label for="apiKey" style="font-size:11px;color:var(--text2);">AI キー</label>
+        <input type="password" id="apiKey" placeholder="sk-ant-..." maxlength="200" autocomplete="off">
+        <button class="btn btn-ghost btn-sm" onclick="saveApiKey()">保存</button>
+        <span class="hint" style="margin:0;">この PC のブラウザにだけ保存します</span>
       </div>
-      <label for="folderInput">
-        <div class="folder-banner" id="folderBanner">
-          <span style="font-size:20px;">📁</span>
-          <div class="folder-path" id="folderPath">PHOTOフォルダが選択されていません</div>
-          <button class="btn btn-ghost btn-sm" onclick="event.preventDefault()">フォルダ選択</button>
-        </div>
-      </label>
-      <input type="file" id="folderInput" webkitdirectory style="display:none" onchange="onFolderSelected(this)">
-      <div class="hint">OneDrive 同期済み PHOTO フォルダを選択してください</div>
-      <div class="filter-bar mt8">
-        <label>検査日:</label>
+      <div class="filter-bar">
+        <label for="dateFrom">検査日</label>
         <input type="date" id="dateFrom">
         <span style="color:var(--text3);">〜</span>
         <input type="date" id="dateTo">
-        <button class="btn btn-primary btn-sm" id="fetchBtn" onclick="fetchList()" disabled>📋 リスト照会</button>
+        <button class="btn btn-primary btn-sm" id="fetchBtn" onclick="fetchList()">リスト照会</button>
       </div>
       <div id="fetchLog" class="log-box mt8" style="display:none;max-height:140px;"></div>
       <div id="listArea" style="display:none;" class="mt12">
@@ -222,2262 +170,909 @@ body{min-height:100vh;font-size:13px;}
               <th>検査日</th>
               <th>Invoice No</th>
               <th>VO No</th>
-              <th>Partial No</th>
+              <th>Partial</th>
               <th>圧縮場</th>
               <th>PORT</th>
-              <th>CT本数</th>
+              <th>CT</th>
               <th>写真</th>
             </tr></thead>
             <tbody id="listBody"></tbody>
           </table>
         </div>
         <div class="mt8">
-          <button class="btn btn-ok btn-full" id="proceedBtn" onclick="proceedSelected()" disabled style="padding:10px;">▶ 選択件のレポート生成開始</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!-- STEP 2b: CT順序確認 -->
-  <div class="step" id="step2b" style="display:none;">
-    <div class="step-hdr" style="cursor:default;">
-      <div class="step-num">2b</div>
-      <div class="step-title">CT順序確認</div>
-      <div class="step-sub" id="step2bSub">CHECK LISTでCT順序を確定してください</div>
-    </div>
-    <div class="step-body" style="display:block;">
-      <div id="orderConfirmArea"></div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:12px;border-top:1px solid var(--border);">
-        <button class="btn" onclick="cancelOrderConfirm()">← 戻る</button>
-        <div style="display:flex;align-items:center;gap:12px;">
-          <span id="orderWarnMsg" style="font-size:11px;color:var(--warn);display:none;"></span>
-          <button class="btn btn-ok" id="confirmOrderBtn" onclick="confirmAllAndGenerate()">✓ この順序でレポート生成開始</button>
+          <button class="btn btn-ok btn-full" id="proceedBtn" onclick="proceedSelected()" disabled style="padding:10px;">選択した件のレポートを作成</button>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="step" id="step3">
-    <div class="step-hdr" onclick="toggleStep('step3')">
+  <div class="step" id="step2">
+    <div class="step-hdr" onclick="toggleStep('step2')">
       <div class="step-num">2</div>
-      <div class="step-title">自動処理</div>
-      <div class="step-sub">写真読込 → AI分類 → レポート生成</div>
+      <div class="step-title">自動作成</div>
+      <div class="step-sub" id="step2Sub">検査書類を読む → 写真を分類 → 番号を照合 → レポート</div>
     </div>
     <div class="step-body">
-      <div class="job-card" id="jobCard" style="display:none;">
-        <div class="job-card-title" id="jobTitle"></div>
-        <div class="job-card-sub" id="jobSub"></div>
-      </div>
-      <div class="phase-row">
-        <div class="phase-chip" id="ph1">📷 写真読込</div>
-        <span style="color:var(--text3);align-self:center;font-size:11px;">→</span>
-        <div class="phase-chip" id="ph2">🤖 AI分類</div>
-        <span style="color:var(--text3);align-self:center;font-size:11px;">→</span>
-        <div class="phase-chip" id="ph3">📄 レポート生成</div>
-      </div>
       <div class="progress-bar"><div class="fill" id="progressFill" style="width:0%;"></div></div>
-      <div class="progress-lbl">
-        <span id="progressLabel">待機中...</span>
-        <span id="progressPct">0%</span>
-      </div>
-      <div class="log-box" id="logBox"></div>
-      <div id="classPreview" style="display:none;margin-top:10px;">
-        <div style="font-size:11px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;">AI分類結果 (CT 1本目)</div>
-        <div class="class-grid" id="classGrid"></div>
-      </div>
-      <div id="resultSection" style="display:none;">
-        <div class="result-card">
-          <div class="result-title">✅ レポート生成完了！</div>
-          <div class="dl-row" id="dlRow"></div>
-          <div class="chip-row" id="chipRow"></div>
-        </div>
-      </div>
+      <div class="progress-lbl"><span id="progressLabel">待機中</span><span id="progressPct">0%</span></div>
+      <div id="jobs"></div>
+      <details class="mt8"><summary style="font-size:11px;color:var(--text2);cursor:pointer;">処理の記録</summary>
+        <div class="log-box mt8" id="logBox"></div>
+      </details>
     </div>
   </div>
-</div>
-<div id="plantMasterPanel" style="display:none;margin-top:16px;">
-  <div class="step open" id="plantMasterStep">
-    <div class="step-hdr" style="cursor:default;">
-      <div class="step-num" style="background:var(--info);color:#fff;">⚙</div>
-      <div class="step-title">PLANTマスター管理</div>
-      <div class="step-sub" id="plantMasterSub">COMPASS から自動取得・英文名登録</div>
-    </div>
-    <div class="step-body" style="display:block;">
-      <div style="display:flex;gap:8px;align-items:center;margin-bottom:12px;">
-        <button class="btn btn-primary btn-sm" onclick="fetchPlantMaster()">🔄 COMPASSから取得</button>
-        <button class="btn btn-ok btn-sm" onclick="savePlantMasterAll()">💾 保存</button>
-        <span id="plantMasterMsg" style="font-size:11px;color:var(--text2);"></span>
-      </div>
-      <div style="overflow-x:auto;">
-        <table class="dash-table" id="plantMasterTable">
-          <thead><tr>
-            <th>PLANT名（日本語）</th>
-            <th>英文名（リポート記載）</th>
-            <th>Packer</th>
-            <th>GUID</th>
-          </tr></thead>
-          <tbody id="plantMasterBody">
-            <tr><td colspan="4" style="text-align:center;color:var(--text3);padding:20px;">「COMPASSから取得」をクリックしてください</td></tr>
-          </tbody>
-        </table>
-      </div>
-      <div class="hint mt8">💡 英文名はBALINGレポートの「INSPECTION PLACE」に使用されます。例: 兼子(横浜) → YOKOHAMA</div>
-    </div>
-  </div>
+
 </div>
 </div><!-- /main -->
 <!-- ln-footer は LEENAI が挿入 -->
 </div><!-- /app -->
+
+<div class="picker" id="picker" role="dialog" aria-modal="true" aria-labelledby="pickerTitle">
+  <div class="picker-box">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <b id="pickerTitle">写真を選ぶ</b>
+      <button class="btn btn-ghost btn-sm" style="margin-left:auto;" onclick="closePicker()">閉じる</button>
+    </div>
+    <div class="picker-grid" id="pickerGrid"></div>
+  </div>
+</div>
+
 <script>
-'use strict';
-const DV_URL='https://orgde512c6f.crm7.dynamics.com';
-const DV_API=`${DV_URL}/api/data/v9.2`;
-const SEAL_DRIVE_ID='b!ZK58_9YllU-vETQD3Xz0TbOInXbVCXJHnQ2280KJBArFLeM_18EgRbSeoO-TW__U';
+/* ✦ Powered by LEENAI Automation System — C-02 COTECNA レポート v15.0 (2026-11-21)
+   v15.0: 写真 = SharePoint PHOTO_V2 を Graph で読む (フォルダ選択・業者別分岐・ファイル名規則を廃止)。
+          CT 番号 = COMPASS (形님 決定 D1)。CT の順番 = COTECNA 検査書類 (CHECK LIST) の順 (D2)。
+          開梱/再梱包の組 = 検査書類の検査数ちょうど (D3)・同じ grade どうし (D4)。
+          圧縮機の中に古紙が散らばる写真も open_bale (D5)。日付の無い写真には検査日を入れる (D6)。
+          写真分類 = Opus を TOOL の中で (D9・D11)。番号照合 (seal・コンテナ番号・検査番号の紙) で人の確認を赤だけに (D10)。
+          写真の場所 = _COTECNA/{CT} → 無ければ {IV}/{CT} (D15)。今回は VAN・BALING レポートだけ (D16)。
+          共通ファイル (LEENAI_COMMON) は変更しない (D12)。
+   v14.1 以前の判断知識 (6枠の基準・seal の 2 次判定・right_door の段階判定・BALING 判断順・ベール番号の組) は
+   AI への指示文と照合ルールに移した。 */
+
+const MODEL='claude-opus-5-5';
+const AI_MAX_SIDE=1024;          /* AI に送る写真の長辺 (費用・速度のため縮小。レポートには原本) */
+const BALING_CHUNK=40;           /* BALING 写真を 1 回の AI 呼び出しで送る上限 */
+/* COTECNA seal 記録 (このツール専用の記録ファイル · ドライブは LEENAI_COMMON の値を使う) */
 const SEAL_JSON_PATH='古紙/-. AI 活用/C-02-COTECNA/cotecna_seal_master.json';
-const GR_API='https://graph.microsoft.com/v1.0';
 const SLOT_ORDER=['empty','half','full','right_door','inspector','cotecna_seal'];
 const SLOT_CAPTIONS={empty:'Empty container',half:'Half load container',full:'Full load container',right_door:'Right door closed, with Container No.',inspector:'Inspector with closed container',cotecna_seal:'Cotecna container seal, closed up'};
+const SLOT_JA={empty:'空',half:'半積',full:'満載',right_door:'右扉',inspector:'検査員',cotecna_seal:'COTECNA シール'};
 const IMG_CX=3303270,IMG_CY=2477135;
-const VAN_PROMPT=`この写真はコンテナ梱包の検査写真です。以下の6種類のうち最も当てはまるラベルを1つだけ返してください。\n\n【分類ラベルと判断基準】\nempty        - コンテナ内部が完全に空の写真。両扉を開いた状態で撮影し、荷物が一切なくコルゲートが見える。荷物が少しでも写っている場合はemptyと答えてはならない。\nhalf         - コンテナに荷物が半分程度積まれている写真。古紙ベールが見える。\nfull         - コンテナに荷物が満載されている写真。古紙ベールがぎっしり詰まっている。\nright_door   - コンテナの右扉だけを閉めた状態の写真。コンテナ番号（英字4桁+数字7桁）が写っていることが多い。\ninspector    - 白いヘルメットをかぶった検査員が写っている写真。コンテナの前に立っている。\ncotecna_seal - COTECNAコンテナ封印シールのクローズアップ写真。以下を両方確認すること：①シール・タグ・錠前のクローズアップ ②上部または中央に「COTECNA」の文字（一部でも可）があり、かつ「JP-」で始まる番号が写っている。黄色くても「COTECNA」と「JP-」の両方が見えなければcotecna_sealと答えてはならない。他社の黄色シールと混同注意。\n\n【回答ルール】\n以下のリストにある単語をそのまま1つだけ返してください。説明・理由・句読点は不要。\n\nempty / half / full / right_door / inspector / cotecna_seal`;
-// ── FUJI 分岐用プロンプト ──
-const FUJI_VAN_PROMPT=`【古紙輸出VAN検査 FUJI写真分類】
-この写真を以下のいずれか1つに分類してください。
+const GRAPH_BASE='https://graph.microsoft.com/v1.0/';
+const IMG_RE=/\.(jpe?g|png)$/i;
 
-empty        - コンテナ内部が空。荷物なし、床・壁のみ。
-half         - コンテナに古紙ベールが半分程度積載されている。
-full         - コンテナに古紙ベールがいっぱいに積載されている。
-right_door   - コンテナの外側（扉・側面）が主体。コンテナ番号が見える写真。
-inspector    - 人物が写っている写真。検査員・作業員含む。コンテナ前に立っている。
-cotecna_seal - COTECNA文字とJP-XXXXXXのシール番号の両方が写っている。黄色くても両方ないとcotecna_sealにしない。
-rebale       - 圧縮・梱包された古紙ベール（直方体の固まり）がコンテナ外に並んでいる。再梱包後の状態。
-ignore       - 上記に当てはまらない。船会社シールのみ、計量書・搬入票等の書類、コンテナ側面のみ。
+const S={apiKey:'',inspList:[],selectedKeys:[],jobs:{},docCache:{},plantCache:{},sealMaster:null,
+  /* 下は docx 作成時だけ使う (v14.1 の作成関数をそのまま使うため) */
+  containers:[],classifiedVan:{},classifiedBaling:{},voNo:'',reportDate:'',inspLocation:''};
 
-1単語のみ返してください。説明不要。`;
+/* ── 共通の値 (LEENAI_COMMON v1.13 · ここには書かない) ── */
+function dvApi(){return (window.LEENAI&&LEENAI.DV_URL)?LEENAI.DV_URL+'/api/data/v9.2':'';}
+function photoRoot(){return (window.LEENAI&&LEENAI.SP&&LEENAI.SP.PATH&&LEENAI.SP.PATH.PHOTO_V2)||'';}
+function driveId(){return (window.LEENAI&&LEENAI.SP&&LEENAI.SP.DRIVE_ID)||'';}
+function commonMissing(){
+  const m=[];
+  if(!dvApi())m.push('LEENAI.DV_URL');
+  if(!photoRoot())m.push('LEENAI.SP.PATH.PHOTO_V2');
+  if(!driveId())m.push('LEENAI.SP.DRIVE_ID');
+  return m;
+}
 
-const FUJI_BALING_PROMPT=`【BALING検査写真分類 FUJI】
-この写真を以下のいずれか1つに分類してください。
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function toggleStep(id){const el=document.getElementById(id);if(!el)return;el.classList.toggle('open');}
+function log(msg,type){const box=document.getElementById('logBox');if(!box)return;const d=document.createElement('div');if(type)d.className='log-'+type;d.textContent=msg;box.appendChild(d);box.scrollTop=box.scrollHeight;}
+function flog(msg,type){const box=document.getElementById('fetchLog');if(!box)return;box.style.display='block';const d=document.createElement('div');if(type)d.className='log-'+type;d.textContent=msg;box.appendChild(d);box.scrollTop=box.scrollHeight;}
+function setProgress(pct,label){
+  const f=document.getElementById('progressFill'),l=document.getElementById('progressLabel'),p=document.getElementById('progressPct');
+  if(f)f.style.width=pct+'%';if(l)l.textContent=label;if(p)p.textContent=pct+'%';
+}
 
-open_bale            - 開梱前の古紙（バラ状態、ほぐれた紙が散乱している）。
-inspector_with_goods - 検査員が古紙や機械の前に立っている。書類・ボードを持つ場合もある。
-goods_yard           - 梱包された古紙ベールが並ぶヤード全景。人物なし。
-rebale               - 再梱包されたベール（固められた直方体の固まり）。
-ignore               - 上記に当てはまらない。ベーラー機械のみ等。
+/* ── COMPASS ── */
+async function dvGet(url){
+  const tok=await LEENAI.auth.token('dataverse');
+  const r=await fetch(url,{headers:{Authorization:'Bearer '+tok,'OData-MaxVersion':'4.0','OData-Version':'4.0',Accept:'application/json;odata.metadata=minimal'}});
+  if(!r.ok)throw new Error('COMPASS '+r.status+': '+(await r.text()).slice(0,120));
+  return r.json();
+}
 
-1単語のみ返してください。説明不要。`;
-
-// ── OKINAWA 分岐用プロンプト ──
-const UNIFIED_PROMPT=`この写真はコンテナ検査の写真です。以下の10種類のうち最も当てはまる1つを返してください。
-
-【VAN関連 — コンテナ本体の写真】
-empty          - コンテナ内部が完全に空。両扉を開いた状態で荷物が一切ない。
-half           - 【カメラ位置】コンテナ正面（両扉の真ん中）から内部を撮影した写真。
-                 コンテナ内部に古紙ベールが半分程度（30〜70%）積まれている。
-                 左右両側にコンテナ内壁が対称に見える。奥の壁・荷物が見える。
-                 ※ 遠くから撮影した場合、外部がわずかに見えることがある（許容）
-                 ❌ 右側にコンテナ扉・スペックプレートが見える → right_door
-                 ❌ 内壁を下から上へ見上げた構図・外部が大きく写っている → 不要写真
-                 ❌ コンテナ番号が縦書きに見える → 不要写真
-full           - コンテナ内部に古紙ベールが満載（天井近くまでぎっしり）。
-right_door     - 【必須条件：以下の両方が同時に写っていること】
-                 ① 左側または中央に古紙ベール・荷物が積まれている
-                 ② 右側にコンテナの扉（ドア）が写っている
-                    ※ 扉は開いた状態・閉じた状態どちらでも可
-                    ※ 扉にコンテナ番号・スペックプレート（MAX GROSS/TARE/PAYLOAD等）記載あり
-                 ❌ コンテナ内部の側壁・天井・床だけの写真はNG
-                 ❌ 荷物のみ、扉のみの写真はNG
-                 ❌ 荷物が写っていない外観写真はNG
-                 ❌ 【混同注意】左側がコンテナ内部・右側が空（そら）の写真はNG
-                    → コンテナ番号が縦書きになっている場合はright_doorではない
-                    → right_doorのコンテナ番号は横書きで正面から読める
-inspector_van  - 【必須】人物（検査員）が写っていること。
-                 検査員がコンテナを背景に立っている写真。背景に鉄製コンテナ壁・ドア・コンテナ番号が見える。
-                 ❌ 人物が写っていない写真はNG（外観・ドアのみはright_doorまたは他スロット）
-cotecna_seal   - シール・封印のクローズアップ写真。以下を両方満たすこと：
-                 ① 黄色いタグ・シールである
-                 ② 「COTECNA」の文字または「JP-」番号が確認できる
-                 ❌ コンテナ内部の金属壁・内壁・天井の写真はNG
-                 ❌ 鍵・ハンドル・金属部品のみの写真はNG
-                 ❌ 黄色くないシールはNG
-
-【BALING関連 — 古紙の梱包状態の写真】
-goods_yard     - 倉庫・ヤード内に圧縮ベールが複数段・複数列で積まれた全景写真。天井・壁など倉庫構造物が背景に見える。
-rebale         - 古紙ベールが写真に存在すればrebale。ベールとは圧縮・プレスされた紙の塊のこと。【重要】ベールは必ずしも直立していなくてよい。横倒し・扁平・崩れかけ・側面・斜め撮影・上から撮影・クローズアップで塊全体の輪郭が見えない場合でも、ワイヤー（結束線）・紐・テープで束ねた跡や「COTECNA」ラベルが見えれば確実にrebale。表面の紙が乱れていても、部分的に飛び出していても、束ねられている痕跡が少しでもあればrebale。
-                 ❌ 袋に入っているだけでプレス圧縮されていない状態 → open_bale
-                 ❌ 計量書・伝票・EIR（Equipment Interchange Receipt）・納品書・書類・文書等の紙書類の写真はNG → ignore
-open_bale      - 【非常に稀な例外】画面全体に紙が完全にランダムに散乱しており、ワイヤー・紐・テープで束ねられた形跡が画面のどこにも一切存在しない場合のみopen_bale。少しでも結束線・COTECNAラベル・角ばった圧縮跡が見えたら、たとえ画面の大部分が乱れていてもrebaleを選ぶこと。上から撮影して平らに見える、フレームの端に写っている、照明で見えにくいといった理由だけでopen_baleにしてはいけない。迷ったら必ずrebaleを選ぶこと。
-                 ① 紙・資源物が床や空間に無秩序に広がっている（結束の跡が全くない）
-                 ② ビニール袋・袋の中に資源物が入っているが、プレス（圧縮）されていない状態
-                 ❌ ワイヤー・紐・ビニールでプレス圧縮された跡が少しでもある → rebale
-inspector_baling - 検査員が古紙・ベール・倉庫内の荷物を背景に立っている写真。背景が古紙の塊・散乱紙・倉庫内の古紙。
-
-【inspector判定の決定的な違い】
-背景がコンテナの鉄壁・ドア・外観 → inspector_van
-背景が古紙・ベール・散乱紙・倉庫内荷物 → inspector_baling
-
-【回答ルール】
-以下の単語を1つだけ返してください（説明・理由不要）：
-empty / half / full / right_door / inspector_van / cotecna_seal / goods_yard / rebale / open_bale / inspector_baling`;
-
-const DATE_CHECK_PROMPT=`この写真に撮影日付（例：2026/06/19、2026-06-19、26/06/19、2026.06.19等）が画像内に文字として写っていますか？
-「yes」または「no」のみ返してください。`;
-
-const BALING_PROMPT=`この写真は古紙（廃紙）バーリング検査の写真です。以下の4種類のうち最も当てはまるラベルを1つだけ返してください。\n\n【分類ラベルと判断基準】\ngoods_yard  - 倉庫・ヤード内に圧縮ベールが複数段・複数列で積み上げられた全景写真。天井・柱・壁などの倉庫構造物が背景に見える。ベールが整然と積まれており、画面全体にベールが広がっている。※人物が写っていればgoods_yardではなくinspectorを選ぶこと。\nopen_bale   - 【非常に稀な例外】画面全体に紙が完全にランダムに散乱しており、四角形・直方体・塊状の輪郭が画面のどこにも一切存在しない場合のみopen_bale。少しでも角ばった輪郭・積み重なった層・圧縮された跡・ベールらしき塊が画面のどこかに見えたら、たとえ画面の大部分が散らかっていてもrebaleを選ぶこと。上から撮影して平らに見える、フレームの端に写っている、影や照明で見えにくい、といった理由だけでopen_baleにしてはいけない。\nrebale      - 古紙ベールが写真に存在すればrebale。ベールとは圧縮・プレスされた紙の塊のこと。【重要】ベールは必ずしも直立していなくてよい。横倒し・扁平・崩れかけ・側面・斜め撮影でもベールの形が少しでも残っていればrebale。ワイヤー（金属の結束線）・紐・テープで束ねた形跡があればrebale。「COTECNA」ラベルが見えれば確実にrebale。表面の紙が乱れていても、バラバラに飛び散っていても、塊自体の形が少しでも残っていればrebale。背景に他のベールが見えても、塊が主役であればrebale。【open_baleとの決定的な違い】塊の輪郭・形が少しでも残っている→rebale／完全にバラバラで塊の形が全くない→open_bale。迷ったらrebaleを選ぶこと。\ninspector   - 【最優先】写真の中に人物（検査員）が1人でも写っていればinspector。ヘルメット・安全ベスト・作業着などを着た人物が背景に倉庫・ベール・古紙が見える状況で写っている。ボードを持っていなくても人物が写っていればinspector。goods_yardに見えても人物が写っていればinspectorを選ぶこと。\n\n【判断フロー — 上から順に確認し、最初に当てはまった時点で決定】\n① 写真に人物（人間の体・顔・姿）が写っているか？\n   YES → inspector（背景・状況に関係なく）\n② ベールの「塊」が写真に存在するか？\n   YES → 塊が1個クローズアップ → rebale\n         塊が複数・倉庫全景   → goods_yard\n   NO  → 紙が散乱のみ        → open_bale\n\n【重要ルール】\n・人物が少しでも写っていたら必ずinspector（goods_yardと間違えないこと）\n・人物がいない倉庫全景写真のみgoods_yard\n\n【回答ルール】\n以下のリストにある単語をそのまま1つだけ返してください。説明・理由は不要。\n\ngoods_yard / open_bale / rebale / inspector`;
-const S={apiKey:'',dvToken:null,photoFiles:[],photoFolderName:'',inspLocation:'',inspList:[],selectedKeys:[],mode:'folder',groups:{},containers:[],vanPhotos:{},baraPhotos:{},pressPhotos:{},classifiedVan:{},classifiedBaling:{},logoB64:null,voNo:'',reportDate:'',inspPlace:'',baleCount:0,rootName:'',fileList:[],balingDateCount:1};
-
-function toggleStep(id){const el=document.getElementById(id);if(!el)return;const isOpen=el.classList.contains('open')||el.classList.contains('active');document.querySelectorAll('.step').forEach(s=>s.classList.remove('open'));if(!isOpen)el.classList.add('open');}
-async function grFetch(url,opts={}){
+/* ── SharePoint (Graph) ── */
+function spEnc(p){return p.split('/').map(encodeURIComponent).join('/');}
+async function grFetch(url,opt,retried){
   const tok=await LEENAI.auth.token('graph');
-  if(!tok)throw new Error('Graph未ログイン');
-  const headers=Object.assign({'Authorization':`Bearer ${tok}`},opts.headers||{});
-  const res=await fetch(url,Object.assign({},opts,{headers}));
-  if(res.status===401){throw new Error('GRAPH_401');}
-  return res;
+  if(!tok)throw new Error('Graph トークンがありません (再ログインしてください)');
+  const o=Object.assign({cache:'no-store'},opt||{});
+  o.headers=Object.assign({Authorization:'Bearer '+tok},(opt&&opt.headers)||{});
+  const r=await fetch(url,o);
+  if(r.status===401&&!retried)return grFetch(url,opt,true);
+  return r;
 }
-function grItemUrl(path){
-  return `${GR_API}/drives/${SEAL_DRIVE_ID}/root:/${path.split('/').map(encodeURIComponent).join('/')}:`;
+function grPathUrl(path){return GRAPH_BASE+'drives/'+driveId()+'/root:/'+spEnc(path)+':';}
+async function grJsonPath(path){
+  const r=await grFetch(grPathUrl(path)+'/content');
+  if(r.status===404)return null;
+  if(!r.ok)throw new Error(path+' → '+r.status);
+  return r.json();
 }
-async function spReadJson(path){
-  try{
-    const r=await grFetch(`${grItemUrl(path)}/content`);
+async function grChildren(url){
+  const out=[];
+  while(url){
+    const r=await grFetch(url);
     if(r.status===404)return null;
-    if(!r.ok)throw new Error(`SP READ ${r.status}`);
-    return await r.json();
-  }catch(e){
-    const msg=e&&e.message?String(e.message):String(e);
-    if(msg.includes('404'))return null;
-    throw e instanceof Error?e:new Error(msg);
+    if(!r.ok)throw new Error('一覧の取得に失敗 ('+r.status+')');
+    const d=await r.json();
+    (d.value||[]).forEach(x=>out.push(x));
+    url=d['@odata.nextLink']||null;
   }
+  return out;
 }
-async function spWriteJson(path,data){
-  const body=JSON.stringify(data,null,2);
-  const r=await grFetch(`${grItemUrl(path)}/content`,{
-    method:'PUT',
-    headers:{'Content-Type':'application/json'},
-    body
-  });
-  if(!r.ok)throw new Error(`SP WRITE ${r.status}`);
-  return await r.json();
+function grList(path){return grChildren(grPathUrl(path)+'/children?$expand=thumbnails&$top=200');}
+function grListItem(id){return grChildren(GRAPH_BASE+'drives/'+driveId()+'/items/'+id+'/children?$expand=thumbnails&$top=200');}
+async function grBlob(id){
+  const r=await grFetch(GRAPH_BASE+'drives/'+driveId()+'/items/'+id+'/content');
+  if(!r.ok)throw new Error('ファイルの取得に失敗 ('+r.status+')');
+  return r.blob();
 }
-// ── SEAL 記録保存 ──
-async function saveSealRecords(row){
-  if(LEENAI.auth.status.graph!=='ok'){log('  ⚠️ Graph未ログイン — SEAL記録スキップ','warn');return;}
+async function grPutJson(path,data){
+  const r=await grFetch(grPathUrl(path)+'/content',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(data,null,2)});
+  if(!r.ok)throw new Error('SharePoint 保存 '+r.status);
+  return r.json();
+}
+function thumbUrl(it){const t=it&&it.thumbnails&&it.thumbnails[0];return t?(t.medium||t.large||t.small||{}).url||'':'';}
+
+/* ── STEP 1: 自主検査リスト (v14.1 の照会をそのまま · 写真の有無は PHOTO_V2 で確認) ── */
+async function fetchList(){
+  if(LEENAI.auth.status.dataverse!=='ok'){alert('COMPASS にログインしてください');return;}
+  const dateFrom=document.getElementById('dateFrom').value,dateTo=document.getElementById('dateTo').value;
+  if(!dateFrom||!dateTo){alert('検査日を入れてください');return;}
+  const DV=dvApi();
+  document.getElementById('fetchLog').innerHTML='';
+  document.getElementById('listArea').style.display='none';
+  const btn=document.getElementById('fetchBtn');btn.disabled=true;btn.textContent='照会中...';
+  S.inspList=[];
   try{
-    let master=await spReadJson(SEAL_JSON_PATH);
-    if(!master||typeof master.records!=='object'){
-      master={version:'1.0',updated_at:'',records:{}};
-    }
-    const now=new Date().toISOString();
-    let added=0,updated=0;
-    for(const cont of S.containers){
-      if(!cont.container||cont.container==='—')continue;
-      const sealNo=cont.seal||'';
-      const isNew=!master.records[cont.container];
-      // PLANT情報取得
-      const plantGuid=row.plantGuid||'';
-      const plantInfo=DEFAULT_PLANTS.find(p=>p.plantId===plantGuid)||{};
-      // IndexedDB からも確認
-      let plantJa=plantInfo.plantJa||'';
-      let plantEn=plantInfo.plantEn||'';
-      if(!plantJa||!plantEn){
-        try{
-          const db=await openPlantDB();
-          const local=await new Promise(res=>{
-            const tx=db.transaction('plant_master','readonly');
-            const req=tx.objectStore('plant_master').get(plantGuid);
-            req.onsuccess=()=>res(req.result);req.onerror=()=>res(null);
-          });
-          if(local){plantJa=local.plantJa||plantJa;plantEn=local.plantEn||plantEn;}
-        }catch(e){}
+    flog('COMPASS 自主検査コンテナを照会中...','info');
+    const filter=`crcf9_inspection eq true and crcf9_work_date ge ${dateFrom}T00:00:00Z and crcf9_work_date le ${dateTo}T23:59:59Z`;
+    const ctData=await dvGet(`${DV}/crcf9_container_informations?$filter=${encodeURIComponent(filter)}&$select=crcf9_container_informationid,crcf9_container_no,crcf9_partial_no,crcf9_work_date,crcf9_seal_no,_crcf9_booking_id_value,_crcf9_purchase_contract_id_value,_crcf9_parker_plant_id_value&$orderby=crcf9_work_date asc&$top=500`);
+    if(!ctData.value||!ctData.value.length){flog('指定期間に自主検査の対象がありません','warn');renderTable();return;}
+    flog(`CT ${ctData.value.length} 件`,'info');
+    const uniq=a=>[...new Set(a.filter(Boolean))];
+    const bkgMap={},pcMap={},packerMap={},scMap={},siVoMap={},polMap={},plantMap={};
+    await Promise.all(uniq(ctData.value.map(c=>c._crcf9_booking_id_value)).map(async g=>{
+      try{bkgMap[g]=await dvGet(`${DV}/cr49f_bookings(${g})?$select=cr49f_bookingid,cr49f_invoice_no,cr49f_booking_no,_cr49f_region_japan_id_value,_cr49f_sale_contract_id_value`);}catch(e){flog('BKG '+g.slice(0,8)+': '+e.message.slice(0,60),'warn');}
+    }));
+    await Promise.all(uniq(ctData.value.map(c=>c._crcf9_purchase_contract_id_value)).map(async g=>{
+      try{pcMap[g]=await dvGet(`${DV}/cr49f_purchase_contracts(${g})?$select=cr49f_purchase_contractid,_cr49f_packer_id_value`);}catch(e){}
+    }));
+    await Promise.all(uniq(Object.values(pcMap).map(p=>p._cr49f_packer_id_value)).map(async g=>{
+      try{packerMap[g]=await dvGet(`${DV}/cr49f_packers(${g})?$select=cr49f_packer,cr49f_packer_name`);}catch(e){}
+    }));
+    const scIds=uniq(Object.values(bkgMap).map(b=>b._cr49f_sale_contract_id_value));
+    await Promise.all(scIds.map(async g=>{
+      try{scMap[g]=await dvGet(`${DV}/cr49f_sale_contracts(${g})?$select=cr49f_sale_contract_id,cr49f_sale_contract_no`);}catch(e){}
+      try{const d=await dvGet(`${DV}/cr49f_s_is?$filter=_cr49f_sale_contract_id_value eq ${g}&$select=crcf9_vo_no&$top=1`);if(d.value&&d.value.length&&d.value[0].crcf9_vo_no)siVoMap[g]=d.value[0].crcf9_vo_no;}catch(e){}
+    }));
+    await Promise.all(uniq(Object.values(bkgMap).map(b=>b._cr49f_region_japan_id_value)).map(async g=>{
+      try{const d=await dvGet(`${DV}/crcf9_region_japans(${g})?$select=crcf9_pol,crcf9_region_japan`);polMap[g]=d.crcf9_pol||d.crcf9_region_japan||'—';}catch(e){}
+    }));
+    await Promise.all(uniq(ctData.value.map(c=>c._crcf9_parker_plant_id_value)).map(async g=>{
+      try{const d=await dvGet(`${DV}/crcf9_packer_plants(${g})?$select=crcf9_plant`);plantMap[g]=d.crcf9_plant||'';}catch(e){}
+    }));
+    const groupMap={};
+    const addCt=(ct,bkg,bkgGuid)=>{
+      const ivNo=bkg.cr49f_invoice_no||bkgGuid,partial=ct.crcf9_partial_no||'';
+      const key=ivNo+'::'+partial;
+      if(!groupMap[key]){
+        const scId=bkg._cr49f_sale_contract_id_value,sc=scMap[scId]||{};
+        const rawVo=(siVoMap[scId]||sc.cr49f_sale_contract_no||'').replace(/^VO\s*NO\.?\s*/i,'').trim();
+        const vm=rawVo.match(/X\.(\d+\.\d+)/i);
+        const pc=pcMap[ct._crcf9_purchase_contract_id_value]||{},pk=packerMap[pc._cr49f_packer_id_value];
+        const plantGuid=ct._crcf9_parker_plant_id_value||'';
+        groupMap[key]={groupKey:key,ivNo,voNo:vm?'X.'+vm[1]:(rawVo||''),partial:partial||'',bkgNo:bkg.cr49f_booking_no||'—',bkgGuid,
+          packer:(pk&&(pk.cr49f_packer||pk.cr49f_packer_name))||'—',pol:polMap[bkg._cr49f_region_japan_id_value]||'—',
+          plantGuid,plantJa:plantMap[plantGuid]||'',workDates:[],ctList:[],photoStatus:'…'};
       }
-      master.records[cont.container]={
-        ct_no:cont.container,
-        seal_no:sealNo,
-        packer:row.packer||'',
-        plant_jp:plantJa,
-        plant_en:plantEn,
-        iv_no:row.ivNo||'',
-        vo_no:row.voNo||'',
-        partial:row.partial||'',
-        work_date:cont.date||row.workDates?.[0]||'',
-        saved_at:now
-      };
-      isNew?added++:updated++;
+      const g=groupMap[key];
+      if(g.ctList.some(c=>c.ctNo===ct.crcf9_container_no))return false;
+      const d=(ct.crcf9_work_date||'').slice(0,10);
+      if(d&&!g.workDates.includes(d))g.workDates.push(d);
+      g.ctList.push({ctNo:(ct.crcf9_container_no||'').toUpperCase().replace(/\s/g,''),date:d});
+      return true;
+    };
+    for(const ct of ctData.value){const g=ct._crcf9_booking_id_value,b=bkgMap[g];if(b)addCt(ct,b,g);}
+    /* 期間外の同じ BKG・同じ Partial の CT も補う (v14.1 と同じ) */
+    let added=0;
+    await Promise.all(uniq(Object.values(groupMap).map(g=>g.bkgGuid)).map(async bkgId=>{
+      try{
+        const all=await dvGet(`${DV}/crcf9_container_informations?$filter=${encodeURIComponent('crcf9_inspection eq true and _crcf9_booking_id_value eq '+bkgId)}&$select=crcf9_container_no,crcf9_partial_no,crcf9_work_date,_crcf9_purchase_contract_id_value,_crcf9_parker_plant_id_value&$top=200`);
+        const b=bkgMap[bkgId];if(!b)return;
+        for(const ct of (all.value||[])){
+          const key=(b.cr49f_invoice_no||bkgId)+'::'+(ct.crcf9_partial_no||'');
+          if(groupMap[key]&&addCt(ct,b,bkgId))added++;
+        }
+      }catch(e){flog('BKG 補完 '+bkgId.slice(0,8)+': '+e.message.slice(0,60),'warn');}
+    }));
+    if(added)flog(`期間外の CT ${added} 件を補完`,'info');
+    const list=Object.values(groupMap);
+    list.forEach(r=>r.workDates.sort());
+    list.sort((a,b)=>(a.workDates[0]||'').localeCompare(b.workDates[0]||'')||a.ivNo.localeCompare(b.ivNo)||a.partial.localeCompare(b.partial));
+    S.inspList=list;renderTable();
+    flog(`${list.length} 件 (IV × Partial)`,'ok');
+    /* 写真の有無 (PHOTO_V2/{IV} があるか) */
+    for(const iv of uniq(list.map(r=>r.ivNo))){
+      let st='—';
+      try{const ch=await grList(photoRoot()+'/'+iv);st=ch?(ch.some(x=>x.name==='_COTECNA')?'✅':'△'):'❌';}catch(e){st='?';}
+      list.filter(r=>r.ivNo===iv).forEach(r=>r.photoStatus=st);
+      renderTable();
     }
-    master.updated_at=now;
-    await spWriteJson(SEAL_JSON_PATH,master);
-    log(`  ✅ SEALマスター保存完了: ${added}件追加 ${updated}件更新`,'ok');
-  }catch(e){log(`  ⚠️ SEALマスター保存失敗: ${e.message}`,'warn');}
+  }catch(e){flog('照会エラー: '+e.message,'err');}
+  finally{btn.disabled=false;btn.textContent='リスト照会';}
 }
 
-// ── SEAL Excel 出力 ──
-async function exportSealExcel(){
-  if(LEENAI.auth.status.graph!=='ok'){alert('SharePoint未ログイン。ログインしてから再試行してください。');return;}
-  const btn=document.getElementById('sealExcelBtn');
-  if(btn){btn.disabled=true;btn.textContent='⏳ 読込中...';}
-  try{
-    const master=await spReadJson(SEAL_JSON_PATH);
-    if(!master||!master.records||Object.keys(master.records).length===0){
-      alert('SEALマスターデータがありません。先にレポートを生成してください。');return;
+function renderTable(){
+  const tb=document.getElementById('listBody');tb.innerHTML='';
+  for(const row of S.inspList){
+    const d=row.workDates.length>1?`${row.workDates[0]}<br><span class="date-range">〜 ${row.workDates[row.workDates.length-1]}</span>`:(row.workDates[0]||'—');
+    const tr=document.createElement('tr');
+    const checked=S.selectedKeys.includes(row.groupKey)?' checked':'';
+    tr.innerHTML=`<td><input type="checkbox" class="row-chk" data-key="${esc(row.groupKey)}"${checked} onchange="onChkChange()" aria-label="${esc(row.ivNo+' '+row.partial)}"></td>
+      <td>${d}</td><td style="font-weight:700;">${esc(row.ivNo)}</td><td>${esc(row.voNo||'—')}</td><td>${esc(row.partial||'—')}</td>
+      <td><span class="sbadge sbadge-other">${esc(row.packer)}</span> <span class="job-sub">${esc(row.plantJa)}</span></td>
+      <td class="job-sub">${esc(row.pol)}</td><td style="text-align:center;font-weight:700;">${row.ctList.length}</td>
+      <td style="text-align:center;" title="✅ COTECNA 写真フォルダあり / △ IV フォルダのみ / ❌ なし">${row.photoStatus}</td>`;
+    tb.appendChild(tr);
+  }
+  document.getElementById('listCount').textContent=S.inspList.length+' 件';
+  document.getElementById('listArea').style.display='block';
+}
+function selectAll(v){document.querySelectorAll('.row-chk').forEach(c=>c.checked=v);onChkChange();}
+function onChkChange(){
+  S.selectedKeys=[...document.querySelectorAll('.row-chk:checked')].map(c=>c.dataset.key);
+  const b=document.getElementById('proceedBtn');b.disabled=!S.selectedKeys.length;
+  b.textContent=S.selectedKeys.length?`選択した ${S.selectedKeys.length} 件のレポートを作成`:'選択した件のレポートを作成';
+}
+function saveApiKey(){
+  const v=document.getElementById('apiKey').value.trim();
+  if(!v){alert('AI キーを入れてください');return;}
+  S.apiKey=v;try{localStorage.setItem('cotecna_api_key',v);}catch(e){}
+  document.getElementById('apiDot').classList.add('ok');LEENAI.toast('AI キーを保存しました','ok');
+}
+
+/* ══════════ 写真 (読込・縮小・日付) ══════════ */
+function blobToB64(blob){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(String(r.result).split(',')[1]);r.onerror=()=>rej(new Error('読込失敗'));r.readAsDataURL(blob);});}
+function b64Img(b64){return new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=()=>rej(new Error('画像を開けません'));i.src='data:image/jpeg;base64,'+b64;});}
+/* AI 用に縮小 (長辺 AI_MAX_SIDE) */
+async function shrinkB64(b64){
+  const img=await b64Img(b64);
+  const k=Math.min(1,AI_MAX_SIDE/Math.max(img.width||1,img.height||1));
+  if(k>=1)return b64;
+  const c=document.createElement('canvas');c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);
+  c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+  return c.toDataURL('image/jpeg',0.85).split(',')[1];
+}
+/* 日付の無い写真に検査日を入れる (右下 · v14.1 と同じ見た目 · D6) */
+async function stampDate(b64,dateStr){
+  const img=await b64Img(b64);
+  const c=document.createElement('canvas');c.width=img.width;c.height=img.height;
+  const ctx=c.getContext('2d');ctx.drawImage(img,0,0);
+  const fs=Math.max(14,Math.round(img.height*0.035));
+  ctx.font='bold '+fs+'px Arial, sans-serif';
+  const pad=Math.round(fs*0.5),tw=ctx.measureText(dateStr).width,x=img.width-tw-pad*2,y=img.height-pad;
+  ctx.fillStyle='rgba(0,0,0,0.55)';ctx.fillRect(x-pad/2,y-fs-pad/2,tw+pad,fs+pad);
+  ctx.fillStyle='#ffffff';ctx.fillText(dateStr,x,y);
+  return c.toDataURL('image/jpeg',0.92).split(',')[1];
+}
+async function loadPhoto(p){
+  if(p.b64)return p;
+  const blob=await grBlob(p.id);
+  p.b64=await blobToB64(blob);
+  p.ai=await shrinkB64(p.b64);
+  return p;
+}
+async function loadAll(list,onEach){
+  let i=0;const n=list.length;
+  const worker=async()=>{while(i<n){const k=i++;try{await loadPhoto(list[k]);}catch(e){list[k].err=e.message;log('  写真を読めません: '+list[k].name+' ('+e.message+')','warn');}if(onEach)onEach();}};
+  await Promise.all([worker(),worker(),worker(),worker()]);
+}
+function numOf(name){
+  const m=String(name||'').normalize('NFKC').match(/(\d+)(?!.*\d)/);
+  if(m)return parseInt(m[1],10);
+  const k=String(name||'').match(/[一二三四五六七八九十]+/);
+  return k?kanjiToNum(k[0]):null;
+}
+function byName(a,b){return String(a.name).localeCompare(String(b.name),undefined,{numeric:true});}
+
+/* ══════════ AI (Opus · TOOL の中で · D9・D11) ══════════ */
+async function callAI(content,maxTokens,retry){
+  retry=retry||0;
+  if(!S.apiKey)throw new Error('AI キーがありません (STEP 1 で保存してください)');
+  const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':S.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify({model:MODEL,max_tokens:maxTokens||2000,messages:[{role:'user',content}]})});
+  if((r.status===429||r.status===529||r.status>=500)&&retry<4){await new Promise(res=>setTimeout(res,4000*Math.pow(2,retry)));return callAI(content,maxTokens,retry+1);}
+  if(!r.ok)throw new Error('AI '+r.status+': '+(await r.text()).slice(0,160));
+  const d=await r.json();
+  if(d.stop_reason==='max_tokens')throw new Error('AI の答えが途中で切れました');
+  return (d.content||[]).map(x=>x.type==='text'?x.text:'').join('');
+}
+function parseJson(txt){
+  const t=String(txt||'').replace(/```json|```/g,'').trim();
+  const a=t.indexOf('{'),b=t.indexOf('[');
+  const start=(a<0)?b:(b<0?a:Math.min(a,b));
+  if(start<0)throw new Error('AI の答えに JSON がありません');
+  const open=t[start],close=open==='{'?'}':']';
+  const end=t.lastIndexOf(close);
+  return JSON.parse(t.slice(start,end+1));
+}
+function imgBlock(b64){return {type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}};}
+
+/* ── 検査書類 (CHECK LIST · PIR) を読む ── */
+const DOC_PROMPT=`COTECNA の検査書類 (PDF) です。CHECK LIST & CONTAINER VANNING の表と PHYSICAL INSPECTION REPORT を読み取ってください。手書きでも最善の読み取りで。
+- rows は CHECK LIST の No の順。ct はコンテナ番号 (英字4+数字7)、seal は COTECNA Seal No を「JP-数字」の形で、item は Item Name (例 OMG)、checked は Checked 列の数 (0/1 など)、bales は Bales 列の数。
+- dates は DATE / Inspection Date に書かれた全部の日を YYYY-MM-DD で (例 05,06/11/2026 → 2026-11-05 と 2026-11-06)。
+- total_checked は CHECK LIST 合計行の Checked 合計、pir_checked は PIR の「Total Number of bales checked」。
+- inspect_place は CHECK LIST の INSPECTOR PLACE (無ければ PIR の Place of Inspection の 1 行目)。
+- 読めない値は null。CHECK LIST が無い書類なら rows は []。
+JSON だけを返す:
+{"vo":"X.13.099741","partial":"P17","inspect_place":"OOMOTO SHIRYO","dates":["2026-11-05"],"total_checked":13,"pir_checked":13,"total_bales":431,"rows":[{"no":1,"ct":"CMAU8876442","seal":"JP-9054236","item":"OMG","checked":1,"bales":21}]}`;
+async function readDoc(item){
+  if(S.docCache[item.id])return S.docCache[item.id];
+  const blob=await grBlob(item.id);
+  const b64=await blobToB64(blob);
+  const txt=await callAI([{type:'document',source:{type:'base64',media_type:'application/pdf',data:b64}},{type:'text',text:DOC_PROMPT}],4000);
+  const d=parseJson(txt);
+  d.rows=(d.rows||[]).map(r=>({no:r.no,ct:normCt(r.ct),seal:normSeal(r.seal),item:normItem(r.item),checked:toInt(r.checked),bales:toInt(r.bales)}));
+  d.file=item.name;
+  S.docCache[item.id]=d;
+  return d;
+}
+function toInt(v){if(v==null||v==='')return null;const n=parseInt(String(v).replace(/[^\d-]/g,''),10);return isNaN(n)?null:n;}
+function normCt(s){return String(s||'').toUpperCase().replace(/[^A-Z0-9]/g,'');}
+function normSeal(s){const d=String(s||'').replace(/\D/g,'');return d?'JP-'+d:'';}
+function normItem(s){return String(s||'').toUpperCase().replace(/\s/g,'').replace(/^J(?=[A-Z]{3}$)/,'');}
+function normPartial(s){const m=String(s||'').toUpperCase().match(/P\s*0*(\d+)/);return m?'P'+m[1]:String(s||'').toUpperCase().trim();}
+function levenshtein(a,b){
+  const m=a.length,n=b.length,dp=[];
+  for(let i=0;i<=m;i++){dp[i]=[];for(let j=0;j<=n;j++)dp[i][j]=i===0?j:j===0?i:0;}
+  for(let i=1;i<=m;i++)for(let j=1;j<=n;j++){
+    dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);
+    if(i>1&&j>1&&a[i-1]===b[j-2]&&a[i-2]===b[j-1])dp[i][j]=Math.min(dp[i][j],dp[i-2][j-2]+1);   /* 2 文字の入れ替え (EMCU↔ECMU) も 1 */
+  }
+  return dp[m][n];
+}
+/* ISO 6346 チェックディジット */
+function ctCheckOk(ct){
+  ct=normCt(ct);if(!/^[A-Z]{4}\d{7}$/.test(ct))return false;
+  const v={};let n=10;
+  for(const ch of 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'){if(n%11===0)n++;v[ch]=n++;}
+  let s=0;for(let i=0;i<10;i++){const c=ct[i];s+=(/\d/.test(c)?+c:v[c])*Math.pow(2,i);}
+  return (s%11)%10===+ct[10];
+}
+/* 書類の CT と COMPASS の CT を対応付ける (完全一致 → 1〜2 文字違いで 1 対 1) */
+function matchRows(compassCts,rows){
+  const map={},used=new Set();
+  rows.forEach(r=>{if(compassCts.includes(r.ct)&&!used.has(r.ct)){map[r.no]=r.ct;used.add(r.ct);}});
+  rows.forEach(r=>{
+    if(map[r.no])return;
+    let best=null,bd=99;
+    compassCts.filter(c=>!used.has(c)).forEach(c=>{const d=levenshtein(r.ct,c);if(d<bd){bd=d;best=c;}});
+    if(best&&bd<=2){map[r.no]=best;used.add(best);}
+  });
+  return map;
+}
+/* この IV × Partial の書類を選ぶ: CT が一番多く重なるもの (同点は Partial 一致を優先) */
+function pickDoc(docs,compassCts,partial){
+  let best=null,score=-1;
+  for(const d of docs){
+    const hit=Object.keys(matchRows(compassCts,d.rows||[])).length;
+    const sc=hit*10+(normPartial(d.partial)===normPartial(partial)?5:0);
+    if(hit>0&&sc>score){score=sc;best=d;}
+  }
+  return best;
+}
+/* CT の順番 = 書類の No 順 (D2) · 書類に無い COMPASS CT は最後 */
+function orderCts(compassCts,doc){
+  if(!doc||!doc.rows||!doc.rows.length)return {order:compassCts.slice(),rowOf:{},notInDoc:compassCts.slice(),docOnly:[]};
+  const map=matchRows(compassCts,doc.rows);
+  const rows=doc.rows.slice().sort((a,b)=>(a.no||0)-(b.no||0));
+  const order=[],rowOf={},docOnly=[];
+  rows.forEach(r=>{const c=map[r.no];if(c){if(!order.includes(c)){order.push(c);rowOf[c]=r;}}else docOnly.push(r.ct);});
+  const notInDoc=compassCts.filter(c=>!order.includes(c));
+  return {order:order.concat(notInDoc),rowOf,notInDoc,docOnly};
+}
+/* CT の写真フォルダ: _COTECNA/{CT} → {IV}/{CT} → 1 文字違いのフォルダ (D15) */
+function resolveCtFolder(ct,cotItems,ivItems){
+  const isF=x=>x&&x.folder;
+  const f1=(cotItems||[]).find(x=>isF(x)&&normCt(x.name)===ct);if(f1)return {item:f1,where:'_COTECNA'};
+  const f2=(ivItems||[]).find(x=>isF(x)&&normCt(x.name)===ct);if(f2)return {item:f2,where:'IV'};
+  const near=[...(cotItems||[]).map(x=>({x,w:'_COTECNA'})),...(ivItems||[]).map(x=>({x,w:'IV'}))]
+    .filter(o=>isF(o.x)&&/^[A-Z]{4}\d{7}$/.test(normCt(o.x.name))&&levenshtein(normCt(o.x.name),ct)===1);
+  if(near.length===1)return {item:near[0].x,where:near[0].w,note:'フォルダ名 '+near[0].x.name+' を使用 (COMPASS は '+ct+')'};
+  return null;
+}
+/* 検査日の文字 (D6): 写真が届いた日以前で一番近い検査日 · 無ければ最初の検査日 */
+function pickInspDate(dates,refYmd){
+  const ds=[...new Set((dates||[]).filter(Boolean))].sort();
+  if(!ds.length)return '';
+  if(refYmd){const le=ds.filter(d=>d<=refYmd);if(le.length)return le[le.length-1];}
+  return ds[0];
+}
+function setYmd(setName){const m=String(setName||'').match(/^(\d{4})(\d{2})(\d{2})/);return m?m[1]+'-'+m[2]+'-'+m[3]:'';}
+/* レポートの日付表記 (v14.1 の形 · 月をまたぐ場合も正しく) */
+function formatReportDate(dates){
+  const MN=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  const ds=[...new Set((dates||[]).filter(Boolean))].sort();
+  if(!ds.length)return '';
+  const p=s=>{const [y,m,d]=s.split('-').map(Number);return {y,m,d};};
+  const a=p(ds[0]),b=p(ds[ds.length-1]);
+  if(ds.length===1)return `${MN[a.m-1]}. ${a.d}, ${a.y}`;
+  if(a.y===b.y&&a.m===b.m)return `${MN[a.m-1]}. ${a.d} &amp; ${b.d}, ${a.y}`;
+  if(a.y===b.y)return `${MN[a.m-1]}. ${a.d} &amp; ${MN[b.m-1]}. ${b.d}, ${a.y}`;
+  return `${MN[a.m-1]}. ${a.d}, ${a.y} &amp; ${MN[b.m-1]}. ${b.d}, ${b.y}`;
+}
+function boardOk(read,vo,partial){
+  if(!read)return null;
+  const r=String(read).toUpperCase().replace(/\s/g,'');
+  const voDigits=String(vo||'').replace(/\D/g,'');
+  const rDigits=(r.match(/X\.?([\d.]+)/)||[])[1]||'';
+  const vOk=voDigits&&rDigits.replace(/\D/g,'')===voDigits;
+  const pOk=normPartial(partial)===normPartial((r.match(/P\s*0*\d+/)||[''])[0]);
+  return vOk&&pOk;
+}
+
+/* ── VAN 6 枠 (CT ごとに写真全部を 1 回で · v14.1 の判断基準) ── */
+function vanPrompt(ct,seal,vo,partial){
+  return `あなたは古紙輸出の COTECNA 検査写真を分類する担当者です。1 本のコンテナ (CT) の写真がすべて番号付きで渡されます。写真どうしを見比べて、次の 6 枠にそれぞれ最も合う写真を 1 枚ずつ選んでください。
+
+【6 枠の基準】
+empty: 両扉を開けたコンテナ内部が空。コルゲート(波板)が見える。荷物が少しでも写っていれば empty ではない。
+half: 正面(両扉の真ん中)から内部を撮影し、古紙ベールが半分程度(30〜70%)積まれている。左右の内壁が対称に見える。積載写真のうち積載が少ない方。
+full: 内部に古紙ベールが天井近くまでぎっしり。積載写真のうち最も多い方。
+right_door: 左側または中央に積まれたベール + 右側にコンテナの扉 + コンテナ番号が横書きで正面から読める。内壁を下から見上げた構図・番号が縦書きの写真は不可。両扉とも閉まった外観写真は不可。
+inspector: ヘルメット・安全ベストの検査員が、コンテナ(閉じた扉・外観)の前に立っている。検査番号の紙(例「X.13.099741 - P8」)を持っていることが多い。人物が写っていない写真は不可。背景が古紙・倉庫なら BALING の inspector でありこの枠ではない。
+cotecna_seal: COTECNA の封印シールのクローズアップ。「COTECNA」の文字(一部でも可)と「JP-」で始まる番号の両方が見えること。黄色くても船会社のシール(会社ロゴ・QRコード・J0022892 のような番号)は不可。候補が複数なら、黄色のタグで COTECNA と JP- 番号が両方はっきり読める方。
+
+【使わない写真】船会社シールだけ、計量票・搬入票など書類、側面だけ、内壁の見上げ、扉だけで荷物も人物も無い外観。
+【BALING 写真】この CT の写真に、ヤードのベール全景(goods_yard)、古紙を背景にした検査員(inspector)、開梱したバラ(open_bale)、COTECNA テープで再梱包したベール(rebale)が混ざっていれば baling に入れる。圧縮機(ベーラー)が写っていて中に古紙が散らばって見える写真は open_bale。
+
+【読み取り】
+seal_read: cotecna_seal 写真の番号 (JP-0000000 の形)。読めなければ null。
+ct_read: right_door 写真のコンテナ番号 (英字4+数字7)。読めなければ null。
+board_read: inspector 写真の紙の文字 (例 "X.13.099741-P8")。無ければ null。
+has_date: 選んだ各写真に撮影日付の文字が写っているか (true/false)。
+
+参考: この CT は ${ct}、検査書類の COTECNA シール番号は ${seal||'不明'}、検査番号は ${vo||'不明'}-${partial||'不明'}。参考値に合わせて読み替えず、写真に見えるとおりに答えること。
+該当写真が無い枠は null。1 枚の写真を 2 つの枠に使わない。
+JSON だけを返す:
+{"slots":{"empty":1,"half":2,"full":3,"right_door":4,"inspector":5,"cotecna_seal":6},"seal_read":"JP-0000000","ct_read":"ABCD1234567","board_read":"X.13.000000-P1","has_date":{"empty":true,"half":true,"full":true,"right_door":true,"inspector":true,"cotecna_seal":true},"baling":[{"photo":7,"type":"open_bale"}],"note":"一言"}`;
+}
+async function classifyVan(ctInfo,vo,partial){
+  const ph=ctInfo.photos.filter(p=>p.ai);
+  if(!ph.length)return null;
+  const content=[];
+  ph.forEach((p,i)=>{content.push({type:'text',text:`[写真 ${i+1}] ${p.name}${p.hint?' (参考: '+p.hint+')':''}`});content.push(imgBlock(p.ai));});
+  content.push({type:'text',text:vanPrompt(ctInfo.ctNo,ctInfo.docSeal,vo,partial)});
+  const r=parseJson(await callAI(content,1500));
+  const idx=n=>(n==null||isNaN(+n)||+n<1||+n>ph.length)?null:ph[+n-1];
+  const slots={};const usedP=new Set();
+  SLOT_ORDER.forEach(s=>{const p=idx(r.slots&&r.slots[s]);if(p&&!usedP.has(p)){slots[s]=p;usedP.add(p);}else slots[s]=null;});
+  const hasDate={};SLOT_ORDER.forEach(s=>{hasDate[s]=!(r.has_date&&r.has_date[s]===false);});
+  const baling=(r.baling||[]).map(b=>({p:idx(b.photo),type:b.type})).filter(b=>b.p&&!usedP.has(b.p)&&['goods_yard','inspector','open_bale','rebale'].includes(b.type));
+  return {slots,hasDate,sealRead:normSeal(r.seal_read),ctRead:normCt(r.ct_read),boardRead:r.board_read||'',baling,note:r.note||''};
+}
+
+/* ── BALING (判断順: 人物 → 塊 → 散らばり · v14.1 + D5) ── */
+function balingPrompt(items){
+  return `古紙のベーリング検査写真です。番号付きの各写真を分類してください。
+判断の順番 (上から最初に当てはまったもの):
+① 人物(検査員)が少しでも写っていれば inspector。
+② 古紙ベールの塊が写っている: 倉庫・ヤードに複数段・複数列で並ぶ全景なら goods_yard、塊 1 個が主役なら rebale。針金・紐・テープ・COTECNA ラベルの跡があれば必ず rebale。横倒し・崩れかけ・斜めでも塊の形が残っていれば rebale。迷ったら rebale。
+③ 塊の形がまったく無く紙が散らばっているだけ、袋に入っているだけでプレスされていない、または圧縮機(ベーラー)が写っていて中に古紙が散らばって見える写真は open_bale。
+④ 書類・計量票・機械だけ・その他は other。
+品目(grade)の候補: ${items.length?items.join(' / '):'不明'}。ファイル名・フォルダ名の手がかり(例 OMG, BBC, (OCC))や写真から分かれば入れ、分からなければ null。
+has_date: 写真に撮影日付の文字が写っているか。sharp: 写真の鮮明さ 1〜5。
+JSON 配列だけを返す:
+[{"photo":1,"type":"goods_yard|inspector|open_bale|rebale|other","item":"OMG","has_date":true,"sharp":4}]`;
+}
+async function classifyBaling(photos,items){
+  const ph=photos.filter(p=>p.ai);
+  for(let k=0;k<ph.length;k+=BALING_CHUNK){
+    const part=ph.slice(k,k+BALING_CHUNK),content=[];
+    part.forEach((p,i)=>{content.push({type:'text',text:`[写真 ${i+1}] ${p.setName?p.setName+'/':''}${p.name}${p.hint?' (参考: '+p.hint+')':''}`});content.push(imgBlock(p.ai));});
+    content.push({type:'text',text:balingPrompt(items)});
+    const arr=parseJson(await callAI(content,Math.min(8000,200+part.length*60)));
+    (Array.isArray(arr)?arr:[]).forEach(a=>{const p=part[(+a.photo)-1];if(!p)return;
+      p.type=['goods_yard','inspector','open_bale','rebale','other'].includes(a.type)?a.type:'other';
+      p.item=normItem(a.item)||p.item||'';p.hasDate=a.has_date!==false;p.sharp=+a.sharp||3;});
+  }
+}
+/* 開梱 ↔ 再梱包 の組 (D3: 検査数ちょうど · D4: 同じ grade) · ファイル名の番号が同じものを先に組む (v14.1 の KANEKO 規則の一般化) */
+function pairBales(photos,needByItem){
+  const items=Object.keys(needByItem);
+  const pairs=[],short={};
+  const itemOf=p=>{if(items.length===1)return items[0];return p.item&&items.includes(p.item)?p.item:'';};
+  for(const it of items){
+    const need=needByItem[it]||0;
+    const opens=photos.filter(p=>p.type==='open_bale'&&itemOf(p)===it).sort(byName);
+    const rebs=photos.filter(p=>p.type==='rebale'&&itemOf(p)===it).sort(byName);
+    const cand=[],uo=new Set(),ur=new Set();
+    opens.forEach(o=>{const n=numOf(o.name);if(n==null)return;const r=rebs.find(x=>!ur.has(x)&&x.setName===o.setName&&numOf(x.name)===n);if(r){cand.push({open:o,rebale:r,item:it,num:n});uo.add(o);ur.add(r);}});
+    const ro=opens.filter(o=>!uo.has(o)),rr=rebs.filter(r=>!ur.has(r));
+    for(let i=0;i<Math.min(ro.length,rr.length);i++)cand.push({open:ro[i],rebale:rr[i],item:it,num:null});
+    const take=cand.slice(0,need);
+    take.forEach(x=>pairs.push(x));
+    if(take.length<need)short[it]=need-take.length;
+  }
+  return {pairs,short};
+}
+
+/* ══════════ 1 件 (IV × Partial) の自動処理 ══════════ */
+function addIssue(job,level,text,extra){
+  const it=Object.assign({id:'i'+(job.issues.length+1),level,text,ack:false},extra||{});
+  job.issues.push(it);log((level==='red'?'  ✖ ':'  △ ')+text,level==='red'?'err':'warn');
+  return it;
+}
+function blocking(job){return job.issues.filter(i=>i.level==='red'&&!i.ack&&!i.hard);}
+function uniq(a){return [...new Set(a.filter(Boolean))];}
+
+async function loadSealMaster(){
+  if(S.sealMaster)return S.sealMaster;
+  try{S.sealMaster=await grJsonPath(SEAL_JSON_PATH)||{records:{}};}catch(e){S.sealMaster={records:{}};log('seal 記録を読めません: '+e.message,'warn');}
+  if(!S.sealMaster.records)S.sealMaster.records={};
+  return S.sealMaster;
+}
+/* 営業所の英語名: これまでの seal 記録 (営業所(JP) → 営業所(EN)) から · 無ければ検査書類の INSPECTOR PLACE */
+async function plantEnOf(plantJa){
+  if(!plantJa)return '';
+  const m=await loadSealMaster();
+  let best=null;
+  Object.values(m.records).forEach(r=>{if(r.plant_jp===plantJa&&r.plant_en&&(!best||(r.saved_at||'')>(best.saved_at||'')))best=r;});
+  return best?best.plant_en:'';
+}
+
+async function runJob(row){
+  const job={row,issues:[],cts:[],doc:null,baling:{photos:[],pairs:[],goods:[],insp:[],short:{},need:null},place:'',state:'run',built:null};
+  S.jobs[row.groupKey]=job;renderJob(job);
+  log(`■ ${row.ivNo} / ${row.partial||'—'} (${row.voNo||'VO 不明'} · ${row.packer})`,'info');
+  const root=photoRoot()+'/'+row.ivNo;
+  const ivItems=await grList(root)||[];
+  if(!ivItems.length)addIssue(job,'red','PHOTO_V2 に '+row.ivNo+' のフォルダがありません',{hard:true});
+  const cot=ivItems.find(x=>x.folder&&x.name==='_COTECNA');
+  const cotItems=cot?(await grListItem(cot.id)||[]):[];
+  let kinds=null;
+  if(cot){try{kinds=await grJsonPath(root+'/_COTECNA/_kinds.json');}catch(e){}}
+
+  /* 1) 検査書類 */
+  const docFolder=cotItems.find(x=>x.folder&&x.name==='_書類');
+  const docItems=docFolder?(await grListItem(docFolder.id)||[]).filter(x=>/\.pdf$/i.test(x.name)):[];
+  const docs=[];
+  for(const d of docItems){
+    try{log('  検査書類を読む: '+d.name);docs.push(await readDoc(d));}
+    catch(e){addIssue(job,'yellow','検査書類を読めません: '+d.name+' ('+e.message+')');}
+  }
+  const compassCts=row.ctList.map(c=>c.ctNo);
+  const doc=pickDoc(docs,compassCts,row.partial);
+  job.doc=doc;
+  if(!doc)addIssue(job,'red','この Partial の検査書類 (CHECK LIST) が見つかりません — CT の順番は COMPASS 順、検査数は不明です',{kind:'doc'});
+  else log('  書類: '+doc.file+' (CT '+(doc.rows||[]).length+' 行 · 検査数 '+(doc.total_checked??'?')+')');
+  const ord=orderCts(compassCts,doc);
+  if(doc&&ord.notInDoc.length)addIssue(job,'red','検査書類に無い CT: '+ord.notInDoc.join(', ')+' (レポートでは最後に並べます)',{kind:'order'});
+  if(doc&&ord.docOnly.length)addIssue(job,'yellow','検査書類にあって COMPASS (この Partial) に無い CT: '+ord.docOnly.join(', '));
+  const docDates=(doc&&doc.dates)||[];
+
+  /* 2) VAN (CT ごと) */
+  let k=0;
+  for(const ctNo of ord.order){
+    k++;setProgress(Math.round(5+70*k/ord.order.length),`${row.ivNo} ${row.partial}: CT ${k}/${ord.order.length} 写真分類`);
+    const cinfo=row.ctList.find(c=>c.ctNo===ctNo)||{date:''};
+    const r=ord.rowOf[ctNo]||null;
+    const c={ctNo,date:cinfo.date||'',docRow:r,docSeal:r&&r.seal||'',photos:[],slots:{},hasDate:{},seal:'',sealSrc:'',reads:{},where:''};
+    job.cts.push(c);
+    if(docDates.length&&c.date&&!docDates.includes(c.date))addIssue(job,'red',`${ctNo}: COMPASS の作業日 ${c.date} が検査書類の日付 (${docDates.join(', ')}) にありません`,{ct:ctNo,kind:'date'});
+    if(!c.date){c.date=pickInspDate(docDates,'');if(!c.date)addIssue(job,'red',ctNo+': 検査日が分かりません (写真の日付を入れられません)',{ct:ctNo,kind:'date'});}
+    const f=resolveCtFolder(ctNo,cotItems,ivItems);
+    if(!f){addIssue(job,'red',ctNo+': 写真フォルダがありません',{ct:ctNo,kind:'folder'});renderJob(job);continue;}
+    c.where=f.where;
+    if(f.note)addIssue(job,'yellow',ctNo+': '+f.note,{ct:ctNo});
+    const items=(await grListItem(f.item.id)||[]).filter(x=>x.file&&IMG_RE.test(x.name)).sort(byName);
+    const kc=kinds&&(kinds.containers||[]).find(x=>normCt(x.ct)===ctNo);
+    c.photos=items.map(x=>{const kp=kc&&(kc.photos||[]).find(p=>p.file===x.name);return {id:x.id,name:x.name,thumb:thumbUrl(x),hint:kp&&kp.van_slot?'エンジン推定 '+kp.van_slot:''};});
+    await loadAll(c.photos);
+    let res=null;
+    try{res=await classifyVan(c,row.voNo,row.partial);}catch(e){addIssue(job,'red',ctNo+': AI 分類に失敗 ('+e.message+')',{ct:ctNo,kind:'ai'});}
+    if(res){
+      c.slots=res.slots;c.hasDate=res.hasDate;c.reads={seal:res.sealRead,ct:res.ctRead,board:res.boardRead,note:res.note};
+      res.baling.forEach(b=>{b.p.type=b.type;b.p.setName=ctNo;job.baling.photos.push(b.p);});
     }
-    // 全レコードをソート: work_date ASC → iv_no ASC
-    const rows=Object.values(master.records).sort((a,b)=>{
-      const da=a.work_date||'',db=b.work_date||'';
-      if(da!==db)return da.localeCompare(db);
-      return (a.iv_no||'').localeCompare(b.iv_no||'');
+    verifyCt(job,c,row);
+    renderJob(job);
+  }
+
+  /* 3) BALING */
+  setProgress(80,`${row.ivNo} ${row.partial}: BALING`);
+  await prepareBaling(job,row,cotItems,kinds,docDates);
+
+  /* 4) 検査場所 (営業所の英語名) */
+  const en=await plantEnOf(row.plantJa);
+  job.place=en?`${row.packer} / ${en}`:(doc&&doc.inspect_place?`${row.packer} / ${doc.inspect_place}`:'');
+  if(!job.place)addIssue(job,'red','検査場所 (営業所の英語名) が分かりません — 下の欄に入れてください',{kind:'place'});
+  else if(!en)addIssue(job,'yellow','検査場所は検査書類の INSPECTOR PLACE を使いました: '+job.place,{kind:'place'});
+
+  await finishJob(job);
+}
+
+/* 照合 (D10: 合っていれば人の確認なし · 合わない枠だけ赤) */
+function verifyCt(job,c,row){
+  job.issues=job.issues.filter(i=>!(i.ct===c.ctNo&&i.kind==='slot'));
+  SLOT_ORDER.forEach(s=>{if(!c.slots[s])addIssue(job,'red',`${c.ctNo}: ${SLOT_JA[s]} の写真がありません`,{ct:c.ctNo,slot:s,kind:'slot'});});
+  /* COTECNA seal: 検査書類の番号が正 · 写真の番号と照合 */
+  const rd=c.reads.seal||'';
+  if(c.docSeal){c.seal=c.docSeal;c.sealSrc='検査書類';
+    if(c.slots.cotecna_seal&&rd&&rd!==c.docSeal)addIssue(job,'red',`${c.ctNo}: シール写真の番号 ${rd} が検査書類 ${c.docSeal} と違います`,{ct:c.ctNo,slot:'cotecna_seal',kind:'slot'});
+    else if(c.slots.cotecna_seal&&!rd)addIssue(job,'red',`${c.ctNo}: シール写真の番号が読めません (検査書類 ${c.docSeal})`,{ct:c.ctNo,slot:'cotecna_seal',kind:'slot'});
+  }else if(rd){c.seal=rd;c.sealSrc='写真';addIssue(job,'yellow',`${c.ctNo}: 検査書類に seal が無いので写真の番号 ${rd} を使います`,{ct:c.ctNo,kind:'slot'});}
+  else{c.seal='';c.sealSrc='';addIssue(job,'red',`${c.ctNo}: COTECNA シール番号が分かりません — 番号欄に入れてください`,{ct:c.ctNo,slot:'cotecna_seal',kind:'slot'});}
+  /* コンテナ番号 (COMPASS が正 · 写真で正しい扉写真かを確認) */
+  if(c.slots.right_door&&c.reads.ct&&c.reads.ct!==c.ctNo&&levenshtein(c.reads.ct,c.ctNo)>1)
+    addIssue(job,'red',`${c.ctNo}: 右扉写真の番号 ${c.reads.ct} が COMPASS と違います (別の CT の写真かもしれません)`,{ct:c.ctNo,slot:'right_door',kind:'slot'});
+  /* 検査員の紙 (VO-Partial) */
+  const b=boardOk(c.reads.board,row.voNo,row.partial);
+  if(c.slots.inspector&&b===false)addIssue(job,'red',`${c.ctNo}: 検査員の紙 「${c.reads.board}」 が ${row.voNo}-${row.partial} と違います`,{ct:c.ctNo,slot:'inspector',kind:'slot'});
+}
+
+async function prepareBaling(job,row,cotItems,kinds,docDates){
+  const B=job.baling,doc=job.doc;
+  const bf=cotItems.find(x=>x.folder&&x.name==='_BALING');
+  const sets=bf?(await grListItem(bf.id)||[]).filter(x=>x.folder):[];
+  const meta=n=>(kinds&&kinds.baling||[]).find(s=>s.set===n)||{};
+  let mine=sets.filter(s=>normPartial(meta(s.name).partial)===normPartial(row.partial));
+  if(!mine.length){
+    const nulls=sets.filter(s=>!meta(s.name).partial);
+    if(nulls.length){mine=nulls;addIssue(job,'yellow',`検査番号の付いていない BALING 写真 (${nulls.length} 組) を使いました`);}
+  }
+  for(const s of mine){
+    const m=meta(s.name);
+    const list=(await grListItem(s.id)||[]).filter(x=>x.file&&IMG_RE.test(x.name));
+    list.forEach(x=>B.photos.push({id:x.id,name:x.name,thumb:thumbUrl(x),setName:s.name,item:'',hint:m.item?'品目 '+m.item:''}));
+  }
+  /* CT フォルダに混ざっていた BALING 写真 (沖縄紙業など) も含めて全部を同じ基準で分類する */
+  const fromSets=B.photos;
+  await loadAll(fromSets.filter(p=>!p.b64));
+  /* 品目候補 */
+  let items=uniq(((doc&&doc.rows)||[]).map(r=>r.item));
+  if(!items.length&&kinds){items=uniq((kinds.baling||[]).flatMap(s=>String(s.item||'').split('/').map(normItem)));}
+  try{if(fromSets.length)await classifyBaling(fromSets,items);}catch(e){addIssue(job,'red','BALING の AI 分類に失敗 ('+e.message+')',{kind:'baling'});}
+  B.photos.filter(p=>p.hasDate==null).forEach(p=>{p.hasDate=true;});
+  /* 必要な組の数 (D3) */
+  const rows=(doc&&doc.rows)||[];
+  const total=doc?(doc.total_checked??doc.pir_checked??null):null;
+  const need={};
+  if(rows.some(r=>r.checked!=null)){rows.forEach(r=>{if(r.checked)need[r.item||'']=(need[r.item||'']||0)+r.checked;});}
+  else if(total!=null){
+    if(items.length<=1)need[items[0]||'']=total;
+    else{need[items[0]]=total;addIssue(job,'red','品目ごとの検査数が書類から分かりません (合計 '+total+')',{kind:'baling'});}
+  }
+  const sumRows=Object.values(need).reduce((a,b)=>a+b,0);
+  if(doc&&doc.total_checked!=null&&rows.some(r=>r.checked!=null)&&doc.total_checked!==sumRows)addIssue(job,'yellow',`検査数: 合計行 ${doc.total_checked} と各行の合計 ${sumRows} が違います (各行の合計を使います)`);
+  if(doc&&doc.pir_checked!=null&&doc.pir_checked!==sumRows&&sumRows)addIssue(job,'yellow',`検査数: PIR ${doc.pir_checked} と CHECK LIST ${sumRows} が違います`);
+  let res;
+  if(!Object.keys(need).length){
+    addIssue(job,'red','検査数 (Checked) が分かりません — 組の数を確かめられません',{kind:'baling'});
+    const big={};(items.length?items:['']).forEach(it=>big[it]=999);
+    res=pairBales(B.photos,big);res.short={};
+  }else res=pairBales(B.photos,need);
+  B.need=need;B.pairs=res.pairs;B.short=res.short;
+  Object.keys(res.short).forEach(it=>addIssue(job,'red',`開梱・再梱包の組が足りません: ${it||'品目不明'} あと ${res.short[it]} 組 (検査数 ${need[it]}) — BALING レポートは作りません`,{kind:'short',hard:true}));
+  /* ヤード全景・検査員 = 各 1 枚 (v14.1 の BALING 様式は 1 組だけ載せる) */
+  const nDates=1;
+  const best=t=>B.photos.filter(p=>p.type===t).sort((a,b)=>(b.sharp||0)-(a.sharp||0)||byName(a,b)).slice(0,nDates);
+  B.goods=best('goods_yard');B.insp=best('inspector');
+  if(B.goods.length<nDates)addIssue(job,'red',`ヤード全景 (Goods at Yard) が ${nDates} 枚必要ですが ${B.goods.length} 枚です`,{kind:'baling'});
+  if(B.insp.length<nDates)addIssue(job,'red',`古紙の前の検査員 (Inspector with Goods) が ${nDates} 枚必要ですが ${B.insp.length} 枚です`,{kind:'baling'});
+  /* 写真ごとの検査日 (D6) */
+  const dates=uniq(row.workDates.concat(docDates));
+  B.photos.forEach(p=>{p.date=pickInspDate(dates,setYmd(p.setName));});
+}
+
+async function finishJob(job){
+  job.state=blocking(job).length?'ng':'ok';
+  renderJob(job);
+  if(job.state==='ok')await buildReports(job);
+}
+
+/* ══════════ 画面 ══════════ */
+function jobId(job){return 'job_'+job.row.groupKey.replace(/[^A-Za-z0-9]/g,'_');}
+function imgSrc(p){return p?(p.thumb||(p.ai?'data:image/jpeg;base64,'+p.ai:'')):'';}
+function renderJob(job){
+  const wrap=document.getElementById('jobs');
+  let el=document.getElementById(jobId(job));
+  if(!el){el=document.createElement('div');el.id=jobId(job);wrap.appendChild(el);}
+  const r=job.row,bl=blocking(job),hard=job.issues.filter(i=>i.hard);
+  const stateTxt=job.state==='run'?'処理中…':(bl.length?`確認 ${bl.length} 件`:(hard.length?'一部作成':'自動完了'));
+  const stCls=job.state==='run'?'run':(bl.length||hard.length?'ng':'ok');
+  el.className='job '+(job.state==='run'?'':stCls);
+  let h=`<div class="job-hdr"><b>${esc(r.ivNo)} / ${esc(r.partial||'—')}</b><span class="job-sub">${esc(r.voNo||'VO 不明')} · ${esc(r.packer)} ${esc(r.plantJa)} · CT ${r.ctList.length} · ${esc(r.workDates.join(', '))}</span><span class="job-state ${stCls}">${stateTxt}</span></div><div class="job-body">`;
+  if(job.issues.length){
+    h+='<ul class="issues">'+job.issues.map(i=>{
+      const cls=i.ack?'done':i.level;
+      const btn=(i.level==='red'&&!i.hard&&!i.ack&&job.state!=='run')?` <button class="btn btn-ghost btn-sm" onclick="ackIssue('${esc(r.groupKey)}','${i.id}')">確認した (このまま)</button>`:'';
+      return `<li class="${cls}">${i.level==='red'?'●':'▲'} ${esc(i.text)}${btn}</li>`;}).join('')+'</ul>';
+  }
+  if(job.state!=='run'){
+    h+=`<div class="filter-bar"><label>検査場所</label><input class="inp" style="width:280px;" value="${esc(job.place)}" onchange="setPlace('${esc(r.groupKey)}',this.value)" aria-label="検査場所"></div>`;
+  }
+  job.cts.forEach((c,ci)=>{
+    h+=`<div class="ct-block"><div class="ct-title">${ci+1}. ${esc(c.ctNo)} <small>${esc(c.date)} · 写真 ${c.photos.length} 枚 (${esc(c.where||'—')})</small>
+      <small>COTECNA SEAL</small><input class="inp" style="width:120px;" value="${esc(c.seal)}" onchange="setSeal('${esc(r.groupKey)}',${ci},this.value)" aria-label="${esc(c.ctNo)} COTECNA シール番号">
+      <small>${esc(c.sealSrc)}${c.reads&&c.reads.seal?' · 写真 '+esc(c.reads.seal):''}${c.reads&&c.reads.board?' · 紙 '+esc(c.reads.board):''}</small></div><div class="slot-grid">`;
+    SLOT_ORDER.forEach(s=>{
+      const p=c.slots[s];
+      const bad=job.issues.some(i=>i.ct===c.ctNo&&i.slot===s&&i.level==='red'&&!i.ack);
+      h+=`<div class="slot ${p?(bad?'red':'ok'):'red'}" tabindex="0" role="button" aria-label="${esc(c.ctNo)} ${SLOT_JA[s]} を選び直す" onclick="openPicker('${esc(r.groupKey)}',${ci},'${s}')" onkeydown="if(event.key==='Enter')openPicker('${esc(r.groupKey)}',${ci},'${s}')">
+        ${p?`<img src="${imgSrc(p)}" alt="${esc(SLOT_JA[s])}">`:'<div class="none">なし</div>'}<div class="cap">${SLOT_JA[s]}${p?' · '+esc(p.name):''}</div></div>`;
     });
-    // Excel生成 (全値を文字列に正規化)
-    const headers=['検査日','IV番号','VO番号','Partial','CT番号','COTECNA SEAL','PACKER','営業所(JP)','営業所(EN)'];
-    const data=[headers,...rows.map(r=>[
-      String(r.work_date||''),String(r.iv_no||''),String(r.vo_no||''),String(r.partial||''),
-      String(r.ct_no||''),String(r.seal_no||''),String(r.packer||''),String(r.plant_jp||''),String(r.plant_en||'')
-    ])];
-    const today=new Date().toISOString().slice(0,10).replace(/-/g,'');
-    const fname=`COTECNA_SEAL_MASTER_${today}.xlsx`;
-    const xlsxBuf=buildSealXlsx(data);
-    const blob=new Blob([xlsxBuf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
-    const dlUrl=URL.createObjectURL(blob);
-    const dlA=document.createElement('a');
-    dlA.href=dlUrl;dlA.download=fname;
-    document.body.appendChild(dlA);dlA.click();
-    setTimeout(()=>{document.body.removeChild(dlA);URL.revokeObjectURL(dlUrl);},100);
-    log(`📊 Excel出力完了: ${rows.length}件`,'ok');
-  }catch(e){
-    const msg=e&&e.message?e.message:String(e);
-    if(msg==='GRAPH_401'){
-      LEENAI.toast('SharePoint認証が期限切れです。再ログインしてください。','warn');
-      setTimeout(function(){LEENAI.logout();},2000);
-    }else{alert('Excel出力エラー: '+msg);}
+    h+='</div></div>';
+  });
+  const B=job.baling;
+  if(job.state!=='run'&&(B.photos.length||Object.keys(B.need||{}).length)){
+    const needTxt=Object.keys(B.need||{}).map(k=>(k||'品目不明')+' '+B.need[k]).join(' · ')||'不明';
+    h+=`<div class="ct-block"><div class="ct-title">BALING <small>写真 ${B.photos.length} 枚 · 検査数 ${esc(needTxt)} · 組 ${B.pairs.length} · 全景 ${B.goods.length} · 検査員 ${B.insp.length}</small></div><div class="pair-grid">`;
+    B.goods.forEach(p=>{h+=`<div class="pair"><div class="imgs"><img src="${imgSrc(p)}" alt="Goods at Yard"></div><div class="cap">Goods at Yard · ${esc(p.date)}</div></div>`;});
+    B.insp.forEach(p=>{h+=`<div class="pair"><div class="imgs"><img src="${imgSrc(p)}" alt="Inspector with Goods"></div><div class="cap">Inspector · ${esc(p.date)}</div></div>`;});
+    B.pairs.forEach((x,i)=>{h+=`<div class="pair"><div class="imgs"><img src="${imgSrc(x.open)}" alt="Open bale ${i+1}"><img src="${imgSrc(x.rebale)}" alt="Re-bale ${i+1}"></div><div class="cap">#${i+1} ${esc(x.item||'')} · ${esc(x.open.name)}</div></div>`;});
+    h+='</div></div>';
   }
-  finally{
-    if(btn){
-      const grOk=LEENAI.auth.status.graph==='ok';
-      btn.disabled=!grOk;btn.textContent='📊 SEAL Excel出力';
+  if(job.state!=='run'){
+    h+=`<div class="mt12" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">`;
+    if(!bl.length)h+=`<button class="btn btn-ok btn-sm" onclick="buildReports(S.jobs['${esc(r.groupKey)}'])">レポートを作り直す</button>`;
+    else h+=`<span class="hint" style="margin:0;">赤の項目を直すか「確認した」を押すとレポートを作ります</span>`;
+    if(job.built)h+=job.built.map(d=>`<a class="dl-btn" href="${d.url}" download="${esc(d.name)}"><span><span class="dl-name">${esc(d.label)}</span><span class="dl-size">${(d.size/1024).toFixed(0)} KB · ${esc(d.name)}</span></span></a>`).join('');
+    h+='</div>';
+  }
+  h+='</div>';
+  el.innerHTML=h;
+}
+function jobOf(key){return S.jobs[key];}
+function ackIssue(key,id){const j=jobOf(key);const i=j.issues.find(x=>x.id===id);if(i)i.ack=true;afterEdit(j);}
+function setPlace(key,v){const j=jobOf(key);j.place=v.trim();j.issues.filter(i=>i.kind==='place'&&i.level==='red').forEach(i=>{if(j.place)i.ack=true;});afterEdit(j);}
+function setSeal(key,ci,v){
+  const j=jobOf(key),c=j.cts[ci];c.seal=normSeal(v);c.sealSrc='手入力';
+  j.issues.filter(i=>i.ct===c.ctNo&&i.slot==='cotecna_seal'&&i.level==='red').forEach(i=>{if(c.seal)i.ack=true;});afterEdit(j);
+}
+function afterEdit(j){j.state=blocking(j).length?'ng':'ok';renderJob(j);if(j.state==='ok')buildReports(j);}
+
+/* 写真を選び直す (赤のときだけの手作業) */
+let PK=null;
+function openPicker(key,ci,slot){
+  const j=jobOf(key);if(!j||j.state==='run')return;
+  const c=j.cts[ci];PK={key,ci,slot,last:document.activeElement};
+  document.getElementById('pickerTitle').textContent=`${c.ctNo} · ${SLOT_JA[slot]} の写真を選ぶ`;
+  document.getElementById('pickerGrid').innerHTML=c.photos.map((p,i)=>`<div tabindex="0" role="button" onclick="pickPhoto(${i})" onkeydown="if(event.key==='Enter')pickPhoto(${i})"><img src="${imgSrc(p)}" alt="${esc(p.name)}"><span>${esc(p.name)}</span></div>`).join('')||'<span class="hint">このフォルダに写真がありません</span>';
+  const pk=document.getElementById('picker');pk.classList.add('on');
+  const first=pk.querySelector('.picker-grid div');if(first)first.focus();
+}
+function closePicker(){document.getElementById('picker').classList.remove('on');if(PK&&PK.last&&PK.last.focus)PK.last.focus();PK=null;}
+function pickPhoto(i){
+  if(!PK)return;
+  const j=jobOf(PK.key),c=j.cts[PK.ci],p=c.photos[i];
+  SLOT_ORDER.forEach(s=>{if(c.slots[s]===p)c.slots[s]=null;});
+  c.slots[PK.slot]=p;c.hasDate[PK.slot]=true;
+  j.issues.filter(x=>x.ct===c.ctNo&&x.slot===PK.slot&&x.level==='red').forEach(x=>x.ack=true);
+  SLOT_ORDER.forEach(s=>{if(!c.slots[s]&&!j.issues.some(x=>x.ct===c.ctNo&&x.slot===s&&!x.ack))addIssue(j,'red',`${c.ctNo}: ${SLOT_JA[s]} の写真がありません`,{ct:c.ctNo,slot:s,kind:'slot'});});
+  closePicker();afterEdit(j);
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&PK)closePicker();});
+
+/* ══════════ レポート作成 (VAN · BALING · D16) ══════════ */
+async function finalB64(p,date,hasDate){
+  await loadPhoto(p);
+  if(hasDate!==false||!date)return p.b64;
+  p.stamped=p.stamped||{};
+  if(!p.stamped[date])p.stamped[date]=await stampDate(p.b64,date);
+  return p.stamped[date];
+}
+async function buildReports(job){
+  if(!job||blocking(job).length)return;
+  try{
+    const r=job.row;
+    S.voNo=r.voNo&&r.partial?`${r.voNo}-${r.partial}`:(r.voNo||'');
+    S.reportDate=formatReportDate(r.workDates);
+    S.inspLocation=job.place||'';
+    S.containers=[];S.classifiedVan={};
+    let no=0;
+    for(const c of job.cts){
+      no++;S.containers.push({no,container:c.ctNo,seal:c.seal,date:c.date});
+      const cl={};
+      for(const s of SLOT_ORDER){const p=c.slots[s];if(p)cl[s]=await finalB64(p,c.date,c.hasDate[s]);}
+      S.classifiedVan[no]=cl;
     }
-  }
+    const out=[];
+    const name=(S.voNo||(r.ivNo+'_'+r.partial)).replace(/[^A-Za-z0-9._-]/g,'_');
+    const van=buildVanDocx();
+    out.push({buf:van,name:name+'_VAN.docx',label:'VAN'});
+    const B=job.baling;
+    if(!Object.keys(B.short||{}).length&&B.pairs.length){
+      const pairs=[];
+      for(const x of B.pairs)pairs.push({open:await finalB64(x.open,x.open.date,x.open.hasDate),rebale:await finalB64(x.rebale,x.rebale.date,x.rebale.hasDate)});
+      const g=[],ins=[];
+      for(const p of B.goods)g.push(await finalB64(p,p.date,p.hasDate));
+      for(const p of B.insp)ins.push(await finalB64(p,p.date,p.hasDate));
+      S.classifiedBaling={goods_yards:g,inspectors:ins,pairs,rebales:[],open_bales:[]};
+      out.push({buf:buildBalingDocx(),name:name+'_BALING.docx',label:'BALING'});
+    }
+    (job.built||[]).forEach(d=>{try{URL.revokeObjectURL(d.url);}catch(e){}});
+    job.built=out.map(d=>({name:d.name,label:d.label,size:d.buf.length,url:URL.createObjectURL(new Blob([d.buf],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'}))}));
+    log(`  ✅ ${r.ivNo}/${r.partial}: ${out.map(d=>d.name).join(' · ')}`,'ok');
+    renderJob(job);
+    await saveSealRecords(job);
+  }catch(e){log('レポート作成エラー: '+e.message,'err');LEENAI.toast('レポート作成エラー: '+e.message,'error');}
 }
 
-function checkFetchReady(){document.getElementById('fetchBtn').disabled=!S.photoFiles.length;}
-function startTool(){
-  var saved=localStorage.getItem('cotecna_api_key');
-  if(saved){
-    S.apiKey=saved;
-    var apiKeyEl=document.getElementById('apiKey');
-    var apiDotEl=document.getElementById('apiDot');
-    if(apiKeyEl) apiKeyEl.value=saved;
-    if(apiDotEl) apiDotEl.classList.add('ok');
+/* ══════════ 実行 ══════════ */
+async function proceedSelected(){
+  if(!S.selectedKeys.length)return;
+  const k=document.getElementById('apiKey').value.trim();if(k)S.apiKey=k;
+  if(!S.apiKey){alert('AI キーを入れて保存してください');return;}
+  const miss=commonMissing();if(miss.length){alert('共通ファイルが古いため使えません: '+miss.join(', '));return;}
+  const btn=document.getElementById('proceedBtn');btn.disabled=true;
+  const s2=document.getElementById('step2');s2.classList.add('active','open');s2.scrollIntoView({behavior:'smooth'});
+  document.getElementById('jobs').innerHTML='';
+  const rows=S.selectedKeys.map(k=>S.inspList.find(r=>r.groupKey===k)).filter(Boolean);
+  for(const row of rows){
+    try{await runJob(row);}
+    catch(e){const j=S.jobs[row.groupKey];if(j){addIssue(j,'red','処理エラー: '+e.message,{hard:true});j.state='ng';renderJob(j);}log('処理エラー: '+e.message,'err');}
   }
-  var now=new Date(),from=new Date(now);from.setDate(from.getDate()-5);
-  document.getElementById('dateTo').value=now.toISOString().slice(0,10);
-  document.getElementById('dateFrom').value=from.toISOString().slice(0,10);
-  LEENAI.addHeaderButton({label:'⚙ PLANTマスター',onClick:togglePlantMaster});
-  LEENAI.addHeaderButton({label:'📊 SEAL Excel出力',onClick:exportSealExcel,title:'SharePoint SEAL記録をExcel出力'});
+  const done=rows.filter(r=>S.jobs[r.groupKey]&&S.jobs[r.groupKey].state==='ok').length;
+  setProgress(100,`完了: 自動 ${done} 件 / 確認が必要 ${rows.length-done} 件`);
+  btn.disabled=false;
+}
+
+/* ══════════ COTECNA seal 記録 (v14.1 と同じ内容 · SharePoint) ══════════ */
+async function saveSealRecords(job){
+  if(LEENAI.auth.status.graph!=='ok')return;
+  try{
+    S.sealMaster=null;const m=await loadSealMaster();
+    const now=new Date().toISOString(),r=job.row;
+    const en=(job.place.split(' / ')[1]||'').trim();
+    job.cts.forEach(c=>{
+      m.records[c.ctNo]={ct_no:c.ctNo,seal_no:c.seal,packer:r.packer,plant_jp:r.plantJa,plant_en:en,iv_no:r.ivNo,vo_no:r.voNo,partial:r.partial,work_date:c.date,saved_at:now};
+    });
+    m.version=m.version||'1.0';m.updated_at=now;
+    await grPutJson(SEAL_JSON_PATH,m);
+    log('  seal 記録を保存しました ('+job.cts.length+' CT)','ok');
+  }catch(e){log('  seal 記録を保存できません: '+e.message,'warn');}
+}
+async function exportSealExcel(){
+  if(LEENAI.auth.status.graph!=='ok'){alert('SharePoint にログインしてください');return;}
+  try{
+    S.sealMaster=null;const m=await loadSealMaster();
+    const rows=Object.values(m.records||{}).sort((a,b)=>(a.work_date||'').localeCompare(b.work_date||'')||(a.iv_no||'').localeCompare(b.iv_no||''));
+    if(!rows.length){alert('seal 記録がありません');return;}
+    const data=[['検査日','IV番号','VO番号','Partial','CT番号','COTECNA SEAL','PACKER','営業所(JP)','営業所(EN)']].concat(rows.map(r=>[r.work_date,r.iv_no,r.vo_no,r.partial,r.ct_no,r.seal_no,r.packer,r.plant_jp,r.plant_en].map(v=>String(v||''))));
+    const buf=buildSealXlsx(data);
+    const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
+    a.download='COTECNA_SEAL_MASTER_'+new Date().toISOString().slice(0,10).replace(/-/g,'')+'.xlsx';
+    document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},200);
+  }catch(e){alert('Excel 出力エラー: '+e.message);}
+}
+
+function startTool(){
+  try{const k=localStorage.getItem('cotecna_api_key');if(k){S.apiKey=k;document.getElementById('apiKey').value=k;document.getElementById('apiDot').classList.add('ok');}}catch(e){}
+  const now=new Date(),from=new Date(now);from.setDate(from.getDate()-7);
+  const ymd=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  document.getElementById('dateTo').value=ymd(now);document.getElementById('dateFrom').value=ymd(from);
+  LEENAI.addHeaderButton({label:'SEAL 記録 Excel',onClick:exportSealExcel,title:'COTECNA seal の記録を Excel で出力'});
+  const miss=commonMissing();
+  if(miss.length)flog('共通ファイル (LEENAI_COMMON) が古いため使えません。必要な値: '+miss.join(' · '),'err');
 }
 LEENAI.init({
   sys:'C-02',
   name:'COTECNAレポートツール',
-  version:'14.1',
-  date:'2026-10-15',
-  desc:'COMPASS データと写真から COTECNA 検査レポートを自動生成します',
+  version:'15.0',
+  date:'2026-11-21',
+  desc:'COMPASS・COTECNA 検査書類・SharePoint の写真から COTECNA 検査レポート (VAN・BALING) を作成します',
   onReady:startTool,
 });
-// ── DEFAULT PLANT MASTER (ハードコード: 全員共有) ──
-const DEFAULT_PLANTS = [
-  {plantId:"030eb02b-cb5b-f011-bec2-6045bd62e122",plantJa:"ステップスナイン",plantEn:"STEPS NINE"},
-  {plantId:"f21aed29-cb5b-f011-bec2-000d3a786f70",plantJa:"ふじ(豊崎)",plantEn:"FUJI SANGYO"},
-  {plantId:"e40db02b-cb5b-f011-bec2-6045bd62e122",plantJa:"ふじ(本社)",plantEn:"FUJI SANGYO"},
-  {plantId:"ee1aed29-cb5b-f011-bec2-000d3a786f70",plantJa:"ふじ(名護)",plantEn:"FUJI SANGYO"},
-  {plantId:"01b6f82f-cb5b-f011-bec2-000d3a786f70",plantJa:"安楽商店",plantEn:"ANRAKU SHOTEN"},
-  {plantId:"f61aed29-cb5b-f011-bec2-000d3a786f70",plantJa:"沖縄紙業",plantEn:"OKINAWA SHIGYO"},
-  {plantId:"b00db02b-cb5b-f011-bec2-6045bd62e122",plantJa:"兼子(横浜)",plantEn:"YOKOHAMA"},
-  {plantId:"ba0db02b-cb5b-f011-bec2-6045bd62e122",plantJa:"兼子(金沢)",plantEn:"KANAZAWA"},
-  {plantId:"fcdfbf37-cb5b-f011-bec2-6045bd62e122",plantJa:"兼子(戸田)",plantEn:"TODA"},
-  {plantId:"d31aed29-cb5b-f011-bec2-000d3a786f70",plantJa:"兼子(埼玉)",plantEn:"SAITAMA"},
-  {plantId:"015cbf3d-cb5b-f011-bec2-6045bd62e122",plantJa:"兼子(市原)",plantEn:"ICHIHARA"},
-  {plantId:"bb0db02b-cb5b-f011-bec2-6045bd62e122",plantJa:"兼子(船橋)",plantEn:"FUNABASHI"},
-  {plantId:"ebd2f274-cb5b-f011-bec2-6045bd62e122",plantJa:"兼子(船橋) PM",plantEn:"FUNABASHI"},
-  {plantId:"1fb5f82f-cb5b-f011-bec2-000d3a786f70",plantJa:"大本",plantEn:"OOMOTO SHIRYO"},
-  {plantId:"000eb02b-cb5b-f011-bec2-6045bd62e122",plantJa:"大中物産",plantEn:"SENDAI"},
-  {plantId:"0a88a831-cb5b-f011-bec2-6045bd62e122",plantJa:"石坂グループ",plantEn:"ISHIZAKA GROUP"},
-  {plantId:"b752f835-cb5b-f011-bec2-000d3a786f70",plantJa:"千歳",plantEn:"CHITOSE"},
-  {plantId:"b50db02b-cb5b-f011-bec2-6045bd62e122",plantJa:"兼子(湘南)",plantEn:"SHONAN"},
-  {plantId:"1f988087-1c58-f111-a824-6045bd67027c",plantJa:"兼子(湘南) PM",plantEn:"SHONAN"},
-  {plantId:"f24af608-2058-f111-a824-6045bd67027c",plantJa:"兼子(埼玉) PM",plantEn:"SAITAMA"},
-];
-
-// ── IndexedDB: plant_master ──
-let plantDB=null;
-function openPlantDB(){
-  return new Promise((res,rej)=>{
-    if(plantDB){res(plantDB);return;}
-    const r=indexedDB.open('leenai_cotecna_v1',1);
-    r.onupgradeneeded=e=>{
-      const db=e.target.result;
-      if(!db.objectStoreNames.contains('plant_master'))
-        db.createObjectStore('plant_master',{keyPath:'plantId'});
-    };
-    r.onsuccess=e=>{plantDB=e.target.result;res(plantDB);};
-    r.onerror=e=>rej(e);
-  });
-}
-async function savePlantMaster(records){
-  const db=await openPlantDB();
-  const tx=db.transaction('plant_master','readwrite');
-  const st=tx.objectStore('plant_master');
-  records.forEach(r=>st.put(r));
-  return new Promise((res,rej)=>{tx.oncomplete=res;tx.onerror=rej;});
-}
-async function loadPlantMaster(){
-  const db=await openPlantDB();
-  return new Promise((res,rej)=>{
-    const tx=db.transaction('plant_master','readonly');
-    const st=tx.objectStore('plant_master');
-    const req=st.getAll();
-    req.onsuccess=()=>res(req.result||[]);
-    req.onerror=rej;
-  });
-}
-async function getPlantEnById(plantId){
-  if(!plantId)return '';
-  // まずIndexedDB (ユーザー編集値) を優先して検索
-  try{
-    const db=await openPlantDB();
-    const local=await new Promise((res)=>{
-      const tx=db.transaction('plant_master','readonly');
-      const req=tx.objectStore('plant_master').get(plantId);
-      req.onsuccess=()=>res(req.result?.plantEn||'');
-      req.onerror=()=>res('');
-    });
-    if(local)return local;
-  }catch(e){}
-  // なければDEFAULT_PLANTSから検索 (共有デフォルト値)
-  const def=DEFAULT_PLANTS.find(p=>p.plantId===plantId);
-  if(def&&def.plantEn)return def.plantEn;
-  return '';
-}
-function togglePlantMaster(){
-  const p=document.getElementById('plantMasterPanel');
-  const b=document.getElementById('plantMasterBtn');
-  const show=p.style.display==='none';
-  p.style.display=show?'block':'none';
-  b.style.borderColor=show?'var(--accent)':'var(--border)';
-  b.style.color=show?'var(--accent)':'var(--text)';
-}
-
-async function fetchPlantMaster(){
-  if(LEENAI.auth.status.dataverse!=='ok'){alert('COMPASSにログインしてください');return;}
-  const msg=document.getElementById('plantMasterMsg');
-  const tbody=document.getElementById('plantMasterBody');
-  msg.textContent='取得中...';
-  try{
-    // COMPASS から全 packer_plant 取得
-    const data=await dvGet(`${DV_API}/crcf9_packer_plants?$select=crcf9_packer_plantid,crcf9_plant,crcf9_plant_address&$top=500`);
-    const plants=data.value||[];
-    msg.textContent=`${plants.length}件取得`;
-
-    // 既存保存データ読込
-    const saved=await loadPlantMaster();
-    const savedMap={};
-    saved.forEach(r=>{savedMap[r.plantId]=r;});
-
-    // テーブル描画
-    tbody.innerHTML='';
-    plants.sort((a,b)=>(a.crcf9_plant||'').localeCompare(b.crcf9_plant||'','ja')).forEach(p=>{
-      const id=p.crcf9_packer_plantid;
-      const ja=p.crcf9_plant||'—';
-      const savedEn=savedMap[id]?.plantEn||'';
-      const tr=document.createElement('tr');
-      tr.innerHTML=`
-        <td>${ja}</td>
-        <td><input type="text" value="${savedEn}" data-id="${id}" data-ja="${ja}"
-          placeholder="例: YOKOHAMA"
-          style="background:var(--surface2);border:1px solid var(--border);color:var(--text);
-                 padding:4px 8px;border-radius:4px;font-size:12px;width:160px;font-family:inherit;"
-          onchange="markDirty(this)"></td>
-        <td style="font-size:11px;color:var(--text2);">${p.crcf9_plant_address||'—'}</td>
-        <td style="font-size:10px;color:var(--text3);">${id.slice(0,8)}...</td>`;
-      tbody.appendChild(tr);
-    });
-    // 保存済みのみのレコードも追加 (COMPASS未取得分)
-    saved.filter(r=>!plants.find(p=>p.crcf9_packer_plantid===r.plantId)).forEach(r=>{
-      const tr=document.createElement('tr');
-      tr.innerHTML=`<td style="color:var(--text3);">${r.plantJa} <small>(COMPASS未取得)</small></td>
-        <td><input type="text" value="${r.plantEn||''}" data-id="${r.plantId}" data-ja="${r.plantJa}"
-          placeholder="例: YOKOHAMA"
-          style="background:var(--surface2);border:1px solid var(--border);color:var(--text);
-                 padding:4px 8px;border-radius:4px;font-size:12px;width:160px;font-family:inherit;"
-          onchange="markDirty(this)"></td>
-        <td>—</td><td style="font-size:10px;color:var(--text3);">${r.plantId.slice(0,8)}...</td>`;
-      tbody.appendChild(tr);
-    });
-  }catch(e){msg.textContent='エラー: '+e.message;}
-}
-
-function markDirty(el){el.style.borderColor='var(--warn)';}
-
-async function savePlantMasterAll(){
-  const inputs=document.querySelectorAll('#plantMasterBody input[data-id]');
-  const records=[];
-  inputs.forEach(inp=>{
-    records.push({
-      plantId: inp.dataset.id,
-      plantJa: inp.dataset.ja,
-      plantEn: inp.value.trim().toUpperCase(),
-    });
-    inp.style.borderColor='var(--border)';
-  });
-  try{
-    await savePlantMaster(records);
-    const msg=document.getElementById('plantMasterMsg');
-    msg.textContent=`✅ ${records.length}件保存完了`;
-    msg.style.color='var(--ok)';
-    setTimeout(()=>{msg.style.color='var(--text2)';},3000);
-  }catch(e){alert('保存エラー: '+e.message);}
-}
-
-function saveApiKey(){const v=document.getElementById('apiKey').value.trim();if(!v)return alert('APIキーを入力してください');S.apiKey=v;localStorage.setItem('cotecna_api_key',v);document.getElementById('apiDot').classList.add('ok');flog('✅ APIキー保存','ok');}
-function onFolderSelected(input){const files=Array.from(input.files);if(!files.length)return;S.photoFiles=files;S.photoFolderName=files[0].webkitRelativePath.split('/')[0];const ivSet=new Set(files.map(f=>f.webkitRelativePath.split('/')[1]).filter(Boolean));document.getElementById('folderPath').innerHTML=`<b>${S.photoFolderName}</b>　IVフォルダ ${ivSet.size}件 · ファイル ${files.length}個`;document.getElementById('folderBanner').classList.add('ok');document.getElementById('step2Sub').textContent=`${S.photoFolderName} (${ivSet.size}件)`;checkFetchReady();}
-async function dvGet(url){const tok=await LEENAI.auth.token('dataverse');const r=await fetch(url,{headers:{Authorization:`Bearer ${tok}`,'OData-MaxVersion':'4.0','OData-Version':'4.0',Accept:'application/json;odata.metadata=minimal'}});if(!r.ok){throw new Error(`DV ${r.status}: ${(await r.text()).slice(0,120)}`);}return r.json();}
-function flog(msg,type=''){const box=document.getElementById('fetchLog');if(!box)return;box.style.display='block';const div=document.createElement('div');div.className=type?`log-${type}`:'';div.textContent=msg;box.appendChild(div);box.scrollTop=box.scrollHeight;}
-
-// ══════════════════════════════════════════════════════════════════
-//  fetchList v7.2
-//  修正: purchase_contract の packer 取得を正しい経路に
-//       CT→PC→packer マスターの3段階
-//  修正: $select でエラーになる可能性のあるフィールドを
-//        2パターンで試行 (with $select → fail → without $select)
-//  デバッグ: 第1 CT の全フィールド名をログ出力
-// ══════════════════════════════════════════════════════════════════
-async function fetchList(){
-  if(LEENAI.auth.status.dataverse!=='ok'){alert('COMPASSにログインしてください');return;}
-  if(!S.photoFiles.length){alert('PHOTOフォルダを選択してください');return;}
-  const dateFrom=document.getElementById('dateFrom').value;
-  const dateTo=document.getElementById('dateTo').value;
-  if(!dateFrom||!dateTo){alert('日付を入力してください');return;}
-  document.getElementById('fetchLog').innerHTML='';
-  document.getElementById('listArea').style.display='none';
-  const btn=document.getElementById('fetchBtn');
-  btn.disabled=true;btn.innerHTML='<span class="spinner"></span> 照会中...';
-  S.inspList=[];
-  try{
-    flog('📋 COMPASS 自主検査コンテナ照会中...','info');
-    const filter=`crcf9_inspection eq true and crcf9_work_date ge ${dateFrom}T00:00:00Z and crcf9_work_date le ${dateTo}T23:59:59Z`;
-
-    // STEP 1: CT 取得 — $select に _crcf9_purchase_contract_id_value を含む
-    // 400エラー時は $select なしで再試行
-    let ctData;
-    try{
-      ctData=await dvGet(
-        `${DV_API}/crcf9_container_informations`+
-        `?$filter=${encodeURIComponent(filter)}`+
-        `&$select=crcf9_container_informationid,crcf9_container_no,crcf9_partial_no,crcf9_work_date,crcf9_seal_no,_crcf9_booking_id_value,_crcf9_purchase_contract_id_value,_crcf9_parker_plant_id_value`+
-        `&$orderby=crcf9_work_date asc&$top=200`
-      );
-    }catch(e1){
-      flog(`  ⚠️ $select付きで失敗(${e1.message.slice(0,40)})、$select なしで再試行...`,'warn');
-      ctData=await dvGet(
-        `${DV_API}/crcf9_container_informations`+
-        `?$filter=${encodeURIComponent(filter)}`+
-        `&$orderby=crcf9_work_date asc&$top=200`
-      );
-    }
-
-    if(!ctData.value?.length){
-      flog('⚠️ 指定期間の自主検査コンテナなし','warn');
-      document.getElementById('listBody').innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--text2);padding:20px;">指定期間に自主検査対象がありません</td></tr>';
-      document.getElementById('listArea').style.display='block';return;
-    }
-    flog(`  CT ${ctData.value.length}件取得`,'info');
-
-    // デバッグ: 第1 CT の全フィールド名を確認
-    const ct0=ctData.value[0];
-    const ct0Keys=Object.keys(ct0).filter(k=>!k.startsWith('@'));
-    flog(`  [debug] CT1 fields: ${ct0Keys.join(', ')}`,'info');
-    flog(`  [debug] bkg_val=${ct0['_crcf9_booking_id_value']||'(null)'} | pc_val=${ct0['_crcf9_purchase_contract_id_value']||'(null)'} | partial=${ct0.crcf9_partial_no||'(null)'}`,'info');
-
-    // STEP 2: BKG fetch
-    const bkgGuids=[...new Set(ctData.value.map(c=>c['_crcf9_booking_id_value']).filter(Boolean))];
-    flog(`  BKG ${bkgGuids.length}件 fetch中...`,'info');
-    const bkgMap={};
-    await Promise.all(bkgGuids.map(async g=>{
-      try{bkgMap[g]=await dvGet(`${DV_API}/cr49f_bookings(${g})?$select=cr49f_bookingid,cr49f_invoice_no,cr49f_booking_no,_cr49f_region_japan_id_value,_cr49f_sale_contract_id_value`);}
-      catch(e){flog(`  ⚠️ BKG ${g.slice(0,8)}: ${e.message.slice(0,40)}`,'warn');}
-    }));
-    flog(`  BKG ${Object.keys(bkgMap).length}件完了`,'ok');
-
-    // デバッグ: BKG 第1件のフィールド確認
-    const bkg0=Object.values(bkgMap)[0];
-    if(bkg0){
-      flog(`  [debug] BKG1 region=${bkg0['_cr49f_region_japan_id_value']||'(null)'} | sc=${bkg0['_cr49f_sale_contract_id_value']||'(null)'}`,'info');
-    }
-
-    // STEP 3: purchase_contract fetch
-    // PC ID を CT から取得 (複数パターン試行)
-    const pcGuids=[...new Set(ctData.value.map(c=>
-      c['_crcf9_purchase_contract_id_value']   // _value suffix パターン
-      || c['crcf9_purchase_contract_id']        // plain GUID パターン
-    ).filter(Boolean))];
-    flog(`  PC ${pcGuids.length}件 fetch中...`,'info');
-    const pcMap={};
-    await Promise.all(pcGuids.map(async g=>{
-      try{
-        // purchase_contract: _cr49f_packer_id_value のみ取得
-        pcMap[g]=await dvGet(`${DV_API}/cr49f_purchase_contracts(${g})?$select=cr49f_purchase_contractid,_cr49f_packer_id_value`);
-      }catch(e){flog(`  ⚠️ PC ${g.slice(0,8)}: ${e.message.slice(0,40)}`,'warn');}
-    }));
-    flog(`  PC ${Object.keys(pcMap).length}件完了`,'ok');
-
-    // STEP 4: packer マスタ fetch
-    const packerGuids=[...new Set(Object.values(pcMap).map(p=>p['_cr49f_packer_id_value']).filter(Boolean))];
-    flog(`  Packer ${packerGuids.length}件 fetch中...`,'info');
-    const packerMap={};
-    await Promise.all(packerGuids.map(async g=>{
-      try{packerMap[g]=await dvGet(`${DV_API}/cr49f_packers(${g})?$select=cr49f_packer,cr49f_packer_name`);}
-      catch(e){}
-    }));
-    flog(`  Packer ${Object.keys(packerMap).length}件完了`,'ok');
-
-    // STEP 5: sale_contract
-    const scGuids=[...new Set(Object.values(bkgMap).map(b=>b['_cr49f_sale_contract_id_value']).filter(Boolean))];
-    const scMap={};
-    await Promise.all(scGuids.map(async g=>{
-      try{scMap[g]=await dvGet(`${DV_API}/cr49f_sale_contracts(${g})?$select=cr49f_sale_contract_id,cr49f_sale_contract_no`);}
-      catch(e){}
-    }));
-
-    // STEP 6: S/I → VO No
-    flog(`  S/I VO No 取得中 (${scGuids.length}件)...`,'info');
-    const siVoMap={};
-    await Promise.all(scGuids.map(async g=>{
-      try{const d=await dvGet(`${DV_API}/cr49f_s_is?$filter=_cr49f_sale_contract_id_value eq ${g}&$select=crcf9_vo_no&$top=1`);if(d.value?.length&&d.value[0].crcf9_vo_no)siVoMap[g]=d.value[0].crcf9_vo_no;}
-      catch(e){}
-    }));
-    flog(`  VO No: ${Object.keys(siVoMap).length}件`,'ok');
-
-    // STEP 7: region_japan → POL
-    const polGuids=[...new Set(Object.values(bkgMap).map(b=>b['_cr49f_region_japan_id_value']).filter(Boolean))];
-    flog(`  POL ${polGuids.length}件 fetch中...`,'info');
-    const polMap={};
-    await Promise.all(polGuids.map(async g=>{
-      try{const d=await dvGet(`${DV_API}/crcf9_region_japans(${g})?$select=crcf9_pol,crcf9_region_japan`);polMap[g]=d.crcf9_pol||d.crcf9_region_japan||'—';}
-      catch(e){flog(`  ⚠️ POL ${g.slice(0,8)}: ${e.message.slice(0,40)}`,'warn');}
-    }));
-    flog(`  POL ${Object.keys(polMap).length}件完了`,'ok');
-
-    // ──────────────────────────────────────────────
-    // STEP 8: グループ化 — キー = ivNo + '::' + partial
-    // ──────────────────────────────────────────────
-    const groupMap={};
-    const localIvSet=new Set(S.photoFiles.map(f=>f.webkitRelativePath.split('/')[1]).filter(Boolean));
-
-    for(const ct of ctData.value){
-      const bkgGuid=ct['_crcf9_booking_id_value'];
-      const bkg=bkgMap[bkgGuid];if(!bkg)continue;
-      const ivNo=bkg.cr49f_invoice_no||bkgGuid;
-      const partial=ct.crcf9_partial_no||'';
-      const groupKey=`${ivNo}::${partial}`;
-
-      if(!groupMap[groupKey]){
-        const scId=bkg['_cr49f_sale_contract_id_value'];
-        const sc=scMap[scId]||{};
-        const pol=polMap[bkg['_cr49f_region_japan_id_value']]||'—';
-
-        // VO No
-        const rawVo=(siVoMap[scId]||sc.cr49f_sale_contract_no||'').replace(/^VO\s*NO\.?\s*/i,'').trim();
-        const vm=rawVo.match(/X\.(\d+\.\d+)/i);
-        const voNo=vm?`X.${vm[1]}`:(rawVo||'—');
-
-        // Packer: CT → PC (_value or plain) → packer マスター
-        const pcId=ct['_crcf9_purchase_contract_id_value']||ct['crcf9_purchase_contract_id'];
-        const pc=pcMap[pcId]||{};
-        const pk=packerMap[pc['_cr49f_packer_id_value']];
-        const packer=pk?.cr49f_packer||pk?.cr49f_packer_name||'—';
-
-        groupMap[groupKey]={
-          groupKey, ivNo, voNo,
-          partial: partial||'—',
-          bkgNo: bkg.cr49f_booking_no||'—',
-          bkgGuid,
-          packer, pol,
-          plantGuid: ct['_crcf9_parker_plant_id_value']||'',
-          workDates:[], ctList:[],
-          photoStatus: localIvSet.has(ivNo)?'📁':'❌',
-        };
-      }
-
-      const d=ct.crcf9_work_date?.slice(0,10)||'';
-      if(d&&!groupMap[groupKey].workDates.includes(d))groupMap[groupKey].workDates.push(d);
-      groupMap[groupKey].ctList.push({ctNo:ct.crcf9_container_no||'—',sealShip:ct.crcf9_seal_no||'',seal:'',date:d});
-    }
-
-    // STEP 9: BKG別 全CT補完照会 (日付範囲外のCTを補完)
-    flog(`  📋 BKG別 全CT補完照会中...`,'info');
-    let _addedCt=0;
-    const _bkgIds=[...new Set(Object.values(groupMap).map(g=>g.bkgGuid).filter(Boolean))];
-    await Promise.all(_bkgIds.map(async bkgId=>{
-      try{
-        const allCtData=await dvGet(
-          `${DV_API}/crcf9_container_informations`+
-          `?$filter=${encodeURIComponent(`crcf9_inspection eq true and _crcf9_booking_id_value eq ${bkgId}`)}`+
-          `&$select=crcf9_container_no,crcf9_partial_no,crcf9_work_date,crcf9_seal_no,_crcf9_parker_plant_id_value`+
-          `&$top=100`
-        );
-        if(!allCtData.value?.length)return;
-        const bkg=bkgMap[bkgId];if(!bkg)return;
-        const ivNo=bkg.cr49f_invoice_no||bkgId;
-        for(const ct of allCtData.value){
-          const partial=ct.crcf9_partial_no||'';
-          const groupKey=`${ivNo}::${partial}`;
-          if(!groupMap[groupKey])continue;
-          const ctNo=ct.crcf9_container_no||'—';
-          if(groupMap[groupKey].ctList.some(c=>c.ctNo===ctNo))continue;
-          const d=ct.crcf9_work_date?.slice(0,10)||'';
-          if(d&&!groupMap[groupKey].workDates.includes(d))groupMap[groupKey].workDates.push(d);
-          groupMap[groupKey].ctList.push({ctNo,sealShip:ct.crcf9_seal_no||'',seal:'',date:d});
-          _addedCt++;
-        }
-      }catch(e){flog(`  ⚠️ BKG補完 ${bkgId.slice(0,8)}: ${e.message.slice(0,40)}`,'warn');}
-    }));
-    flog(`  ✅ CT補完完了: ${_addedCt}件追加`,'ok');
-
-    const list=Object.values(groupMap);
-    list.forEach(r=>r.workDates.sort());
-    list.sort((a,b)=>{
-      const da=(a.workDates[0]||''),db=(b.workDates[0]||'');
-      if(da!==db)return da.localeCompare(db);
-      if(a.ivNo!==b.ivNo)return a.ivNo.localeCompare(b.ivNo);
-      return (a.partial||'').localeCompare(b.partial||'');
-    });
-    S.inspList=list;renderTable();
-    flog(`✅ ${list.length}件 リストアップ完了 (IV×Partial 単位)`,'ok');
-  }catch(e){flog(`❌ 照会エラー: ${e.message}`,'err');console.error(e);}
-  finally{btn.disabled=false;btn.textContent='📋 リスト照会';}
-}
-
-function renderTable(){
-  const tbody=document.getElementById('listBody');tbody.innerHTML='';
-  for(const row of S.inspList){
-    const dateDisp=row.workDates.length>1
-      ?`<div class="date-range">${row.workDates[0]}<br>〜 ${row.workDates[row.workDates.length-1]}</div>`
-      :`<span>${row.workDates[0]||'—'}</span>`;
-    const pk=row.packer.toLowerCase();
-    const pkClass=pk.includes('大本')||pk.includes('oomoto')?'sbadge-oomoto':pk.includes('兼子')||pk.includes('kaneko')?'sbadge-kaneko':'sbadge-other';
-    const tr=document.createElement('tr');tr.dataset.key=row.groupKey;
-    tr.innerHTML=`
-      <td><input type="checkbox" class="row-chk" data-key="${row.groupKey}" onchange="onChkChange()"></td>
-      <td>${dateDisp}</td>
-      <td class="iv-link" onclick="toggleDetail('${row.groupKey.replace(/[^a-z0-9]/gi,'_')}')">${row.ivNo}</td>
-      <td style="font-weight:600;">${row.voNo}</td>
-      <td style="color:var(--text2);font-weight:600;">${row.partial}</td>
-      <td><span class="sbadge ${pkClass}">${row.packer}</span></td>
-      <td style="font-size:11px;color:var(--text2);">${row.pol}</td>
-      <td style="text-align:center;font-weight:700;">${row.ctList.length}</td>
-      <td style="text-align:center;">${row.photoStatus}</td>`;
-    tbody.appendChild(tr);
-    const safeId=row.groupKey.replace(/[^a-z0-9]/gi,'_');
-    const det=document.createElement('tr');det.id=`detail-${safeId}`;det.style.display='none';
-    det.innerHTML=`<td colspan="9" style="background:var(--surface2);padding:6px 14px 10px;">
-      <div style="font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;margin-bottom:4px;">CT リスト (${row.ivNo} / Partial:${row.partial} / Packer:${row.packer})</div>
-      <div style="display:flex;flex-wrap:wrap;gap:4px;">
-        ${row.ctList.map(c=>`<span style="font-size:11px;background:var(--surface);border:1px solid var(--border);border-radius:4px;padding:2px 8px;">${c.ctNo}${c.seal?` <span style='color:var(--text3)'>${c.seal}</span>`:''} <span style='color:var(--text3);font-size:10px;'>${c.date}</span></span>`).join('')}
-      </div></td>`;
-    tbody.appendChild(det);
-  }
-  document.getElementById('listCount').textContent=`${S.inspList.length} 件`;
-  document.getElementById('listArea').style.display='block';
-}
-function toggleDetail(safeId){const el=document.getElementById(`detail-${safeId}`);if(el)el.style.display=el.style.display==='none'?'':'none';}
-function selectAll(v){document.querySelectorAll('.row-chk').forEach(c=>c.checked=v);onChkChange();}
-function onChkChange(){S.selectedKeys=[...document.querySelectorAll('.row-chk:checked')].map(c=>c.dataset.key);const btn=document.getElementById('proceedBtn');btn.disabled=!S.selectedKeys.length;btn.textContent=S.selectedKeys.length?`▶ 選択 ${S.selectedKeys.length}件 のレポート生成開始`:'▶ 選択件のレポート生成開始';}
-
-async function proceedSelected(){
-  if(!S.selectedKeys.length)return;S.apiKey=document.getElementById('apiKey').value.trim();if(!S.apiKey)return alert('APIキーを入力してください');
-  document.getElementById('proceedBtn').disabled=true;
-  showOrderConfirmStep();
-}
-
-function showOrderConfirmStep(){
-  S.orderOverride={};S.orderMatchResults={};
-  const area=document.getElementById('orderConfirmArea');
-  area.innerHTML='';
-  const rows=S.selectedKeys.map(k=>S.inspList.find(r=>r.groupKey===k)).filter(Boolean);
-  rows.forEach(row=>{
-    const panel=document.createElement('div');
-    panel.id=`order-panel-${row.groupKey.replace(/[^a-z0-9]/gi,'_')}`;
-    panel.style.cssText='margin-bottom:20px;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:14px;';
-    const compassCts=row.ctList.map(c=>c.ctNo);
-    // 初期順序はCOMPASS順
-    S.orderOverride[row.groupKey]=compassCts.slice();
-    panel.innerHTML=`
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-        <div>
-          <span style="font-weight:700;font-size:13px;">${row.ivNo} / ${row.partial}</span>
-          <span style="color:var(--text2);font-size:11px;margin-left:8px;">${row.packer} / ${row.voNo} / CT ${row.ctList.length}本</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <input type="file" id="clf-${row.groupKey.replace(/[^a-z0-9]/gi,'_')}" accept=".pdf" style="display:none;" onchange="handleCheckListFile(event,'${row.groupKey}')">
-          <button class="btn" style="font-size:11px;padding:4px 10px;" onclick="document.getElementById('clf-${row.groupKey.replace(/[^a-z0-9]/gi,'_')}').click()">📄 CHECK LIST選択</button>
-          <span id="clf-status-${row.groupKey.replace(/[^a-z0-9]/gi,'_')}" style="font-size:11px;color:var(--text2);">未選択</span>
-        </div>
-      </div>
-      <div style="font-size:11px;color:var(--warn);margin-bottom:8px;display:none;" id="clf-warn-${row.groupKey.replace(/[^a-z0-9]/gi,'_')}"></div>
-      <table style="width:100%;border-collapse:collapse;font-size:12px;">
-        <thead><tr style="background:var(--surface2);">
-          <th style="padding:6px 8px;text-align:left;font-size:11px;color:var(--text2);width:40px;">No</th>
-          <th style="padding:6px 8px;text-align:left;font-size:11px;color:var(--text2);">CT番号 <span style="font-weight:400;color:var(--text3);">(COMPASS確定値)</span></th>
-          <th style="padding:6px 8px;text-align:left;font-size:11px;color:var(--text2);width:120px;">OCR読取</th>
-          <th style="padding:6px 8px;text-align:left;font-size:11px;color:var(--text2);width:100px;">信頼度</th>
-          <th style="padding:6px 8px;text-align:center;font-size:11px;color:var(--text2);width:56px;">順序</th>
-        </tr></thead>
-        <tbody id="order-tbody-${row.groupKey.replace(/[^a-z0-9]/gi,'_')}"></tbody>
-      </table>`;
-    area.appendChild(panel);
-    renderOrderRows(row.groupKey,compassCts,[]);
-  });
-  // ステップ表示切替
-  const s2b=document.getElementById('step2b');
-  s2b.style.display='';s2b.classList.add('active','open');
-  s2b.scrollIntoView({behavior:'smooth'});
-  updateOrderWarnMsg();
-}
-
-function renderOrderRows(groupKey,orderedCts,matchResults){
-  const safeKey=groupKey.replace(/[^a-z0-9]/gi,'_');
-  const tbody=document.getElementById(`order-tbody-${safeKey}`);if(!tbody)return;
-  tbody.innerHTML='';
-  orderedCts.forEach((ctNo,idx)=>{
-    const m=matchResults.find(r=>r.compassCt===ctNo)||null;
-    const trustBadge=m?
-      (m.distance===0?`<span style="color:var(--ok);font-size:11px;">✅ 完全一致</span>`:
-       m.distance<=2?`<span style="color:var(--ok);font-size:11px;">✅ 近似(${m.distance})</span>`:
-       m.distance<=4?`<span style="color:var(--warn);font-size:11px;">⚠️ 要確認(${m.distance})</span>`:
-       `<span style="color:var(--err);font-size:11px;">❌ 乖離大(${m.distance})</span>`):
-      `<span style="color:var(--text3);font-size:11px;">— (未OCR)</span>`;
-    const ocrText=m?`<span style="font-family:monospace;font-size:11px;color:var(--text2);">${m.ocrCt}</span>`:'<span style="font-size:11px;color:var(--text3);">—</span>';
-    const rowBg=m&&m.distance>4?'background:rgba(255,80,80,0.05);':m&&m.distance>2?'background:rgba(240,165,0,0.05);':'';
-    const tr=document.createElement('tr');
-    tr.style.cssText=`border-bottom:1px solid var(--border);${rowBg}`;
-    tr.innerHTML=`
-      <td style="padding:6px 8px;"><span style="background:var(--surface2);border-radius:4px;padding:2px 7px;font-weight:700;">${idx+1}</span></td>
-      <td style="padding:6px 8px;font-family:monospace;font-weight:600;">${ctNo}</td>
-      <td style="padding:6px 8px;">${ocrText}</td>
-      <td style="padding:6px 8px;">${trustBadge}</td>
-      <td style="padding:6px 8px;text-align:center;">
-        <button class="btn" style="padding:1px 7px;font-size:12px;" onclick="moveOrderRow('${groupKey}',${idx},-1)" ${idx===0?'disabled':''}>↑</button>
-        <button class="btn" style="padding:1px 7px;font-size:12px;margin-left:2px;" onclick="moveOrderRow('${groupKey}',${idx},1)" ${idx===orderedCts.length-1?'disabled':''}>↓</button>
-      </td>`;
-    tbody.appendChild(tr);
-  });
-}
-
-function moveOrderRow(groupKey,idx,dir){
-  const arr=S.orderOverride[groupKey];if(!arr)return;
-  const ni=idx+dir;if(ni<0||ni>=arr.length)return;
-  [arr[idx],arr[ni]]=[arr[ni],arr[idx]];
-  const m=S.orderMatchResults&&S.orderMatchResults[groupKey]||[];
-  renderOrderRows(groupKey,arr,m);
-}
-
-async function handleCheckListFile(event,groupKey){
-  const file=event.target.files[0];if(!file)return;
-  const safeKey=groupKey.replace(/[^a-z0-9]/gi,'_');
-  const statusEl=document.getElementById(`clf-status-${safeKey}`);
-  const warnEl=document.getElementById(`clf-warn-${safeKey}`);
-  statusEl.textContent='読取中...';statusEl.style.color='var(--info)';
-  warnEl.style.display='none';
-  try{
-    const b64=await fileToB64pdf(file);
-    const row=S.inspList.find(r=>r.groupKey===groupKey);if(!row)return;
-    const compassCts=row.ctList.map(c=>c.ctNo);
-    const {orderedCts,matchResults,warnCount}=await ocrCheckList(b64,compassCts);
-    S.orderOverride[groupKey]=orderedCts;
-    if(!S.orderMatchResults)S.orderMatchResults={};
-    S.orderMatchResults[groupKey]=matchResults;
-    renderOrderRows(groupKey,orderedCts,matchResults);
-    statusEl.textContent=`✅ OCR完了 (${compassCts.length}件)`;statusEl.style.color='var(--ok)';
-    if(warnCount>0){warnEl.textContent=`⚠️ ${warnCount}件に要確認の行があります。内容を確認してください。`;warnEl.style.display='';}
-    updateOrderWarnMsg();
-  }catch(e){
-    statusEl.textContent='❌ 読取失敗';statusEl.style.color='var(--err)';
-    warnEl.textContent=`エラー: ${e.message}`;warnEl.style.display='';
-    console.error(e);
-  }
-}
-
-async function fileToB64pdf(file){
-  return new Promise((res,rej)=>{
-    const r=new FileReader();
-    r.onload=()=>res(r.result.split(',')[1]);
-    r.onerror=()=>rej(new Error('ファイル読込失敗'));
-    r.readAsDataURL(file);
-  });
-}
-
-function levenshtein(a,b){
-  const m=a.length,n=b.length;
-  const dp=[];
-  for(let i=0;i<=m;i++){dp[i]=[];for(let j=0;j<=n;j++)dp[i][j]=i===0?j:j===0?i:0;}
-  for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)
-    dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);
-  return dp[m][n];
-}
-
-async function ocrCheckList(b64,compassCts){
-  const prompt=`このCOTECNA CHECK LIST PDFからコンテナ番号の順序を読み取ってください。
-No列とContainer No列のペアを全て抽出してください。手書きでも最善の読み取りで。
-コンテナ番号が空欄の行は含めないでください。
-JSONのみ返してください（説明不要）:
-[{"no":1,"ct":"XXXX1234567"},{"no":2,"ct":"XXXX1234567"},...]`;
-  const resp=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':S.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,messages:[{role:'user',content:[{type:'document',source:{type:'base64',media_type:'application/pdf',data:b64}},{type:'text',text:prompt}]}]})});
-  if(!resp.ok)throw new Error(`API ${resp.status}`);
-  const d=await resp.json();
-  let txt=d.content?.[0]?.text?.trim()||'';
-  txt=txt.replace(/```json|```/g,'').trim();
-  let ocrList=[];
-  try{ocrList=JSON.parse(txt);}catch(e){throw new Error('OCR結果のJSON解析失敗: '+txt.slice(0,100));}
-  // UNIQUE MATCH: OCR CT → COMPASS CT (1:1最近傍)
-  const ocrCts=ocrList.map(o=>({no:o.no,ct:(o.ct||'').toUpperCase().replace(/\s/g,'')})).sort((a,b)=>a.no-b.no);
-  const remaining=[...compassCts];
-  const matchResults=[];
-  // Step1: 完全一致を先に確定
-  const used=new Set();
-  ocrCts.forEach(o=>{
-    const exact=remaining.find(c=>c===o.ct&&!used.has(c));
-    if(exact){matchResults.push({no:o.no,ocrCt:o.ct,compassCt:exact,distance:0});used.add(exact);}
-  });
-  // Step2: 近似マッチ (未確定分)
-  ocrCts.forEach(o=>{
-    if(matchResults.find(m=>m.no===o.no))return;
-    const avail=remaining.filter(c=>!used.has(c));
-    if(!avail.length){matchResults.push({no:o.no,ocrCt:o.ct,compassCt:null,distance:999});return;}
-    let best=avail[0],bestD=levenshtein(o.ct,avail[0]);
-    avail.forEach(c=>{const d=levenshtein(o.ct,c);if(d<bestD){bestD=d;best=c;}});
-    matchResults.push({no:o.no,ocrCt:o.ct,compassCt:best,distance:bestD});
-    used.add(best);
-  });
-  // 未マッチのCOMPASS CT（OCRになかった）は末尾に追加
-  const unmatchedCompass=compassCts.filter(c=>!used.has(c));
-  // orderedCts: matchResults順 + 未マッチ分
-  const orderedCts=matchResults.filter(m=>m.compassCt).sort((a,b)=>a.no-b.no).map(m=>m.compassCt);
-  unmatchedCompass.forEach(c=>{if(!orderedCts.includes(c))orderedCts.push(c);});
-  const warnCount=matchResults.filter(m=>m.distance>2).length;
-  return {orderedCts,matchResults,warnCount};
-}
-
-function updateOrderWarnMsg(){
-  const warnEl=document.getElementById('orderWarnMsg');if(!warnEl)return;
-  if(!S.orderMatchResults){warnEl.style.display='none';return;}
-  let total=0;
-  Object.values(S.orderMatchResults).forEach(arr=>arr.forEach(m=>{if(m.distance>2)total++;}));
-  if(total>0){warnEl.textContent=`⚠️ 要確認の行が${total}件あります`;warnEl.style.display='';}
-  else{warnEl.style.display='none';}
-}
-
-function cancelOrderConfirm(){
-  document.getElementById('step2b').style.display='none';
-  document.getElementById('step2b').classList.remove('active','open');
-  document.getElementById('proceedBtn').disabled=false;
-  S.orderOverride={};S.orderMatchResults={};
-}
-
-async function confirmAllAndGenerate(){
-  // CHECK LIST未選択チェック
-  const noClf=S.selectedKeys.some(k=>!(S.orderMatchResults&&S.orderMatchResults[k]));
-  if(noClf){
-    const ok=confirm('CHECK LISTが選択されていない項目があります。\nCOMPASS順のままレポートを作成しますか？');
-    if(!ok){return;}
-  }
-  document.getElementById('confirmOrderBtn').disabled=true;
-  const step3=document.getElementById('step3');step3.classList.add('active','open');step3.scrollIntoView({behavior:'smooth'});
-  document.getElementById('resultSection').style.display='none';const allDl=[];
-  for(const key of S.selectedKeys){
-    const row=S.inspList.find(r=>r.groupKey===key);if(!row)continue;
-    document.getElementById('jobCard').style.display='block';
-    document.getElementById('jobTitle').textContent=`${row.ivNo} / ${row.partial}  (${row.voNo})`;
-    document.getElementById('jobSub').textContent=`${row.packer} / ${row.pol} / CT ${row.ctList.length}本 / ${row.workDates.join(' 〜 ')}`;
-    clearLog();resetJobState(row);
-    try{
-      setPhase(1);setProgress(5,'写真読込中...');S.overlayDate=null;
-      await loadPhotosLocal(row);
-      setPhase(2);setProgress(45,'AI分類中...');S.logoB64=DEFAULT_LOGO_B64;await classifyAll();
-      setPhase(3);setProgress(88,'VAN FORM 生成中...');const van=buildVanDocx();setProgress(92,'INSPECTION PLACE 取得中...');log(`   PLANT GUID: ${row.plantGuid||'(なし)'}`, 'info');const plantEn=row.plantGuid?await getPlantEnById(row.plantGuid):'';log(`   PLANT EN: ${plantEn||'(未登録)'}`, 'info');S.inspLocation=plantEn?`${row.packer} / ${plantEn}`:(row.packer||'');setProgress(95,'BALING FORM 生成中...');const bal=buildBalingDocx();
-      setProgress(100,`✅ ${row.ivNo}/${row.partial} 完了`);setAllDone();log(`🎉 完了`,'ok');await saveSealRecords(row);
-      const voSafe=S.voNo?S.voNo.replace(/[^a-zA-Z0-9._-]/g,'_'):`${row.ivNo}_${row.partial}`.replace(/[^a-zA-Z0-9._-]/g,'_');
-      allDl.push({buf:van,name:`[${voSafe}]_VAN.docx`,icon:'📄',label:`${row.ivNo}/${row.partial} VAN`},{buf:bal,name:`[${voSafe}]_BALING.docx`,icon:'📋',label:`${row.ivNo}/${row.partial} BALING`});
-    }catch(e){log(`❌ ${e.message}`,'err');console.error(e);}
-  }
-  showResults(allDl);document.getElementById('confirmOrderBtn').disabled=false;
-  document.getElementById('step2').classList.remove('active');document.getElementById('step2').classList.add('done');
-  document.getElementById('step2b').classList.remove('active');document.getElementById('step2b').classList.add('done');
-  step3.classList.add('done');
-}
-function resetJobState(row){S.mode='folder';S.groups={};
-  // CT順序: orderOverrideがあればそれに従う (COMPASS CT番号は変更しない)
-  const override=S.orderOverride&&S.orderOverride[row.groupKey];
-  if(override&&override.length===row.ctList.length){
-    S.containers=override.map((ctNo,i)=>{const ct=row.ctList.find(c=>c.ctNo===ctNo)||row.ctList[i];return{no:i+1,container:ctNo,seal:ct?ct.seal:'',date:ct?ct.date||'':''};});
-    log(`   CT順序: CHECK LIST順で設定 (${override.join(' → ')})`, 'info');
-  } else {
-    S.containers=row.ctList.map((ct,i)=>({no:i+1,container:ct.ctNo,seal:ct.seal,date:ct.date||''}));
-    log(`   CT順序: COMPASS順 (${row.ctList.map(c=>c.ctNo).join(' → ')})`, 'info');
-  }S.vanPhotos={};S.baraPhotos={};S.pressPhotos={};S.balingRawFiles=[];S.classifiedVan={};S.classifiedBaling={goods_yards:[],inspectors:[],open_bales:[],rebales:[],pairs:[]};S.logoB64=null;S.voNo=(row.voNo&&row.voNo!=='—'&&row.partial&&row.partial!=='—')?`${row.voNo}-${row.partial}`:(row.voNo&&row.voNo!=='—'?row.voNo:'');const MN=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];const fmtDate=s=>{const d=new Date(s);return MN[d.getMonth()]+`. ${d.getDate()}, ${d.getFullYear()}`};const fd=row.workDates[0]||'';const ld=row.workDates[row.workDates.length-1]||'';if(row.workDates.length>=2){const d0=new Date(fd),d1=new Date(ld);S.reportDate=MN[d0.getMonth()]+'. '+d0.getDate()+' &amp; '+d1.getDate()+', '+d0.getFullYear();}else{S.reportDate=fd?fmtDate(fd):'';};S.balingDateCount=row.workDates.length;S.inspPlace=row.pol||'';S.inspLocation='';S.baleCount=0;S.rootName=row.ivNo;S.fileList=[];S.isFuji=false;}
-async function loadPhotosLocal(row){
-  const ivNo=row.ivNo;
-  const ext=/\.(jpe?g|png)$/i;
-  const ctPattern=/^[A-Z]{4}\d{7}$/;
-
-  // STEP1: まず同一IVフォルダで CT番号フォルダを探す
-  const ivFiles=S.photoFiles.filter(f=>f.webkitRelativePath.split('/')[1]===ivNo);
-  if(!ivFiles.length){log(` ⚠️ ローカルに ${ivNo} なし`,'warn');}
-
-  // STEP2: COMPASSのCT番号リストで全PHOTOフォルダを横断検索
-  // 同一BKG内で別IVフォルダにCTが入っている場合に対応
-  const ctNos=row.ctList.map(c=>c.ctNo).filter(Boolean);
-  const ctFileMap={}; // ctNo → File[]
-
-  if(ctNos.length){
-    // 全ファイルからCT番号フォルダを検索 (IV問わず)
-    S.photoFiles.forEach(f=>{
-      const p=f.webkitRelativePath.split('/');
-      if(p.length<4) return;
-      const folder=p[2];
-      if(!ctPattern.test(folder)) return;
-      if(!ext.test(p[p.length-1])) return;
-      if(ctNos.includes(folder)){
-        if(!ctFileMap[folder]) ctFileMap[folder]=[];
-        ctFileMap[folder].push(f);
-      }
-    });
-    // 見つかったCTをログ
-    const found=Object.keys(ctFileMap);
-    const missing=ctNos.filter(c=>!ctFileMap[c]);
-    if(found.length) log(`   CT番号検索: ${found.length}件発見 [${found.join(', ')}]`,'ok');
-    if(missing.length) log(`   ⚠️ CT未発見: [${missing.join(', ')}]`,'warn');
-  }
-
-  // STEP3: CT番号で見つからなかった分はIVフォルダ内の未割当CTフォルダで補完
-  const assignedCts=new Set(Object.keys(ctFileMap));
-  const unassignedConts=S.containers.filter(c=>!assignedCts.has(c.container));
-  if(unassignedConts.length && ivFiles.length){
-    // IVフォルダ内のCTパターンフォルダを収集 (まだ未割当のもの)
-    const ivCtFolders=new Set();
-    ivFiles.forEach(f=>{
-      const p=f.webkitRelativePath.split('/');
-      if(p.length>=4 && ctPattern.test(p[2]) && !assignedCts.has(p[2])) ivCtFolders.add(p[2]);
-    });
-    // ⚠️ Dataverse CT番号リストに含まれるフォルダのみ割当 (他Partial混入防止)
-    const validCtNos=new Set(ctNos);
-    const ivCtArr=[...ivCtFolders].filter(cf=>validCtNos.has(cf)).sort();
-    log(`   IV内未割当CTフォルダ(Partial一致): [${ivCtArr.join(', ')}]`,'info');
-    // 順番に割当
-    ivCtArr.forEach((cf,i)=>{
-      if(i<unassignedConts.length){
-        const imgs=ivFiles.filter(f=>{
-          const p=f.webkitRelativePath.split('/');
-          return p[2]===cf && ext.test(p[p.length-1]);
-        });
-        if(imgs.length){
-          ctFileMap[cf]=imgs;
-          log(`   フォルダ割当: ${cf} → CT${unassignedConts[i].no} (${unassignedConts[i].container||'未番号'})`,'info');
-        }
-      }
-    });
-  }
-
-  // STEP4: 写真読込
-  const ctFolders=Object.keys(ctFileMap);
-  log(`   CTフォルダ ${ctFolders.length}件 (Partial=${row.partial}): ${ctFolders.join(', ')}`,'info');
-  if(!ctFolders.length){log(' ⚠️ CTフォルダなし','warn');return;}
-
-  let ci=0;
-  for(const cf of ctFolders){
-    // CT番号でコンテナを特定、なければ順番割当
-    let cont=S.containers.find(c=>c.container===cf);
-    if(!cont){cont=S.containers.find(c=>!S.vanPhotos[c.no]);} // まだ未割当のコンテナ
-    if(!cont){cont=S.containers[ci];ci++;}
-    if(!cont)continue;
-    const no=cont.no;
-    const imgs=(ctFileMap[cf]||[]).sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true}));
-    if(!imgs.length){log(`    ⚠️ ${cf} 写真なし`,'warn');continue;}
-    S.vanPhotos[no]={};S.groups[no]=imgs;
-    for(let i=0;i<imgs.length;i+=5){
-      const batch=imgs.slice(i,i+5);
-      await Promise.all(batch.map(async(f,bi)=>{
-        try{const seq=i+bi+1;const ctDate=cont?.date||'';S.vanPhotos[no][seq]=ctDate?await fileToB64WithDate(f,ctDate):await fileToB64(f);S.vanPhotos[no][`_name_${seq}`]=f.name;if(seq===1)log(`    [DEBUG] f.name='${f.name}'`,'info');}
-        catch(e){log(`    ⚠️ ${f.name}`,'warn');}
-      }));
-      setProgress(5+Math.round(((ci||1)/ctFolders.length)*35),`写真読込: ${cf}`);
-    }
-    log(`    ✅ CT${no} (${cf}): ${Object.keys(S.vanPhotos[no]).filter(k=>!k.startsWith('_')).length}枚`,'ok');
-  }
-  log(`✅ 写真読込完了`,'ok');
-  // _CHECK_PHOTO フォルダ読込 (BALING用)
-  const checkPartial=(row.partial||'').replace(/^P/i,'');
-  const checkPhotoFiles=ivFiles.filter(f=>{
-    const p=f.webkitRelativePath.split('/');
-    if(!p.includes('_CHECK_PHOTO'))return false;
-    if(!ext.test(p[p.length-1]))return false;
-    // _CHECK_PHOTOの直後がサブフォルダの場合、フォルダ名にPartial番号が含まれるか確認
-    const cpIdx=p.indexOf('_CHECK_PHOTO');
-    if(cpIdx>=0&&p.length>cpIdx+2){
-      // サブフォルダあり → フォルダ名にPartialが含まれるものだけ
-      const subFolder=p[cpIdx+1]||'';
-      const pMatch=subFolder.includes(`-P${checkPartial} `)||
-                   subFolder.includes(`-P${checkPartial}_`)||
-                   subFolder.includes(` P${checkPartial} `)||
-                   subFolder.includes(` P${checkPartial}_`)||
-                   new RegExp(`P${checkPartial}[^\\d]`).test(subFolder);
-      return pMatch;
-    }
-    return true; // サブフォルダなし → 全て対象
-  });
-  if(checkPhotoFiles.length){
-    log(`   _CHECK_PHOTO ${checkPhotoFiles.length}枚 読込中...`,'info');
-    S.balingRawFiles=[];
-    await Promise.all(checkPhotoFiles.map(async f=>{try{const b64raw=await fileToB64(f);const fp=f.webkitRelativePath.split('/');const cpIdx2=fp.indexOf('_CHECK_PHOTO');const sf=fp[cpIdx2+1]||'';const dm=sf.match(/^(\d{4})(\d{2})(\d{2})/);const kanekoCTDate=dm?`${dm[1]}-${dm[2]}-${dm[3]}`:(S.containers[0]?.date||'');const b64=kanekoCTDate?await new Promise((res)=>{const img=new Image();img.onload=()=>{const c=document.createElement('canvas');c.width=img.width;c.height=img.height;const ctx=c.getContext('2d');ctx.drawImage(img,0,0);const fs=Math.max(14,Math.round(img.height*0.035));ctx.font=`bold ${fs}px Arial`;const pad=Math.round(fs*0.5);const tw=ctx.measureText(kanekoCTDate).width;const x=img.width-tw-pad*2;const y=img.height-pad;ctx.fillStyle='rgba(0,0,0,0.55)';ctx.fillRect(x-pad/2,y-fs-pad/2,tw+pad,fs+pad);ctx.fillStyle='#ffffff';ctx.fillText(kanekoCTDate,x,y);res(c.toDataURL('image/jpeg',0.92).split(',')[1]);};img.onerror=()=>res(b64raw);img.src='data:image/jpeg;base64,'+b64raw;}):b64raw;S.balingRawFiles.push({name:f.name,b64});}catch(e){}}));
-    log(`   ✅ BALING写真 ${S.balingRawFiles.length}枚 読込完了`,'ok');
-  }else{S.balingRawFiles=[];}
-
-  // ── _ARCHIVED / _INSPECTION フォルダ BALING写真 탐색 (OOMOTO等) ──
-  // フォルダ名パターン: *VO_NO.{voNo}*{partial}* 検査のご報告*
-  // _INSPECTION: IV/_INSPECTION/日付_メール_VO_NO.xxx-Pn 検査のご報告/バラ検査写真/
-  if(!S.balingRawFiles.length){
-    const voRaw=(S.voNo||'').replace(/-P\d+$/,''); // X.13.097522 (partial除去)
-    const partial=(row.partial||'').replace(/^P/i,''); // 数字部分のみ
-    const archivedFiles=S.photoFiles.filter(f=>{
-      const p=f.webkitRelativePath.split('/');
-      // ケース1: _ARCHIVED または _INSPECTION の直下フォルダ名にVO番号+Partialが含まれる場合
-      // 例: _ARCHIVED/VO_NO.X.13.xxx-P1 検査のご報告/photo.jpg
-      // 例: _INSPECTION/20260702_xxx_VO_NO.X.13.xxx-P1 検査のご報告/バラ検査写真 7.2/photo.jpg
-      const specialIdx=p.findIndex(d=>d==='_ARCHIVED'||d==='_INSPECTION');
-      if(specialIdx>=0){
-        const folderName=p[specialIdx+1]||'';
-        if(folderName){
-          const voMatch=folderName.includes(voRaw);
-          const pMatch=folderName.includes(`-P${partial}`)||folderName.includes(`P${partial} `)||folderName.includes(`P${partial}　`)||folderName.includes(`P${partial}_`);
-          if(voMatch&&pMatch&&ext.test(p[p.length-1])) return true;
-        }
-      }
-      // ケース2: 特殊フォルダなし。VO_NO.xxx-Pn 検査のご報告 のような
-      // フォルダ名がパスのどこかに直接存在する場合 (OOMOTO等の日付作業フォルダ構造)
-      const matchIdx=p.findIndex(seg=>{
-        const voMatch=seg.includes(voRaw);
-        const pMatch=seg.includes(`-P${partial}`)||seg.includes(`P${partial} `)||seg.includes(`P${partial}　`)||seg.includes(`P${partial}_`);
-        return voMatch&&pMatch;
-      });
-      if(matchIdx>=0&&ext.test(p[p.length-1])) return true;
-      return false;
-    });
-    if(archivedFiles.length){
-      log(`   _ARCHIVED/_INSPECTION ${archivedFiles.length}枚 発見 → BALING読込中...`,'info');
-      S.balingRawFiles=[];
-      await Promise.all(archivedFiles.map(async f=>{
-        try{
-          const b64=await fileToB64(f);
-          // フォルダパスからバラ/プレス判定
-          const pathParts=f.webkitRelativePath.split('/');
-          const folderPath=pathParts.join('/');
-          const folderPathL=folderPath.toLowerCase();
-          const folderPathNFC=folderPath.normalize('NFC');
-          const folderType=folderPathNFC.includes('バラ')?'bara':
-                           folderPathNFC.includes('プレス')?'press':'other';
-          // ITEM抽出: フォルダ名から (OCC)/(OMG)/(ONP)/(MIX)等を検出
-          const itemMatch=folderPath.match(/\(([A-Z]{2,4})\)/);
-          const item=itemMatch?itemMatch[1]:'';
-          // 日付抽出: 「バラ検査写真 8.5」「プレス検査写真 8.6」などから月.日を抽出
-          const dtMatch=folderPath.match(/検査写真[\s　]+(\d{1,2})[./](\d{1,2})/);
-          let dateTag='';
-          if(dtMatch){
-            const refYear=(row.workDates[0]||'').split('-')[0]||String(new Date().getFullYear());
-            const mm=String(parseInt(dtMatch[1])).padStart(2,'0');
-            const dd=String(parseInt(dtMatch[2])).padStart(2,'0');
-            dateTag=`${refYear}-${mm}-${dd}`;
-          }
-          S.balingRawFiles.push({name:f.name,b64,f,folderType,item,dateTag});
-        }catch(e){}
-      }));
-      log(`   ✅ _ARCHIVED/_INSPECTION BALING写真 ${S.balingRawFiles.length}枚 読込完了`,'ok');
-      const sampleNames=S.balingRawFiles.slice(0,8).map(x=>x.name).join(' | ');
-      log(`   [DEBUG] ファイル名サンプル: ${sampleNames}`,'info');
-      // 診断: 実際のfolderType分布を出力
-      const ftCounts={bara:0,press:0,other:0};
-      S.balingRawFiles.forEach(fi=>ftCounts[fi.folderType]=(ftCounts[fi.folderType]||0)+1);
-      log(`   [DEBUG] folderType分布: bara=${ftCounts.bara} press=${ftCounts.press} other=${ftCounts.other}`,'warn');
-      // 実際のパス例を出力 (先頭3件)
-      S.balingRawFiles.slice(0,3).forEach(fi=>{
-        log(`   [DEBUG] PATH: ${fi.f?fi.f.webkitRelativePath:'(no path)'} → folderType=${fi.folderType} dateTag=${fi.dateTag||'なし'}`,'warn');
-      });
-    }else{
-      log(`   ℹ️ _ARCHIVED/_INSPECTION 対象フォルダなし (VO:${voRaw} P${partial})`,'info');
-    }
-  }
-
-  // ── FUJI 判定 + _FUJI/_inspection BALING写真 탐색 ──
-  // FUJI: packer名に'FUJI'を含み'FUJI_SH'(富士紙業)を含まない場合
-  const fujiPackerName=(row.packer||'').toUpperCase();
-  S.isFuji=(fujiPackerName==='FUJI'||fujiPackerName.startsWith('FUJI '))&&!fujiPackerName.includes('FUJI_SH');
-  if(S.isFuji) log('  📋 FUJI パターン検出','ok');
-
-  if(!S.balingRawFiles.length && S.isFuji){
-    // PHOTO/_FUJI/_inspection/{イメールフォルダ}/{CT番号}/ファイル 구조를 탐색
-    const fujiBaling=[];
-    S.photoFiles.forEach(f=>{
-      const p=f.webkitRelativePath.split('/');
-      const fujiIdx=p.findIndex(d=>d==='_FUJI');
-      if(fujiIdx<0) return;
-      const inspIdx=p.indexOf('_inspection',fujiIdx);
-      if(inspIdx<0) return;
-      if(!ext.test(p[p.length-1])) return;
-      // _FUJI/_inspection/{メール}/{CT番号}/ファイル → inspIdx+2がCT番号フォルダ
-      const ctFolderIdx=inspIdx+2;
-      if(p.length<=ctFolderIdx+1) return;
-      const ctFolder=p[ctFolderIdx];
-      if(!ctPattern.test(ctFolder)) return;
-      if(!ctNos.includes(ctFolder)) return;
-      // ファイル名でBALINGスロット判定
-      const fileName=p[p.length-1];
-      const fileBase=fileName.replace(/\.(jpe?g|png)$/i,'');
-      let fujiSlot=null;
-      if(/バラ/.test(fileBase)) fujiSlot='open_bale';
-      else if(/検査員/.test(fileBase)) fujiSlot='inspector_with_goods';
-      else if(/梱包/.test(fileBase)) fujiSlot='goods_yard';
-      else if(/ベーラー/.test(fileBase)) fujiSlot=null; // 무시
-      else fujiSlot='ai_needed'; // AI fallback
-      if(fujiSlot===null) return; // 무시
-      fujiBaling.push({f,ctNo:ctFolder,fujiSlot,name:fileName});
-    });
-    if(fujiBaling.length){
-      log(`   _FUJI/_inspection ${fujiBaling.length}枚 発見 → BALING読込中...`,'info');
-      S.balingRawFiles=[];
-      await Promise.all(fujiBaling.map(async item=>{
-        try{
-          const b64=await fileToB64(item.f);
-          S.balingRawFiles.push({name:item.name,b64,f:item.f,fujiSlot:item.fujiSlot,ctNo:item.ctNo});
-        }catch(e){}
-      }));
-      log(`   ✅ FUJI BALING写真 ${S.balingRawFiles.length}枚 読込完了`,'ok');
-      const fujiSample=S.balingRawFiles.slice(0,5).map(x=>`${x.name}(${x.fujiSlot})`).join(' | ');
-      log(`   [DEBUG] ${fujiSample}`,'info');
-    }else{
-      log(`   ℹ️ _FUJI/_inspection 対象なし (CT: ${ctNos.join(',')})`,'info');
-    }
-  }
-  setProgress(40,'写真読込完了');}
-function fileToB64(f){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(f);});}
-
-// Canvas で日付オーバーレイ (右下, yyyy-mm-dd, KANEKO用)
-function fileToB64WithDate(f, dateStr){
-  return new Promise((res,rej)=>{
-    const reader=new FileReader();
-    reader.onerror=rej;
-    reader.onload=()=>{
-      const img=new Image();
-      img.onerror=()=>res(reader.result.split(',')[1]); // 失敗時は元画像
-      img.onload=()=>{
-        try{
-          const c=document.createElement('canvas');
-          c.width=img.width; c.height=img.height;
-          const ctx=c.getContext('2d');
-          ctx.drawImage(img,0,0);
-          // フォントサイズ = 画像高さの3.5%
-          const fs=Math.max(14,Math.round(img.height*0.035));
-          ctx.font=`bold ${fs}px Arial, sans-serif`;
-          const pad=Math.round(fs*0.5);
-          const tw=ctx.measureText(dateStr).width;
-          const x=img.width-tw-pad*2;
-          const y=img.height-pad;
-          // 背景半透明黒
-          ctx.fillStyle='rgba(0,0,0,0.55)';
-          ctx.fillRect(x-pad/2, y-fs-pad/2, tw+pad, fs+pad);
-          // 白文字
-          ctx.fillStyle='#ffffff';
-          ctx.fillText(dateStr, x, y);
-          // JPEG base64
-          res(c.toDataURL('image/jpeg',0.92).split(',')[1]);
-        }catch(e){res(reader.result.split(',')[1]);}
-      };
-      img.src=reader.result;
-    };
-    reader.readAsDataURL(f);
-  });
-}
-async function classifyAll(){S.classifiedVan={};S.classifiedBaling={goods_yards:[],inspectors:[],open_bales:[],rebales:[],pairs:[]};
-
-  // ── BALING 分類 ──
-  // ① _ARCHIVED (folderType=bara/press) → バラ/プレス AI分類
-  // ② _CHECK_PHOTO (ファイル名命名規則あり) → ファイル名マッピング優先
-  if(S.balingRawFiles&&S.balingRawFiles.length&&!S.isFuji){
-    const baraFiles=S.balingRawFiles.filter(f=>f.folderType==='bara');
-    const pressFiles=S.balingRawFiles.filter(f=>f.folderType==='press');
-    const useArchivedPath=(baraFiles.length>0||pressFiles.length>0);
-
-    if(useArchivedPath){
-      // ── _ARCHIVED パス ──
-      // プレスフォルダ: goods_yardのみAI判定、それ以外は全てrebale
-      // バラフォルダ: inspectorのみAI判定、それ以外は全てopen_bale
-      // ITEM順: OCC→OMG→ONP→その他
-      log('  📋 BALING分類中 (フォルダ基準)...','info');
-      log(`  バラ: ${baraFiles.length}枚 / プレス: ${pressFiles.length}枚`,'info');
-      const ITEM_ORDER=['OCC','OMG','ONP','MIX',''];
-      const itemSort=(a,b)=>{const ai=ITEM_ORDER.indexOf(a.item||'');const bi=ITEM_ORDER.indexOf(b.item||'');return (ai===-1?999:ai)-(bi===-1?999:bi);};
-
-      // プレス: ITEM順にソートし、先頭dateCount枚をgoods_yard、残りをrebale
-      // バラ: ITEM順にソートし、先頭dateCount枚をinspector、残りをopen_bale
-      const dateCount=Math.max(1,S.balingDateCount||1);
-
-      // ── ITEM別完全分離処理 ──
-      // プレス(OCC/OMG別): AI で goods_yard/rebale を判定
-      // バラ(OCC/OMG別): AI で inspector を判定、残りは全て open_bale
-      // 最終的に OCC→OMG順で結合し、rebale と open_bale の ITEM順を一致させる
-
-      // ── 日付別グループ化 (날짜 오름차순) ──
-      const dateGroupMap={};
-      [...baraFiles,...pressFiles].forEach(fi=>{
-        const dt=fi.dateTag||'unknown';
-        if(!dateGroupMap[dt])dateGroupMap[dt]={bara:[],press:[]};
-        (fi.folderType==='bara'?dateGroupMap[dt].bara:dateGroupMap[dt].press).push(fi);
-      });
-      const sortedDates=Object.keys(dateGroupMap).filter(d=>d!=='unknown').sort();
-      if(dateGroupMap['unknown'])sortedDates.push('unknown');
-      log(`  📅 日付グループ: [${sortedDates.join(' | ')}]`,'info');
-
-      const allGoodsYards=[], allRebales=[], allInspectors=[], allOpenBales=[], allPairs=[];
-
-      for(const dt of sortedDates){
-        const grp=dateGroupMap[dt];
-        log(`  📅 ${dt}: バラ${grp.bara.length}枚 プレス${grp.press.length}枚`,'info');
-        const ITEMS=[...new Set([...grp.press,...grp.bara].map(fi=>fi.item||''))].sort(
-          (a,b)=>{const oi=ITEM_ORDER.indexOf(a||'');const oj=ITEM_ORDER.indexOf(b||'');return (oi===-1?999:oi)-(oj===-1?999:oj);}
-        );
-
-        for(const item of ITEMS){
-          const pFiles=grp.press.filter(fi=>(fi.item||'')===item);
-          const bFiles=grp.bara.filter(fi=>(fi.item||'')===item);
-          log(`    ITEM=${item||'不明'}: プレス${pFiles.length}枚 バラ${bFiles.length}枚`,'info');
-
-          // プレス: 順序保証で直列AI判定 + 日付オーバーレイ
-          const pGoods=[], pRebales=[];
-          for(const fi of pFiles){
-            let {name,b64,f:fileObj}=fi;
-            if(fileObj&&dt&&dt!=='unknown'){
-              try{
-                const dAns=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:DATE_CHECK_PROMPT}],5);
-                if(dAns.trim().toLowerCase().includes('no')){b64=await fileToB64WithDate(fileObj,dt);log(`    [プレス/${dt}/${item}] ${name} → 日付オーバーレイ追加`,'ok');}
-              }catch(e){}
-            }
-            try{
-              const l=(await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:BALING_PROMPT}],20)).trim().toLowerCase();
-              if(l==='goods_yard'){pGoods.push({b64,name,item,dt});log(`    [プレス/${dt}/${item}] ${name} → goods_yard`,'ok');}
-              else{pRebales.push({b64,name,item,dt});log(`    [プレス/${dt}/${item}] ${name} → rebale`,'ok');}
-            }catch(e){pRebales.push({b64,name,item,dt});log(`    [プレス/${dt}/${item}] ${name} エラー→rebale`,'warn');}
-          }
-          allGoodsYards.push(...pGoods);
-
-          // バラ: 順序保証で直列AI判定 + 日付オーバーレイ
-          const bInsp=[], bOpen=[];
-          for(const fi of bFiles){
-            let {name,b64,f:fileObj}=fi;
-            if(fileObj&&dt&&dt!=='unknown'){
-              try{
-                const dAns=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:DATE_CHECK_PROMPT}],5);
-                if(dAns.trim().toLowerCase().includes('no')){b64=await fileToB64WithDate(fileObj,dt);log(`    [バラ/${dt}/${item}] ${name} → 日付オーバーレイ追加`,'ok');}
-              }catch(e){}
-            }
-            try{
-              const l=(await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:BALING_PROMPT}],20)).trim().toLowerCase();
-              if(l==='inspector'){bInsp.push({b64,name,item,dt});log(`    [バラ/${dt}/${item}] ${name} → inspector`,'ok');}
-              else{bOpen.push({b64,name,item,dt});log(`    [バラ/${dt}/${item}] ${name} → open_bale`,'ok');}
-            }catch(e){bOpen.push({b64,name,item,dt});log(`    [バラ/${dt}/${item}] ${name} エラー→open_bale`,'warn');}
-          }
-          allInspectors.push(...bInsp);
-          // 即時ペアリング: 同日同ITEMのrebaleとopen_baleをその場でzip
-          const pairCount=Math.min(pRebales.length, bOpen.length);
-          for(let pi=0;pi<pairCount;pi++){
-            allPairs.push({open:bOpen[pi].b64, rebale:pRebales[pi].b64, dt});
-          }
-          // rebale・open_bale 単独配列も維持 (他コードとの互換性)
-          allRebales.push(...pRebales);
-          allOpenBales.push(...bOpen.slice(0,pRebales.length));
-          log(`    [ペア/${dt}/${item}] ${pairCount}ペア確定 (rebale=${pRebales.length} open_bale=${bOpen.length})`,'info');
-        }
-      }
-
-      S.classifiedBaling.goods_yards=allGoodsYards.map(fi=>fi.b64).slice(0,dateCount);
-      S.classifiedBaling.rebales=allRebales.map(fi=>fi.b64);
-      S.classifiedBaling.inspectors=allInspectors.map(fi=>fi.b64).slice(0,dateCount);
-      S.classifiedBaling.open_bales=allOpenBales.map(fi=>fi.b64);
-      S.classifiedBaling.pairs=allPairs;
-      log(`  日付順: ${sortedDates.join(' → ')}`,'info');
-      log(`  ✅ ペア数: ${allPairs.length}ペア (${sortedDates.join(' → ')})`,'ok');
-      log(`  ✅ BALING分類完了: goods_yard=${S.classifiedBaling.goods_yards.length}枚 rebale=${S.classifiedBaling.rebales.length}枚 inspector=${S.classifiedBaling.inspectors.length}枚 open_bale=${S.classifiedBaling.open_bales.length}枚`,'ok');
-
-    }else{
-      // ── _CHECK_PHOTO パス ──
-      // まずファイル名命名規則でマッピング試行
-      // 不足の場合はAI分類にフォールバック
-      log('  📋 BALING写真 ファイル名マッピング中...','info');
-      const byName={};
-      S.balingRawFiles.forEach(({name,b64})=>{
-        const n=name.replace(/_R\.(jpg|jpeg|png)$/i,'');
-        if(/ヤード在庫/.test(n)){byName.goods_yard=b64;log(`    ${name} → goods_yard`,'ok');}
-        else if(/検査員/.test(n)){byName.inspector=b64;log(`    ${name} → inspector`,'ok');}
-        else if(/検査済みベール([\d０-９]+|[一二三四五六七八九十]+)/.test(n)){
-          const mN=n.match(/検査済みベール([\d０-９]+)/)||n.match(/検査済みベール([一二三四五六七八九十]+)/);
-          const num=mN?kanjiToNum(mN[1]):(byName.rebales||[]).length+1;
-          if(!byName.rebales)byName.rebales=[];
-          byName.rebales.push({num,b64});log(`    ${name} → rebale#${num}`,'ok');
-        }
-        else if(/開梱されたベール([\d０-９]+|[一二三四五六七八九十]+)/.test(n)){
-          const mN=n.match(/開梱されたベール([\d０-９]+)/)||n.match(/開梱されたベール([一二三四五六七八九十]+)/);
-          const num=mN?kanjiToNum(mN[1]):(byName.open_bales||[]).length+1;
-          if(!byName.open_bales)byName.open_bales=[];
-          byName.open_bales.push({num,b64});log(`    ${name} → open_bale#${num}`,'ok');
-        }
-      });
-      const dateCount=Math.max(1,S.balingDateCount||1);
-      const mappedRebales=(byName.rebales||[]).sort((a,b)=>a.num-b.num).map(x=>x.b64);
-      const mappedOpen=(byName.open_bales||[]).sort((a,b)=>a.num-b.num).map(x=>x.b64);
-      const mappedOk=mappedRebales.length>0||byName.goods_yard||byName.inspector;
-
-      if(mappedOk){
-        // 命名規則マッピング成功
-        S.classifiedBaling.goods_yards=byName.goods_yard?[byName.goods_yard].slice(0,dateCount):[];
-        S.classifiedBaling.rebales=mappedRebales;
-        S.classifiedBaling.open_bales=mappedOpen.slice(0,mappedRebales.length);
-
-        // inspector が0枚の場合 → 全ファイルをAIで再スキャン
-        if(byName.inspector){
-          S.classifiedBaling.inspectors=[byName.inspector];
-          log(`  ✅ BALING マッピング完了: goods_yard=${S.classifiedBaling.goods_yards.length}枚 rebale=${mappedRebales.length}枚 inspector=1枚 open_bale=${S.classifiedBaling.open_bales.length}枚`,'ok');
-        }else{
-          log('  ⚠️ inspector 未検出 → AI再スキャン中...','warn');
-          const inspFound=[];
-          for(let i=0;i<S.balingRawFiles.length;i+=4){
-            await Promise.all(S.balingRawFiles.slice(i,i+4).map(async({name,b64})=>{
-              try{
-                const l=(await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:BALING_PROMPT}],20)).trim().toLowerCase();
-                if(l==='inspector'){inspFound.push(b64);log(`    ${name} → inspector ✅`,'ok');}
-              }catch(e){log(`    ${name} エラー: ${e.message}`,'warn');}
-            }));
-            if(inspFound.length>0)break; // 1枚見つかったら終了
-          }
-          S.classifiedBaling.inspectors=inspFound.slice(0,1);
-          log(`  ✅ BALING完了: goods_yard=${S.classifiedBaling.goods_yards.length}枚 rebale=${mappedRebales.length}枚 inspector=${S.classifiedBaling.inspectors.length}枚 open_bale=${S.classifiedBaling.open_bales.length}枚`,'ok');
-        }
-      }else{
-        // 命名規則なし → AI分類にフォールバック
-        log('  📋 命名規則なし → AI分類にフォールバック...','info');
-        const aiResults=[];
-        for(let i=0;i<S.balingRawFiles.length;i+=4){
-          await Promise.all(S.balingRawFiles.slice(i,i+4).map(async({name,b64})=>{
-            try{
-              const l=(await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:BALING_PROMPT}],20)).trim().toLowerCase();
-              aiResults.push({label:l,b64,name});
-              log(`    ${name} → ${l}`,'ok');
-            }catch(e){log(`    ${name} エラー: ${e.message}`,'warn');}
-          }));
-        }
-        const rebales=aiResults.filter(r=>r.label==='rebale').map(r=>r.b64);
-        S.classifiedBaling.goods_yards=aiResults.filter(r=>r.label==='goods_yard').map(r=>r.b64).slice(0,1);
-        S.classifiedBaling.inspectors=aiResults.filter(r=>r.label==='inspector').map(r=>r.b64).slice(0,1);
-        S.classifiedBaling.rebales=rebales;
-        S.classifiedBaling.open_bales=aiResults.filter(r=>r.label==='open_bale').map(r=>r.b64).slice(0,rebales.length);
-        log(`  ✅ BALING AI分類完了: goods_yard=${S.classifiedBaling.goods_yards.length}枚 rebale=${rebales.length}枚 inspector=${S.classifiedBaling.inspectors.length}枚 open_bale=${S.classifiedBaling.open_bales.length}枚`,'ok');
-      }
-    }
-  }
-
-const nos=Object.keys(S.vanPhotos).map(Number).sort((a,b)=>a-b);if(!nos.length){log('⚠️ 写真なし','warn');for(const c of S.containers)S.classifiedVan[c.no]={};return;}
-  // ── FUJI 先行分岐: KANEKO等マッピングをスキップしてここで完結 ──
-  if(S.isFuji){
-    log('  📋 FUJIパターン: VAN UNIFIED_PROMPT + BALING ファイル名マッチ','ok');
-    const VAN_SLOTS=['empty','half','full','right_door','inspector','cotecna_seal'];
-    const fujiSealCands={}; // CT番号 → cotecna_seal候補[]{b64,name} (2次精密判定用)
-    const fujiRightDoorCands={}; // CT番号 → right_door候補[]{b64,name} (2次精密判定用)
-    for(const no of nos){
-      S.classifiedVan[no]={};
-      fujiSealCands[no]=[];
-      fujiRightDoorCands[no]=[];
-      const p=S.vanPhotos[no]||{};
-      const seqsAll=Object.keys(p).filter(k=>!k.startsWith('_')).map(Number).sort((a,b)=>a-b);
-      log(`    CT${no}: ${seqsAll.length}枚 FUJI VAN分類中...`,'info');
-      for(let i=0;i<seqsAll.length;i+=4){
-        await Promise.all(seqsAll.slice(i,i+4).map(async seq=>{
-          if(!p[seq]) return;
-          const fname=p[`_name_${seq}`]||'';
-          try{
-            const result=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:p[seq]}},{type:'text',text:(window.UNIFIED_PROMPT_OVERRIDE||UNIFIED_PROMPT)}],20);
-            let slot=result.trim().toLowerCase();
-            if(slot==='inspector_van') slot='inspector'; // UNIFIED_PROMPTの出力を正規化
-            if(VAN_SLOTS.includes(slot)){
-              if(slot==='cotecna_seal'){
-                // cotecna_sealは全候補を収集 → 後で2次精密判定
-                fujiSealCands[no].push({b64:p[seq],name:fname});
-                log(`    CT${no} [${fname}] → cotecna_seal候補追加 (計${fujiSealCands[no].length}枚)`,'info');
-              }else if(slot==='right_door'){
-                // right_doorも全候補を収集 → 後で2次精密判定
-                fujiRightDoorCands[no].push({b64:p[seq],name:fname});
-                log(`    CT${no} [${fname}] → right_door候補追加 (計${fujiRightDoorCands[no].length}枚)`,'info');
-              }else if(!S.classifiedVan[no][slot]){
-                S.classifiedVan[no][slot]=p[seq];log(`    CT${no} [${fname}] → ${slot} ✅`,'ok');
-              }else{log(`    CT${no} [${fname}] → ${slot} (重複スキップ)`,'info');}
-            }else if(slot==='rebale'){
-              S.classifiedBaling.rebales.push(p[seq]);log(`    CT${no} [${fname}] → rebale (BALING) ✅`,'ok');
-            }else{
-              log(`    CT${no} [${fname}] → ${slot||'ignore'} (スキップ)`,'info');
-            }
-          }catch(e){log(`    CT${no} [${fname}] VAN分類エラー`,'warn');}
-        }));
-      }
-      log(`    CT${no} VAN分類完了: ${Object.keys(S.classifiedVan[no]).join(',')||'(なし)'}  cotecna_seal候補${fujiSealCands[no].length}枚 right_door候補${fujiRightDoorCands[no].length}枚`,'ok');
-    }
-
-    // ── cotecna_seal 2次精密判定 (FUJI) ──
-    for(const no of nos){
-      const cands=fujiSealCands[no]||[];
-      if(cands.length===0){log(`  CT${no} cotecna_seal候補なし`,'warn');continue;}
-      if(cands.length===1){S.classifiedVan[no].cotecna_seal=cands[0].b64;log(`  CT${no} cotecna_seal 1枚確定 [${cands[0].name}]`,'ok');continue;}
-      log(`  CT${no} cotecna_seal候補 ${cands.length}枚 → 色判定中...`,'info');
-      // Step1: 黄色判定
-      const colorChecks=await Promise.all(cands.map(async({b64,name})=>{
-        try{const ans=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:'この写真は黄色または金色のシール・タグ・錠前が写っていますか？「yes」または「no」のみ'}],10);return{b64,name,yellow:ans.toLowerCase().includes('yes')};}
-        catch(e){return{b64,name,yellow:false};}
-      }));
-      const yellows=colorChecks.filter(r=>r.yellow);
-      if(yellows.length===1){S.classifiedVan[no].cotecna_seal=yellows[0].b64;log(`  CT${no} cotecna_seal → 黄色1枚で確定 [${yellows[0].name}]`,'ok');continue;}
-      // Step2: COTECNA文字+JP-番号確認
-      const verifyAll=await Promise.all((yellows.length>1?yellows:colorChecks).map(async({b64,name})=>{
-        try{const ans=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:'「COTECNA」の文字と「JP-」で始まる番号の両方が写っていますか？「yes」または「no」のみ'}],10);return{b64,name,ok:ans.toLowerCase().includes('yes')};}
-        catch(e){return{b64,name,ok:false};}
-      }));
-      const verified=verifyAll.find(r=>r.ok);
-      S.classifiedVan[no].cotecna_seal=(verified||cands[0]).b64;
-      log(`  CT${no} cotecna_seal → ${verified?'COTECNA文字確認':'候補先頭フォールバック'}で確定 [${(verified||cands[0]).name}]`,'ok');
-    }
-
-    // ── right_door 2次精密判定 (FUJI) ──
-    // Step1: 右側1枚閉扉＋スペックプレート確認 → Step2: コンテナ番号横書き確認
-    const RIGHT_DOOR_STEP1=`以下の条件を全て満たす場合のみ「yes」を返してください：
-① 写真の左側または中央に古紙ベール・荷物が積まれている
-② 写真の右側にコンテナの扉（ドア）が写っている
-③ コンテナ番号が横書きで正面から読める状態である
-④ 内部側壁を下から上へ見上げた構図ではない（外部・空が大きく写っていない）
-全て満たす場合は「yes」、一つでも満たさない場合は「no」で答えてください。
-その後に判断理由を1文で続けてください。
-例: yes: ベールと扉とコンテナ番号の全てが確認できます
-例: no: 左側に古紙ベールが見えません`;
-    const RIGHT_DOOR_STEP2=`コンテナ番号（英字4文字＋数字7桁）が横書きで正面から読める状態で写っていますか？
-「yes」または「no」で答えてください。その後に判断理由を1文で続けてください。
-例: yes: CAIU5683494が横書きで正面から読めます
-例: no: 番号が縦書きまたは読み取れません`;
-    for(const no of nos){
-      const rdCands=fujiRightDoorCands[no]||[];
-      if(rdCands.length===0){log(`  CT${no} right_door候補なし`,'warn');continue;}
-      if(rdCands.length===1){S.classifiedVan[no].right_door=rdCands[0].b64;log(`  CT${no} right_door 1枚確定 [${rdCands[0].name}]`,'ok');continue;}
-      log(`  CT${no} right_door候補 ${rdCands.length}枚 → Step1 形状確認中...`,'info');
-      // Step1: 右側1枚閉扉＋スペックプレート
-      const step1Results=await Promise.all(rdCands.map(async({b64,name})=>{
-        try{const ans=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:RIGHT_DOOR_STEP1}],20);
-            const ok=ans.toLowerCase().startsWith('yes');
-            const reason=ans.replace(/^(yes|no)[:\s]*/i,'').trim()||'—';
-            log(`    [Step1] ${name} → ${ok?'YES ✅':'NO ❌'}  (${reason})`,'info');
-            return{b64,name,ok};}
-        catch(e){log(`    [Step1] ${name} → エラー`,'warn');return{b64,name,ok:false};}
-      }));
-      const step1Pass=step1Results.filter(r=>r.ok);
-      log(`  CT${no} right_door Step1通過: ${step1Pass.length}枚`,'info');
-      if(step1Pass.length===1){S.classifiedVan[no].right_door=step1Pass[0].b64;log(`  CT${no} right_door → Step1で1枚確定 [${step1Pass[0].name}]`,'ok');continue;}
-      // Step2: コンテナ番号横書き確認 (Step1通過分、通過なければ全候補で)
-      const step2Targets=step1Pass.length>0?step1Pass:rdCands;
-      const step2Results=await Promise.all(step2Targets.map(async({b64,name})=>{
-        try{const ans=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:RIGHT_DOOR_STEP2}],15);
-            const ok=ans.toLowerCase().startsWith('yes');
-            const reason=ans.replace(/^(yes|no)[:\s]*/i,'').trim()||'—';
-            log(`    [Step2] ${name} → ${ok?'YES ✅':'NO ❌'}  (${reason})`,'info');
-            return{b64,name,ok};}
-        catch(e){log(`    [Step2] ${name} → エラー`,'warn');return{b64,name,ok:false};}
-      }));
-      const step2Pass=step2Results.find(r=>r.ok);
-      S.classifiedVan[no].right_door=(step2Pass||rdCands[0]).b64;
-      log(`  CT${no} right_door → ${step2Pass?'Step2番号確認':'候補先頭フォールバック'}で確定 [${(step2Pass||rdCands[0]).name}]`,'ok');
-    }
-
-    // --- FUJI BALING: ファイル名マッチ + AI fallback ---
-    if(S.balingRawFiles&&S.balingRawFiles.length){
-      const knownFiles=S.balingRawFiles.filter(f=>f.fujiSlot&&f.fujiSlot!=='ai_needed');
-      const aiFiles=S.balingRawFiles.filter(f=>f.fujiSlot==='ai_needed');
-      log(`   BALING: ファイル名マッチ ${knownFiles.length}枚 / AI fallback ${aiFiles.length}枚`,'info');
-      // FUJI _inspection 사진: DATE_CHECK → 날짜 없으면 오버레이 추가
-      const ctDateMap={};
-      S.containers.forEach(c=>{if(c.no&&c.date)ctDateMap[c.no]=c.date;});
-      for(const item of knownFiles){
-        let {b64,fujiSlot,name,f,ctNo}=item;
-        // ctNo → nos 배열에서 해당 no 찾기
-        const ctNoNum=nos.find(no=>{const cont=S.containers.find(c=>c.no===no);return cont&&cont.container===ctNo;});
-        const ctDate=ctNoNum?ctDateMap[ctNoNum]:'';
-        if(f&&ctDate){
-          try{
-            const dateAns=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:DATE_CHECK_PROMPT}],5);
-            const hasDate=!dateAns.trim().toLowerCase().includes('no');
-            if(!hasDate){
-              b64=await fileToB64WithDate(f,ctDate);
-              log(`   [BALING] ${name} → 日付オーバーレイ追加 (${ctDate})`,'ok');
-            }
-          }catch(e){}
-        }
-        if(fujiSlot==='open_bale'){S.classifiedBaling.open_bales.push(b64);log(`   [BALING] ${name} → open_bale ✅`,'ok');}
-        else if(fujiSlot==='inspector_with_goods'){S.classifiedBaling.inspectors.push(b64);log(`   [BALING] ${name} → inspector ✅`,'ok');}
-        else if(fujiSlot==='goods_yard'){S.classifiedBaling.goods_yards.push(b64);log(`   [BALING] ${name} → goods_yard ✅`,'ok');}
-      }
-      if(aiFiles.length){
-        log(`   BALING AI fallback 開始 (${aiFiles.length}枚)...`,'info');
-        for(let i=0;i<aiFiles.length;i+=4){
-          await Promise.all(aiFiles.slice(i,i+4).map(async({b64,name})=>{
-            try{
-              const result=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:FUJI_BALING_PROMPT}],20);
-              const slot=result.trim().toLowerCase();
-              if(slot==='open_bale'){S.classifiedBaling.open_bales.push(b64);}
-              else if(slot==='inspector_with_goods'){S.classifiedBaling.inspectors.push(b64);}
-              else if(slot==='goods_yard'){S.classifiedBaling.goods_yards.push(b64);}
-              else if(slot==='rebale'){S.classifiedBaling.rebales.push(b64);}
-              log(`   [BALING AI] ${name} → ${slot}`,'ok');
-            }catch(e){log(`   [BALING AI] ${name} エラー`,'warn');}
-          }));
-        }
-      }
-    }else{log(`   ℹ️ FUJI BALING写真なし`,'warn');}
-    // --- OCR ---
-    const ncF=S.containers.some(c=>!c.container||c.container==='—'||c.container.match(/^\d+$/));
-    const nsF=S.containers.some(c=>!c.seal||!c.seal.toUpperCase().startsWith('JP-'));
-    if(ncF||nsF){
-      log(' 🔍 OCR処理中...','info');
-      await Promise.all(nos.map(async no=>{
-        const cont=S.containers.find(c=>c.no===no);if(!cont)return;const t=[];
-        if(ncF&&S.classifiedVan[no]?.right_door)t.push(callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:S.classifiedVan[no].right_door}},{type:'text',text:`コンテナ番号（英字4桁+数字7桁）番号のみ`}],30).then(v=>{const m=v.trim().match(/[A-Z]{4}\d{7}/i);if(m){cont.container=m[0].toUpperCase();log(`    CT${no}: ${cont.container}`,'ok');}}).catch(()=>{}));
-        if(nsF&&S.classifiedVan[no]?.cotecna_seal)t.push(callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:S.classifiedVan[no].cotecna_seal}},{type:'text',text:`写真に写っているCOTECNAシール番号を読み取ってください。「JP-」の後に続く数字を含め「JP-XXXXXXX」形式のみ返してください（例: JP-0403644）。番号以外は一切書かないでください。番号が読み取れない場合は「不明」とのみ返してください。`}],20).then(v=>{const raw=v.trim();const m=raw.match(/JP-?\d{4,8}/i);if(m){cont.seal=m[0].toUpperCase().replace(/^JP([^-])/,'JP-$1');log(`    CT${no} Seal: ${cont.seal}`,'ok');}}).catch(()=>{}));
-        await Promise.all(t);
-      }));
-    }
-    setProgress(80,'分類完了');log('✅ FUJI分類完了','ok');return;
-  }
-// ── VAN: ファイル名マッピング試行 (KANEKO等) ──
-  const FNAME_MAP={'空コンテナ内部':'empty','50%積載':'half','100%積載':'full','コンテナ右扉閉じ':'right_door','コンテナ全閉_検査員':'inspector','コテクナシール':'cotecna_seal'};
-  let usedFnameMap=false;
-  const smFname={};
-  for(const no of nos){
-    const p=S.vanPhotos[no]||{};
-    const seqsAll=Object.keys(p).filter(k=>!k.startsWith('_')).map(Number);
-    seqsAll.forEach(seq=>{
-      const fname=(p[`_name_${seq}`]||'').replace(/_R\.(jpg|jpeg|png)$/i,'');
-      for(const[keyword,slot]of Object.entries(FNAME_MAP)){
-        if(fname===keyword&&!smFname[slot]){smFname[slot]=seq;break;}
-      }
-    });
-  }
-  const mappedSlots=Object.keys(smFname).length;
-  if(mappedSlots>=4){
-    usedFnameMap=true;
-    log(`  📋 ファイル名マッピング成功 (${mappedSlots}/6スロット)`,'ok');
-    Object.entries(smFname).forEach(([slot,seq])=>{
-      const fname=S.vanPhotos[nos[0]]?.[`_name_${seq}`]||'';
-      log(`    ${fname} → ${slot}`,'ok');
-    });
-    // 全CTに同じマッピングを適用
-    for(const no of nos){
-      S.classifiedVan[no]={};
-      const p=S.vanPhotos[no]||{};
-      // CT固有のファイル名マッピング
-      const smThis={};
-      const seqsThis=Object.keys(p).filter(k=>!k.startsWith('_')).map(Number);
-      seqsThis.forEach(seq=>{
-        const fname=(p[`_name_${seq}`]||'').replace(/_R\.(jpg|jpeg|png)$/i,'');
-        for(const[keyword,slot]of Object.entries(FNAME_MAP)){
-          if(fname===keyword&&!smThis[slot]){smThis[slot]=seq;break;}
-        }
-      });
-      for(const[slot,seq]of Object.entries(smThis)){
-        if(p[seq])S.classifiedVan[no][slot]=p[seq];
-      }
-    }
-    // BALING用: inspector/goods_yardをVANから補完
-    if(!S.classifiedBaling.inspectors.length&&smFname['inspector']){
-      const fp0=S.vanPhotos[nos[0]];
-      if(fp0[smFname['inspector']])S.classifiedBaling.inspectors=[fp0[smFname['inspector']]];
-    }
-    if(!S.classifiedBaling.goods_yards.length&&smFname['full']){
-      const fp0=S.vanPhotos[nos[0]];
-      if(fp0[smFname['full']])S.classifiedBaling.goods_yards=[fp0[smFname['full']]];
-    }
-    // OCR処理 (CT No / Seal が未取得の場合)
-    const nc=S.containers.some(c=>!c.container||c.container==='—'||c.container.match(/^\d+$/));
-    const ns=S.containers.some(c=>!c.seal||!c.seal.toUpperCase().startsWith('JP-'));
-    if(nc||ns){
-      log(' 🔍 OCR処理中...','info');
-      await Promise.all(nos.map(async no=>{
-        const cont=S.containers.find(c=>c.no===no);if(!cont)return;const t=[];
-        if(nc&&S.classifiedVan[no]?.right_door)t.push(callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:S.classifiedVan[no].right_door}},{type:'text',text:`コンテナ番号（英字4桁+数字7桁）番号のみ`}],30).then(v=>{const m=v.trim().match(/[A-Z]{4}\d{7}/i);if(m){cont.container=m[0].toUpperCase();log(`    CT${no}: ${cont.container}`,'ok');}}).catch(()=>{}));
-        if(ns&&S.classifiedVan[no]?.cotecna_seal)t.push(callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:S.classifiedVan[no].cotecna_seal}},{type:'text',text:`写真に写っているCOTECNAシール番号を読み取ってください。「JP-」の後に続く数字を含め「JP-XXXXXXX」形式のみ返してください（例: JP-0403644）。番号以外は一切書かないでください。番号が読み取れない場合は「不明」とのみ返してください。`}],30).then(v=>{const raw=v.trim();const m=raw.match(/JP-?\d{4,8}/i);if(m){cont.seal=m[0].toUpperCase().replace(/^JP([^-])/,'JP-$1');log(`    CT${no} Seal: ${cont.seal}`,'ok');}}).catch(e=>{log(`    CT${no} Seal OCRエラー: ${e.message}`,'warn');}));
-        await Promise.all(t);
-      }));
-    }
-    showClassifyPreview(S.vanPhotos[nos[0]],smFname);
-    setProgress(80,'分類完了');log(`✅ AI分類完了`,'ok');return;
-  }
-  // ファイル名マッピング失敗 → AI分類へ
-  log(`  📋 ファイル名マッピング不足(${mappedSlots}/6) → AI分類に切替`,'info');
-  // OOMOTO パターン判定: "N (M).JPG" 形式かチェック
-  const fp=S.vanPhotos[nos[0]];
-  const seqs=Object.keys(fp).filter(k=>!k.startsWith('_')).map(Number).sort((a,b)=>a-b);
-  const firstName=(fp[`_name_${seqs[0]}`]||'');
-  const isOomoto=/^\d+ \(\d+\)\.JPG$/i.test(firstName);
-  if(isOomoto){
-    log(`  📋 OOMOTOパターン検出 (${seqs.length}枚) → 位置指定+AI確認`,'ok');
-    // OOMOTO固定スロット: 1=empty, 4=half, 5=full, 6=right_door, 9=cotecna_seal, 11=inspector (2番はスキップ)
-    const OOMOTO_SLOT_DEF={1:'empty',4:'half',5:'full',6:'right_door',9:'cotecna_seal',11:'inspector'};
-    const OOMOTO_CHECK={
-      1:`【古紙輸出VAN検査 写真確認】
-この写真は、コンテナに荷物を積み込む前に撮影した「空コンテナ内部確認写真」として使用されます。
-以下のいずれかに該当すればyesと答えてください：
-・コンテナの両扉が開いた状態で、内部が写っている
-・コンテナ内部のコルゲート（波型鉄板）が見える
-・荷物が一切ない、または床面しか見えない
-・コンテナ開口部から内部を撮影した角度である
-「yes」または「no」のみ答えてください。`,
-      4:`【古紙輸出VAN検査 写真確認】
-この写真は、コンテナへの古紙ベール積載途中の「半積み確認写真」として使用されます。
-以下のいずれかに該当すればyesと答えてください：
-・コンテナ内部に古紙ベール（四角く圧縮された古紙の固まり）が積まれている
-・コンテナの奥まで荷物が見えるが、天井まで届いていない
-・半分程度積まれた状態（30〜70%）
-・荷物がある程度積まれているが、まだ空きスペースが上方に見える
-「yes」または「no」のみ答えてください。`,
-      5:`【古紙輸出VAN検査 写真確認】
-この写真は、コンテナへの古紙ベール積載完了後の「満載確認写真」として使用されます。
-以下のいずれかに該当すればyesと答えてください：
-・コンテナ内部に古紙ベールがぎっしり詰まっている
-・天井近くまで荷物が積まれている
-・コンテナ開口部の大半が荷物で埋まっている
-・積み込み完了の状態（荷物が多く空きスペースが少ない）
-・コンテナ扉口から見て荷物が密に詰まっている
-「yes」または「no」のみ答えてください。`,
-      6:`【古紙輸出VAN検査 写真確認】
-この写真は、コンテナの「右扉閉め・コンテナ番号確認写真」として使用されます。
-以下のいずれかに該当すればyesと答えてください：
-・コンテナの扉が閉まっている（片側または両側）
-・コンテナの外側側面や扉が写っている
-・英字4文字＋数字7桁のコンテナ番号（例：SEGU5989373）が写っている
-・コンテナ外壁・扉面が主体の写真
-・コンテナを外から撮影した写真
-注意：コンテナ番号が小さく写っていたり、やや見づらくても構いません。扉や外壁が写っていればyesです。
-「yes」または「no」のみ答えてください。`,
-      9:`【古紙輸出VAN検査 写真確認】
-この写真は、COTECNA社の「封印シール（コンテナシール）クローズアップ写真」として使用されます。
-他の船会社のシールも黄色いものが多いため、以下の条件を必ず確認してください。
-
-【yes の条件 — 以下を両方満たすこと】
-① シール・タグ・錠前のクローズアップ写真である
-② 写真内に以下が両方確認できる：
-   ・「COTECNA」の文字（上部または中央。COT・OTECNA 等一部でも可）
-   ・「JP-」で始まる番号（下部または中央。例：JP-9047847）
-
-【no の条件】
-・「COTECNA」または「JP-」のどちらか一方でも確認できない場合はno
-・黄色いシールでも両方の文字が確認できなければno
-・コンテナ番号プレート・扉全体の写真はno
-
-注意：写真が少し暗くても文字が読み取れればyesです。
-「yes」または「no」のみ答えてください。`,
-      11:`【古紙輸出VAN検査 写真確認】
-この写真は、COTECNA検査員による「検査完了確認写真」として使用されます。
-以下のいずれかに該当すればyesと答えてください：
-・白いヘルメット（安全帽）をかぶった人物が写っている
-・作業服・安全ベストを着た人物がコンテナの前や付近に立っている
-・人物がカメラに向かって書類・ボード・カード等を提示している
-・検査員らしき人物が写っている（書類を持っていなくても可）
-・人物がコンテナや荷物の前に立っているシーン
-注意：書類が写っていなくても、ヘルメットをかぶった人物がいればyesです。
-「yes」または「no」のみ答えてください。`,
-    };
-    for(const no of nos){
-      S.classifiedVan[no]={};
-      const p=S.vanPhotos[no]||{};
-      const seqsAll=Object.keys(p).filter(k=>!k.startsWith('_')).map(Number).sort((a,b)=>a-b);
-      // ファイル名から位置番号取得: "N (M).JPG" → Mがposition
-      const posMap={};
-      seqsAll.forEach(seq=>{
-        const fname=p[`_name_${seq}`]||'';
-        const m=fname.match(/^\d+ \((\d+)\)\.JPG$/i);
-        if(m) posMap[parseInt(m[1])]=seq;
-      });
-      log(`    CT${no} posMap: pos1=${posMap[1]||'-'} pos4=${posMap[4]||'-'} pos5=${posMap[5]||'-'} pos6=${posMap[6]||'-'} pos9=${posMap[9]||'-'} pos11=${posMap[11]||'-'}`,'info');
-      await Promise.all(Object.entries(OOMOTO_SLOT_DEF).map(async([pos,slot])=>{
-        const posNum=parseInt(pos);
-        const seq=posMap[posNum];
-        if(seq==null||!p[seq]) return;
-        try{
-          const ans=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:p[seq]}},{type:'text',text:OOMOTO_CHECK[posNum]}],15);
-          if(ans.toLowerCase().includes('yes')){
-            S.classifiedVan[no][slot]=p[seq];
-            log(`    CT${no} pos${pos} → ${slot} ✅`,'ok');
-          }else{
-            // AI否定でも位置ベースは信頼度が高いため、位置で確定（警告表示のみ）
-            S.classifiedVan[no][slot]=p[seq];
-            log(`    CT${no} pos${pos} → ${slot} ⚠️(AI否定・位置優先で採用)`,'warn');
-          }
-        }catch(e){
-          S.classifiedVan[no][slot]=p[seq];
-          log(`    CT${no} pos${pos} → ${slot} (確認失敗・位置で確定)`,'warn');
-        }
-      }));
-    }
-    // OCR処理
-    const ncO=S.containers.some(c=>!c.container||c.container==='—'||c.container.match(/^\d+$/));
-    const nsO=S.containers.some(c=>!c.seal||!c.seal.toUpperCase().startsWith('JP-'));
-    if(ncO||nsO){
-      log(' 🔍 OCR処理中...','info');
-      await Promise.all(nos.map(async no=>{
-        const cont=S.containers.find(c=>c.no===no);if(!cont)return;const t=[];
-        if(ncO&&S.classifiedVan[no]?.right_door)t.push(callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:S.classifiedVan[no].right_door}},{type:'text',text:`コンテナ番号（英字4桁+数字7桁）番号のみ`}],30).then(v=>{const m=v.trim().match(/[A-Z]{4}\d{7}/i);if(m){cont.container=m[0].toUpperCase();log(`    CT${no}: ${cont.container}`,'ok');}}).catch(()=>{}));
-        if(nsO&&S.classifiedVan[no]?.cotecna_seal)t.push(callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:S.classifiedVan[no].cotecna_seal}},{type:'text',text:`写真に写っているCOTECNAシール番号を読み取ってください。「JP-」の後に続く数字を含め「JP-XXXXXXX」形式のみ返してください（例: JP-0403644）。番号以外は一切書かないでください。番号が読み取れない場合は「不明」とのみ返してください。`}],20).then(v=>{const raw=v.trim();const m=raw.match(/JP-?\d{4,8}/i);if(m){cont.seal=m[0].toUpperCase().replace(/^JP([^-])/,'JP-$1');log(`    CT${no} Seal: ${cont.seal}`,'ok');}}).catch(()=>{}));
-        await Promise.all(t);
-      }));
-    }
-    showClassifyPreview(S.vanPhotos[nos[0]],Object.fromEntries(Object.entries(OOMOTO_SLOT_DEF).map(([pos,slot])=>[slot,Object.keys(S.vanPhotos[nos[0]]||{}).filter(k=>!k.startsWith('_')).map(Number).find(seq=>{const n=(S.vanPhotos[nos[0]]||{})[`_name_${seq}`]||'';return n.match(new RegExp('^\\d+\\s*\\('+pos+'\\)'));})]).filter(([,v])=>v!=null)));
-    setProgress(80,'分類完了');log(`✅ OOMOTO分類完了`,'ok');return;
-  }
-
-
-  // ── OKINAWA 分岐: VAN/BALING混在 → UNIFIED_PROMPT で一括分類 ──
-  log('  📋 OKINAWAパターン: UNIFIED_PROMPT で VAN/BALING 混在分類中...','ok');
-
-  // 全CTの全写真を収集
-  const allPhotos=[]; // {no, seq, b64, name}
-  for(const no of nos){
-    const p=S.vanPhotos[no]||{};
-    const seqsAll=Object.keys(p).filter(k=>!k.startsWith('_')).map(Number).sort((a,b)=>a-b);
-    for(const seq of seqsAll){
-      if(p[seq]) allPhotos.push({no,seq,b64:p[seq],name:p[`_name_${seq}`]||''});
-    }
-  }
-  log(`  全写真 ${allPhotos.length}枚 → UNIFIED_PROMPT + DATE_CHECK_PROMPT 並列実行`,'info');
-
-  // 全写真に対してUNIFIED + DATE_CHECK を並列実行
-  const photoResults=[]; // {no,seq,b64,name,label,hasDate}
-  for(let i=0;i<allPhotos.length;i+=4){
-    await Promise.all(allPhotos.slice(i,i+4).map(async({no,seq,b64,name})=>{
-      let label='unknown', hasDate=true;
-      try{
-        const imgContent={type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}};
-        const [lRes,dRes]=await Promise.all([
-          callAI([imgContent,{type:'text',text:(window.UNIFIED_PROMPT_OVERRIDE||UNIFIED_PROMPT)}],20),
-          callAI([imgContent,{type:'text',text:DATE_CHECK_PROMPT}],5)
-        ]);
-        label=lRes.trim().toLowerCase();
-        hasDate=!dRes.trim().toLowerCase().includes('no');
-        log(`    CT${no} [${name}] → ${label} / 日付:${hasDate?'あり':'なし'}`,'ok');
-      }catch(e){
-        log(`    CT${no} [${name}] エラー: ${e.message}`,'warn');
-      }
-      photoResults.push({no,seq,b64,name,label,hasDate});
-    }));
-  }
-
-  // 日付なし写真にオーバーレイ適用 (CT別work_date使用)
-  for(const r of photoResults){
-    if(!r.hasDate){
-      const ctDate=S.containers.find(c=>c.no===r.no)?.date||'';
-      if(!ctDate) continue;
-      try{
-        const file=(S.groups[r.no]||[]).find(f=>f.name===r.name);
-        if(file){
-          r.b64=await fileToB64WithDate(file,ctDate);
-          if(S.vanPhotos[r.no]) S.vanPhotos[r.no][r.seq]=r.b64;
-          log('    CT'+r.no+' ['+r.name+'] 日付オーバーレイ追加 ('+ctDate+')','ok');
-        }
-      }catch(e){log('    CT'+r.no+' ['+r.name+'] オーバーレイエラー','warn');}
-    }
-  }
-
-  // VAN / BALING に振り分け
-  const VAN_LABELS_OK=['empty','half','full','right_door','inspector_van','cotecna_seal'];
-  const BALING_LABELS_OK=['goods_yard','rebale','open_bale','inspector_baling'];
-
-  // VAN: CT別にスロット候補を収集
-  const vanCands={}; // no → {slot: [{seq,b64}]}
-  for(const no of nos) vanCands[no]={};
-
-  // BALING: CT別に収集 → CT内でpair後に合算
-  // balingByNo[no] = {goods_yards:[], rebales:[], open_bales:[], inspectors_baling:[]}
-  const balingByNo={};
-  for(const no of nos) balingByNo[no]={goods_yards:[],rebales:[],open_bales:[],inspectors_baling:[]};
-
-  for(const{no,seq,b64,label}of photoResults){
-    if(VAN_LABELS_OK.includes(label)){
-      const slot=(label==='inspector_van')?'inspector':label;
-      if(!vanCands[no][slot]) vanCands[no][slot]=[];
-      vanCands[no][slot].push({seq,b64});
-    } else if(BALING_LABELS_OK.includes(label)){
-      const bt=balingByNo[no]||balingByNo[nos[0]]; // fallback to CT1
-      if(label==='goods_yard') bt.goods_yards.push(b64);
-      else if(label==='rebale') bt.rebales.push(b64);
-      else if(label==='open_bale') bt.open_bales.push(b64);
-      else if(label==='inspector_baling') bt.inspectors_baling.push(b64);
-    }
-  }
-  log('  📋 CT別BALING pair処理中...','info');
-  // CT別に rebale ↔ open_bale をペアリング後に合算
-  const balingCands={goods_yards:[],rebales:[],open_bales:[],inspectors_baling:[]};
-  for(const no of nos){
-    const bt=balingByNo[no];
-    const rCount=bt.rebales.length;
-    const oCount=bt.open_bales.length;
-    // pair数 = min(rebale数, open_bale数)
-    const pairCount=Math.min(rCount,oCount);
-    balingCands.rebales.push(...bt.rebales.slice(0,pairCount));
-    balingCands.open_bales.push(...bt.open_bales.slice(0,pairCount));
-    balingCands.goods_yards.push(...bt.goods_yards);
-    balingCands.inspectors_baling.push(...bt.inspectors_baling);
-    log(`  CT${no} BALING: rebale=${rCount}枚 open_bale=${oCount}枚 → pair=${pairCount}組`,'ok');
-  }
-
-  // cotecna_seal 精密判定: 複数候補があれば色→COTECNA文字で絞り込み
-  for(const no of nos){
-    const sealCands=vanCands[no]['cotecna_seal']||[];
-    if(sealCands.length>1){
-      log(`  CT${no} cotecna_seal候補 ${sealCands.length}枚 → 色判定中...`,'info');
-      // STEP1: 黄色フィルタ
-      const colorChecks=await Promise.all(sealCands.map(async({seq,b64})=>{
-        try{const a=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:`このシール・タグ・封印の写真で、タグ本体の色は黄色ですか？「yes」または「no」のみ返してください。`}],5);return{seq,b64,isYellow:a.toLowerCase().includes('yes')};}
-        catch(e){return{seq,b64,isYellow:false};}
-      }));
-      const yellows=colorChecks.filter(r=>r.isYellow);
-      log(`  CT${no} 黄色シール: ${yellows.length}枚`,'info');
-      if(yellows.length===1){
-        vanCands[no]['cotecna_seal']=[yellows[0]];
-        log(`  CT${no} cotecna_seal → 黄色1枚で確定`,'ok');
-      } else if(yellows.length>1){
-        // STEP2: COTECNA文字+JP-番号確認
-        const verifyChecks=await Promise.all(yellows.map(async({seq,b64})=>{
-          try{const a=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:`このシール写真で、①「COTECNA」の文字（一部でも可）と②「JP-」で始まる番号の両方が写っていますか？「yes」または「no」のみ返してください。`}],10);return{seq,b64,ok:a.toLowerCase().includes('yes')};}
-          catch(e){return{seq,b64,ok:false};}
-        }));
-        const verified=verifyChecks.find(r=>r.ok)||yellows[0];
-        vanCands[no]['cotecna_seal']=[verified];
-        log(`  CT${no} cotecna_seal → COTECNA文字確認で確定`,'ok');
-      } else {
-        // 黄色なし → 全候補でCOTECNA文字確認
-        const verifyAll=await Promise.all(sealCands.map(async({seq,b64})=>{
-          try{const a=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:`このシール写真で、①「COTECNA」の文字（一部でも可）と②「JP-」で始まる番号の両方が写っていますか？「yes」または「no」のみ返してください。`}],10);return{seq,b64,ok:a.toLowerCase().includes('yes')};}
-          catch(e){return{seq,b64,ok:false};}
-        }));
-        vanCands[no]['cotecna_seal']=[verifyAll.find(r=>r.ok)||sealCands[0]];
-        log(`  CT${no} cotecna_seal → 黄色なし・COTECNA文字確認で確定`,'warn');
-      }
-    }
-  }
-
-  // right_door 精密判定 (FUJI同等: Step1+Step2+ログ) v13.19
-  const RD_STEP1_OK=`以下の条件を全て満たす場合のみ「yes」を返してください：
-① 写真の左側または中央に古紙ベール・荷物が積まれている
-② 写真の右側にコンテナの扉（ドア）が写っている
-③ コンテナ番号が横書きで正面から読める状態である
-④ 内部側壁を下から上へ見上げた構図ではない（外部・空が大きく写っていない）
-全て満たす場合は「yes」、一つでも満たさない場合は「no」で答えてください。
-その後に判断理由を1文で続けてください。
-例: yes: ベールと扉とコンテナ番号の全てが確認できます
-例: no: 左側に古紙ベールが見えません`;
-  const RD_STEP2A_CLOSED=`この写真はコンテナの両方の扉が閉まった状態の外観写真ですか？
-「yes」または「no」で答えてください。その後に判断理由を1文で続けてください。
-例: yes: 両扉が閉まった外観写真です
-例: no: 片方の扉が開いており内部が見えます
-例: no: コンテナ内部からの撮影です`;
-  const RD_STEP2_OK=`コンテナ番号（英字4文字＋数字7桁）が横書きで写っていますか？
-番号の一部でも横書きで確認できれば「yes」としてください。
-縦書きの場合、または番号が全く写っていない場合のみ「no」としてください。
-「yes」または「no」で答えてください。その後に判断理由を1文で続けてください。
-例: yes: MOTU1412291が横書きで写っています
-例: yes: 番号の一部（MOTU 141）が横書きで確認できます
-例: no: 番号が縦書きで表示されています`;
-  for(const no of nos){
-    const rdCands=vanCands[no]['right_door']||[];
-    if(rdCands.length===0) continue;
-    if(rdCands.length===1){
-      vanCands[no]['right_door']=[rdCands[0]];
-      log(`  CT${no} right_door 1枚確定 (seq:${rdCands[0].seq})`,'ok');
-      continue;
-    }
-    log(`  CT${no} right_door候補 ${rdCands.length}枚 → Step1 形状確認中...`,'info');
-    const rdStep1Results=await Promise.all(rdCands.map(async({seq,b64})=>{
-      try{
-        const ans=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:RD_STEP1_OK}],20);
-        const ok=ans.toLowerCase().startsWith('yes');
-        const reason=ans.replace(/^(yes|no)[:\s]*/i,'').trim()||'—';
-        log(`    [Step1] seq:${seq} → ${ok?'YES ✅':'NO ❌'}  (${reason})`,'info');
-        return{seq,b64,ok};
-      }catch(e){log(`    [Step1] seq:${seq} → エラー`,'warn');return{seq,b64,ok:false};}
-    }));
-    const rdStep1Pass=rdStep1Results.filter(r=>r.ok);
-    log(`  CT${no} right_door Step1通過: ${rdStep1Pass.length}枚`,'info');
-    if(rdStep1Pass.length===1){
-      vanCands[no]['right_door']=[rdStep1Pass[0]];
-      log(`  CT${no} right_door → Step1で1枚確定 (seq:${rdStep1Pass[0].seq})`,'ok');
-      continue;
-    }
-    const rdStep2Targets=rdStep1Pass.length>0?rdStep1Pass:rdCands;
-    // Step2-A: 両扉閉まり判定 → YES は除外
-    log(`  CT${no} right_door Step2-A 両扉チェック中... (${rdStep2Targets.length}枚)`,'info');
-    const rdStep2AResults=await Promise.all(rdStep2Targets.map(async({seq,b64})=>{
-      try{
-        const ans=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:RD_STEP2A_CLOSED}],15);
-        const closed=ans.toLowerCase().includes('yes');
-        const reason=ans.replace(/^(yes|no)[:\s]*/i,'').trim()||'—';
-        log(`    [Step2-A] seq:${seq} → ${closed?'両扉閉まり❌ 除外':'片扉開き✅ 残留'}  (${reason})`,'info');
-        return{seq,b64,closed};
-      }catch(e){log(`    [Step2-A] seq:${seq} → エラー`,'warn');return{seq,b64,closed:false};}
-    }));
-    const rdStep2APass=rdStep2AResults.filter(r=>!r.closed);
-    log(`  CT${no} right_door Step2-A通過: ${rdStep2APass.length}枚`,'info');
-    // Step2-B: 番号横書き確認
-    const rdStep2BTargets=rdStep2APass.length>0?rdStep2APass:rdStep2Targets;
-    const rdStep2BResults=await Promise.all(rdStep2BTargets.map(async({seq,b64})=>{
-      try{
-        const ans=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:RD_STEP2_OK}],15);
-        const ok=ans.toLowerCase().startsWith('yes');
-        const reason=ans.replace(/^(yes|no)[:\s]*/i,'').trim()||'—';
-        log(`    [Step2-B] seq:${seq} → ${ok?'YES ✅':'NO ❌'}  (${reason})`,'info');
-        return{seq,b64,ok};
-      }catch(e){log(`    [Step2-B] seq:${seq} → エラー`,'warn');return{seq,b64,ok:false};}
-    }));
-    const rdStep2Pass=rdStep2BResults.find(r=>r.ok);
-    vanCands[no]['right_door']=[rdStep2Pass||rdCands[0]];
-    log(`  CT${no} right_door → ${rdStep2Pass?'Step2-B番号確認':'候補先頭フォールバック'}で確定 (seq:${(rdStep2Pass||rdCands[0]).seq})`,'ok');
-  }
-
-  // full/half 複数候補: 積載率スコアで振り分け
-  for(const no of nos){
-    const fullCands=vanCands[no]['full']||[];
-    const halfCands=vanCands[no]['half']||[];
-    const aiLoadCands=[...fullCands,...halfCands];
-    if(aiLoadCands.length>=2){
-      const sc=await Promise.all(aiLoadCands.map(async({seq,b64})=>{
-        try{const a=await callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:`荷物の積載率を1〜10。数字のみ`}],5);return{seq,b64,score:parseInt(a)||0};}
-        catch(e){return{seq,b64,score:0};}
-      }));
-      sc.sort((a,b)=>b.score-a.score);
-      vanCands[no]['full']=[sc[0]];
-      vanCands[no]['half']=sc[1]?[sc[1]]:[];
-    }
-  }
-
-  // classifiedVan に確定スロットを格納
-  for(const no of nos){
-    S.classifiedVan[no]={};
-    for(const slot of SLOT_ORDER){
-      const cand=(vanCands[no][slot]||[])[0];
-      if(cand) S.classifiedVan[no][slot]=cand.b64;
-    }
-    const slots=Object.keys(S.classifiedVan[no]);
-    const miss=SLOT_ORDER.filter(s=>!slots.includes(s));
-    if(miss.length) log(`  CT${no} ⚠️ 未分類スロット: ${miss.join(', ')}`,'warn');
-    log(`  CT${no} ✅ VAN分類完了: [${slots.join(', ')}]`,'ok');
-  }
-
-  // classifiedBaling に格納 (CT別pairリング済み)
-  const dateCount=Math.max(1,S.balingDateCount||1);
-  S.classifiedBaling.goods_yards=balingCands.goods_yards.slice(0,dateCount);
-  S.classifiedBaling.inspectors=balingCands.inspectors_baling.slice(0,dateCount);
-  S.classifiedBaling.rebales=balingCands.rebales;
-  S.classifiedBaling.open_bales=balingCands.open_bales; // CT別pair済みのため既に対応
-  log(`  ✅ BALING分類完了: goods_yard=${S.classifiedBaling.goods_yards.length}枚 rebale=${S.classifiedBaling.rebales.length}枚 inspector=${S.classifiedBaling.inspectors.length}枚 open_bale=${S.classifiedBaling.open_bales.length}枚`,'ok');
-
-  // OCR処理 (CT No / Seal が未取得の場合)
-  const nc=S.containers.some(c=>!c.container||c.container==='—'||c.container.match(/^\d+$/));
-  const ns=S.containers.some(c=>!c.seal||!c.seal.toUpperCase().startsWith('JP-'));
-  if(nc||ns){
-    log(' 🔍 OCR処理中...','info');
-    await Promise.all(nos.map(async no=>{
-      const cont=S.containers.find(c=>c.no===no);if(!cont)return;const t=[];
-      if(nc&&S.classifiedVan[no]?.right_door)t.push(callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:S.classifiedVan[no].right_door}},{type:'text',text:`コンテナ番号（英字4桁+数字7桁）番号のみ`}],30).then(v=>{const m=v.trim().match(/[A-Z]{4}\d{7}/i);if(m){cont.container=m[0].toUpperCase();log(`    CT${no}: ${cont.container}`,'ok');}}).catch(()=>{}));
-      if(ns&&S.classifiedVan[no]?.cotecna_seal)t.push(callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:S.classifiedVan[no].cotecna_seal}},{type:'text',text:`写真に写っているCOTECNAシール番号を読み取ってください。「JP-」の後に続く数字を含め「JP-XXXXXXX」形式のみ返してください（例: JP-0403644）。番号以外は一切書かないでください。番号が読み取れない場合は「不明」とのみ返してください。`}],30).then(v=>{const m=v.trim().match(/JP-?\d{4,8}/i);if(m){cont.seal=m[0].toUpperCase().replace(/^JP([^-])/,'JP-$1');log(`    CT${no} Seal: ${cont.seal}`,'ok');}}).catch(()=>{}));
-      await Promise.all(t);
-    }));
-  }
-
-  // プレビュー表示 (CT1のVANスロットマップ)
-  const previewSlotMap={};
-  for(const slot of SLOT_ORDER){const cand=(vanCands[nos[0]]?.[slot]||[])[0];if(cand)previewSlotMap[slot]=cand.seq;}
-  showClassifyPreview(S.vanPhotos[nos[0]],previewSlotMap);
-  setProgress(80,'AI分類完了');log(`✅ OKINAWA分類完了`,'ok');
-}
-
-// ══════════════════════════════════════════════
-// ── TEST MODE ──
-// ══════════════════════════════════════════════
-const ALL_LABELS=['empty','half','full','right_door','inspector_van','cotecna_seal','goods_yard','rebale','open_bale','inspector_baling','unknown'];
-const LABEL_GROUP={empty:'van',half:'van',full:'van',right_door:'van',inspector_van:'van',cotecna_seal:'van',goods_yard:'baling',rebale:'baling',open_bale:'baling',inspector_baling:'baling',unknown:'err'};
-let testPhotos=[];   // {file, b64, name, aiLabel, userLabel}
-let testRunning=false;
-let currentPrompt='';
-
-function switchMode(mode){
-  document.getElementById('reportModeSection').style.display=mode==='report'?'':'none';
-  document.getElementById('testModeSection').style.display=mode==='test'?'':'none';
-  document.getElementById('tabReport').classList.toggle('active',mode==='report');
-  document.getElementById('tabTest').classList.toggle('active',mode==='test');
-  if(mode==='test'&&!currentPrompt){
-    currentPrompt=UNIFIED_PROMPT;
-    document.getElementById('testPromptBox').value=currentPrompt;
-  }
-}
-
-function onTestFolderSelected(input){
-  const files=Array.from(input.files).filter(f=>/\.(jpe?g|png)$/i.test(f.name)&&!f.name.startsWith('_'));
-  if(!files.length){alert('JPG/PNG画像が見つかりません');return;}
-  // S.photoFiles にも共有 (APIキーは共通)
-  if(!S.photoFiles.length) S.photoFiles=Array.from(input.files);
-  testPhotos=files.map(f=>({file:f,b64:null,name:f.name,aiLabel:'',userLabel:''}));
-  document.getElementById('testFolderInfo').textContent=`${files.length}枚 選択済み`;
-  document.getElementById('testRunBtn').disabled=false;
-  document.getElementById('testGrid').innerHTML='';
-  document.getElementById('testStatBar').style.display='none';
-  document.getElementById('testPromptSection').style.display='none';
-}
-
-async function runTest(){
-  S.apiKey=document.getElementById('apiKey').value.trim();
-  if(!S.apiKey){alert('APIキーを入力してください');return;}
-  if(!testPhotos.length){alert('フォルダを選択してください');return;}
-  if(testRunning)return;
-  testRunning=true;
-  currentPrompt=document.getElementById('testPromptBox').value||UNIFIED_PROMPT;
-
-  const prog=document.getElementById('testProgress');
-  const fill=document.getElementById('testProgressFill');
-  const lbl=document.getElementById('testProgressLabel');
-  prog.style.display='block';
-  document.getElementById('testGrid').innerHTML='';
-  document.getElementById('testStatBar').style.display='none';
-  document.getElementById('testRunBtn').style.display='none';
-  document.getElementById('testRerunBtn').style.display='none';
-
-  // b64 변환 + AI 분류 병렬 실행
-  let done=0;
-  const total=testPhotos.length;
-  for(let i=0;i<total;i+=4){
-    await Promise.all(testPhotos.slice(i,i+4).map(async(p,bi)=>{
-      try{
-        if(!p.b64) p.b64=await fileToB64(p.file);
-        const res=await callAI([
-          {type:'image',source:{type:'base64',media_type:'image/jpeg',data:p.b64}},
-          {type:'text',text:currentPrompt}
-        ],20);
-        p.aiLabel=res.trim().toLowerCase();
-        if(!ALL_LABELS.includes(p.aiLabel)) p.aiLabel='unknown';
-      }catch(e){p.aiLabel='unknown';}
-      if(!p.userLabel) p.userLabel=p.aiLabel; // 초기 정답 = AI 결과
-      done++;
-      fill.style.width=Math.round(done/total*100)+'%';
-      lbl.textContent=`${done}/${total} 枚 分類中... (${p.name})`;
-    }));
-  }
-
-  renderTestGrid();
-  prog.style.display='none';
-  document.getElementById('testRerunBtn').style.display='';
-  document.getElementById('testPromptSection').style.display='';
-  document.getElementById('testPromptBox').value=currentPrompt;
-  updateTestStat();
-  testRunning=false;
-}
-
-function renderTestGrid(){
-  const grid=document.getElementById('testGrid');
-  grid.innerHTML='';
-  testPhotos.forEach((p,idx)=>{
-    const group=LABEL_GROUP[p.aiLabel]||'err';
-    const isOk=p.aiLabel===p.userLabel;
-    const card=document.createElement('div');
-    card.className='test-card '+(isOk?'ok':(p.userLabel!==p.aiLabel?'ng':'pending'));
-    card.innerHTML=`
-      <img src="data:image/jpeg;base64,${p.b64}" loading="lazy">
-      <div class="test-card-body">
-        <div class="test-fname" title="${p.name}">${p.name}</div>
-        <div class="test-label-row">
-          <span class="test-badge badge-${group==='van'?'van':group==='baling'?'baling':'err'}">🤖 ${p.aiLabel}</span>
-        </div>
-        <select class="test-select" onchange="onUserLabel(${idx},this.value)">
-          <optgroup label="VAN">
-            ${['empty','half','full','right_door','inspector_van','cotecna_seal'].map(l=>`<option value="${l}"${p.userLabel===l?' selected':''}>${l}</option>`).join('')}
-          </optgroup>
-          <optgroup label="BALING">
-            ${['goods_yard','rebale','open_bale','inspector_baling'].map(l=>`<option value="${l}"${p.userLabel===l?' selected':''}>${l}</option>`).join('')}
-          </optgroup>
-          <option value="unknown"${p.userLabel==='unknown'?' selected':''}>unknown</option>
-        </select>
-      </div>`;
-    grid.appendChild(card);
-  });
-}
-
-function onUserLabel(idx,val){
-  testPhotos[idx].userLabel=val;
-  const cards=document.querySelectorAll('.test-card');
-  const p=testPhotos[idx];
-  cards[idx].className='test-card '+(p.aiLabel===val?'ok':'ng');
-  updateTestStat();
-}
-
-function updateTestStat(){
-  const total=testPhotos.length;
-  const ok=testPhotos.filter(p=>p.aiLabel===p.userLabel).length;
-  const ng=total-ok;
-  document.getElementById('statTotal').textContent=total;
-  document.getElementById('statOk').textContent=ok;
-  document.getElementById('statNg').textContent=ng;
-  document.getElementById('statAcc').textContent=total?Math.round(ok/total*100)+'%':'-';
-  document.getElementById('testStatBar').style.display='flex';
-}
-
-async function suggestPrompt(){
-  const wrongs=testPhotos.filter(p=>p.aiLabel!==p.userLabel);
-  if(!wrongs.length){alert('修正箇所がありません。全て正解です！');return;}
-  const btn=document.querySelector('[onclick="suggestPrompt()"]');
-  btn.textContent='💭 分析中...';btn.disabled=true;
-  const cases=wrongs.slice(0,6).map(p=>'ファイル名: '+p.name+'\nAI判定: '+p.aiLabel+'\n正解: '+p.userLabel).join('\n\n');
-
-  const prompt='以下は古紙コンテナ検査写真のAI分類で間違えたケースです。\n\n'+cases+'\n\n現在のUNIFIED_PROMPT:\n'+currentPrompt+'\n\n間違いの原因を分析し、プロンプトの改善案を日本語で提示してください。改善すべき箇所のみ具体的に指摘してください。';
-
-
-
-  try{
-    const res=await callAI([{type:'text',text:prompt}],800);
-    const box=document.getElementById('suggestResult');
-    box.style.display='block';
-    box.textContent=res;
-  }catch(e){alert('分析エラー: '+e.message);}
-  btn.textContent='💡 プロンプト改善提案';btn.disabled=false;
-}
-
-function applyPrompt(){
-  const newP=document.getElementById('testPromptBox').value.trim();
-  if(!newP)return;
-  // 전역 UNIFIED_PROMPT 업데이트 (실제 레포트 생성에도 반영)
-  window.UNIFIED_PROMPT_OVERRIDE=newP;
-  currentPrompt=newP;
-  // 기존 AI 결과 초기화 후 재테스트
-  testPhotos.forEach(p=>{p.aiLabel='';p.userLabel='';});
-  document.getElementById('suggestResult').style.display='none';
-  alert('プロンプトを適用しました。「再テスト」で確認してください。');
-}
-
-function resetPrompt(){
-  currentPrompt=UNIFIED_PROMPT;
-  document.getElementById('testPromptBox').value=UNIFIED_PROMPT;
-  document.getElementById('suggestResult').style.display='none';
-}
-// ── TEST MODE END ──
-
-async function callAI(content,maxTokens=20,_retry=0){const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json','x-api-key':S.apiKey,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:maxTokens,messages:[{role:'user',content}]})});if(r.status===429&&_retry<4){await new Promise(res=>setTimeout(res,5000*Math.pow(2,_retry)));return callAI(content,maxTokens,_retry+1);}if(!r.ok)throw new Error(`API ${r.status}`);const d=await r.json();return d.content?.[0]?.text?.trim()||'';}
+/* ── 以下は v14.1 の作成関数 (レポート様式 · 変更なし · D3) ── */
 function kanjiToNum(s){const m={'一':1,'二':2,'三':3,'四':4,'五':5,'六':6,'七':7,'八':8,'九':9,'十':10,'１':1,'２':2,'３':3,'４':4,'５':5,'６':6,'７':7,'８':8,'９':9};if(/^\d+$/.test(s))return parseInt(s);let r=0;for(const c of s){if(m[c])r+=m[c];}return r||1;}
-async function classifyOne(b64,prompt){return callAI([{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:prompt}],20);}
 function xmlEsc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function imgXml(rid,pid){return `<w:drawing><wp:inline><wp:extent cx="${IMG_CX}" cy="${IMG_CY}"/><wp:effectExtent l="0" t="0" r="0" b="0"/><wp:docPr id="${pid}" name="img${pid}"/><wp:cNvGraphicFramePr><a:graphicFrameLocks noChangeAspect="1"/></wp:cNvGraphicFramePr><a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic><pic:nvPicPr><pic:cNvPr id="0" name="img${pid}"/><pic:cNvPicPr><a:picLocks noChangeAspect="1"/></pic:cNvPicPr></pic:nvPicPr><pic:blipFill><a:blip r:embed="${rid}"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill><pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${IMG_CX}" cy="${IMG_CY}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr></pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing>`;}
 function cellXml(text,b64,rid,pid){const img=b64&&rid?`<w:p><w:r><w:rPr/>${imgXml(rid,pid)}</w:r></w:p>`:`<w:p/>`;const cap=`<w:p><w:pPr><w:jc w:val="center"/></w:pPr><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri"/><w:sz w:val="26"/><w:b/></w:rPr><w:t>${xmlEsc(text)}</w:t></w:r></w:p>`;return `<w:tc><w:tcPr><w:tcW w:w="5316" w:type="dxa"/></w:tcPr>${img}${cap}</w:tc>`;}
@@ -2545,17 +1140,8 @@ function buildSealXlsx(data){
     ['xl/styles.xml',enc.encode(stXml)],
   ]);
 }
-const DEFAULT_LOGO_B64="iVBORw0KGgoAAAANSUhEUgAABU0AAAAsCAMAAAGh9iorAAAA";
 function b64ToUint8(b64){const b=atob(b64),a=new Uint8Array(b.length);for(let i=0;i<b.length;i++)a[i]=b.charCodeAt(i);return a;}
-function log(msg,type=''){const box=document.getElementById('logBox');if(!box)return;const div=document.createElement('div');div.className=type?`log-${type}`:'';div.textContent=msg;box.appendChild(div);box.scrollTop=box.scrollHeight;}
-function clearLog(){const b=document.getElementById('logBox');if(b)b.innerHTML='';}
-function setProgress(pct,label){const f=document.getElementById('progressFill'),l=document.getElementById('progressLabel'),p=document.getElementById('progressPct');if(f)f.style.width=pct+'%';if(l)l.textContent=label;if(p)p.textContent=pct+'%';}
-function setPhase(n){for(let i=1;i<=3;i++){const el=document.getElementById(`ph${i}`);if(!el)continue;el.className='phase-chip'+(i<n?' done':i===n?' active':'');}}
-function setAllDone(){for(let i=1;i<=3;i++){const el=document.getElementById(`ph${i}`);if(el)el.className='phase-chip done';}}
-function showClassifyPreview(fp,sm){const w=document.getElementById('classPreview'),g=document.getElementById('classGrid');if(!w||!g)return;g.innerHTML='';w.style.display='block';for(const slot of SLOT_ORDER){const seq=sm[slot];const d=document.createElement('div');d.className='class-slot'+(seq?' slot-ok':'');if(seq&&fp[seq])d.innerHTML=`<img src="data:image/jpeg;base64,${fp[seq]}" alt="${slot}">`;else d.innerHTML=`<div class="slot-empty">なし</div>`;d.innerHTML+=`<div class="slot-name">${slot}</div>`;g.appendChild(d);}}
-function showResults(downloads){const s=document.getElementById('resultSection'),r=document.getElementById('dlRow'),c=document.getElementById('chipRow');s.style.display='block';r.innerHTML=downloads.map(d=>{const blob=new Blob([d.buf],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});const url=URL.createObjectURL(blob);return `<a class="dl-btn" href="${url}" download="${d.name}"><span style="font-size:1rem;">${d.icon}</span><div><span class="dl-name">${d.label}</span><span class="dl-size">${(d.buf.length/1024).toFixed(0)}KB · ${d.name}</span></div></a>`;}).join('');c.innerHTML=`<div class="chip"><div class="chip-dot"></div>${Math.floor(downloads.length/2)}件完了</div><div class="chip"><div class="chip-dot"></div>AI分類 ✅</div>`;s.scrollIntoView({behavior:'smooth'});}
 
 </script>
-  </div><!-- /reportModeSection -->
 </body>
 </html>

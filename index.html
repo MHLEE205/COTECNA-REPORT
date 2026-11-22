@@ -175,6 +175,7 @@ body{min-height:100vh;font-size:13px;}
               <th>PORT</th>
               <th>CT</th>
               <th>写真</th>
+              <th>検査書類</th>
             </tr></thead>
             <tbody id="listBody"></tbody>
           </table>
@@ -218,8 +219,9 @@ body{min-height:100vh;font-size:13px;}
 </div>
 
 <script>
-/* ✦ Powered by LEENAI Automation System — C-02 COTECNA レポート v15.4 (2026-11-21)
+/* ✦ Powered by LEENAI Automation System — C-02 COTECNA レポート v15.5 (2026-11-22)
    v15.1: VAN 写真をセル幅に収める (1 ページ 6 枚) · BALING の日付 = その組を検査した CT の作業日 (CHECK LIST の Checked 順)
+   v15.5: リストに「検査書類」列 (✅ この Partial の書類あり / △ 書類はあるが不明 / ❌ この Partial の書類なし · AI を使わない)
    v15.4: 토르 実データ検証の結果 — 1 PDF に複数 Partial · 検査員の紙の食い違いは黄 · BALING の答えの長さ · 品目は CT の CHECK LIST から · 検査場所の業者名重複
    v15.3: COMPASS でコンテナ番号が未入力の CT を CT として扱わない (空の番号が _書類 フォルダに当たっていた) · 写真フォルダは CT 番号の形 (英字4+数字7) のものだけ
    v15.2: Word の段落既定 (後 8pt · 1.08 行) で VAN が 1 ページ 4 枚になる問題 → 文書の段落既定を前後 0 · 1 行に固定
@@ -407,15 +409,36 @@ async function fetchList(){
     flog(`${list.length} 件 (IV × Partial)`,'ok');
     /* 写真の有無 (PHOTO_V2/{IV} があるか) */
     for(const iv of uniq(list.map(r=>r.ivNo))){
-      let st='—';
-      try{const ch=await grList(photoRoot()+'/'+iv);st=ch?(ch.some(x=>x.name==='_COTECNA')?'✅':'△'):'❌';}catch(e){st='?';}
-      list.filter(r=>r.ivNo===iv).forEach(r=>r.photoStatus=st);
+      let st='—',pdfs=[],kdocs=[];
+      try{
+        const ch=await grList(photoRoot()+'/'+iv);st=ch?(ch.some(x=>x.name==='_COTECNA')?'✅':'△'):'❌';
+        const cot=ch&&ch.find(x=>x.folder&&x.name==='_COTECNA');
+        if(cot){
+          const cc=await grListItem(cot.id)||[];
+          const df=cc.find(x=>x.folder&&x.name==='_書類');
+          if(df)pdfs=(await grListItem(df.id)||[]).filter(x=>/\.pdf$/i.test(x.name));
+          try{const k=await grJsonPath(photoRoot()+'/'+iv+'/_COTECNA/_kinds.json');kdocs=(k&&k.docs)||[];}catch(e){}
+        }
+      }catch(e){st='?';}
+      list.filter(r=>r.ivNo===iv).forEach(r=>{r.photoStatus=st;r.docStatus=docStatusOf(r,pdfs,kdocs);});
       renderTable();
     }
   }catch(e){flog('照会エラー: '+e.message,'err');}
   finally{btn.disabled=false;btn.textContent='リスト照会';}
 }
 
+/* v15.5: 検査書類の有無 (AI を使わない · C-01 エンジンが _kinds.json に書いた「書類ごとの CT」で Partial を判定)
+   ✅ この Partial の CT が載った書類あり / △ 書類 (PDF) はあるがエンジンが CT を読めておらず分からない / ❌ この Partial の書類なし */
+function docStatusOf(row,pdfs,kdocs){
+  if(!pdfs.length)return '❌';
+  const cts=row.ctList.map(c=>c.ctNo);
+  if(!cts.length)return '△';
+  const read=(kdocs||[]).filter(d=>(d.cts||[]).length);
+  const hit=read.some(d=>d.cts.map(normCt).some(x=>cts.some(c=>x===c||levenshtein(x,c)<=2)));
+  if(hit)return '✅';
+  /* エンジンが全部の PDF の CT を読めていて、どれにもこの Partial の CT が無い → この Partial の書類は無い (例 NA2610-10 P19) */
+  return (read.length&&read.length>=pdfs.length)?'❌':'△';
+}
 function renderTable(){
   const tb=document.getElementById('listBody');tb.innerHTML='';
   for(const row of S.inspList){
@@ -426,7 +449,8 @@ function renderTable(){
       <td>${d}</td><td style="font-weight:700;">${esc(row.ivNo)}</td><td>${esc(row.voNo||'—')}</td><td>${esc(row.partial||'—')}</td>
       <td><span class="sbadge sbadge-other">${esc(row.packer)}</span> <span class="job-sub">${esc(row.plantJa)}</span></td>
       <td class="job-sub">${esc(row.pol)}</td><td style="text-align:center;font-weight:700;">${row.ctList.length}${row.noCtIds&&row.noCtIds.length?`<br><span class="date-range" title="COMPASS でコンテナ番号が未入力">未入力 ${row.noCtIds.length}</span>`:''}</td>
-      <td style="text-align:center;" title="✅ COTECNA 写真フォルダあり / △ IV フォルダのみ / ❌ なし">${row.photoStatus}</td>`;
+      <td style="text-align:center;" title="✅ COTECNA 写真フォルダあり / △ IV フォルダのみ / ❌ なし">${row.photoStatus}</td>
+      <td style="text-align:center;" title="✅ この Partial の検査書類あり / △ 書類はあるがこの Partial か不明 / ❌ この Partial の書類なし">${row.docStatus||'…'}</td>`;
     tb.appendChild(tr);
   }
   document.getElementById('listCount').textContent=S.inspList.length+' 件';
@@ -1106,8 +1130,8 @@ function startTool(){
 LEENAI.init({
   sys:'C-02',
   name:'COTECNAレポートツール',
-  version:'15.4',
-  date:'2026-11-21',
+  version:'15.5',
+  date:'2026-11-22',
   desc:'COMPASS・COTECNA 検査書類・SharePoint の写真から COTECNA 検査レポート (VAN・BALING) を作成します',
   onReady:startTool,
 });

@@ -219,8 +219,9 @@ body{min-height:100vh;font-size:13px;}
 </div>
 
 <script>
-/* ✦ Powered by LEENAI Automation System — C-02 COTECNA レポート v15.5 (2026-11-22)
+/* ✦ Powered by LEENAI Automation System — C-02 COTECNA レポート v15.6 (2026-11-22)
    v15.1: VAN 写真をセル幅に収める (1 ページ 6 枚) · BALING の日付 = その組を検査した CT の作業日 (CHECK LIST の Checked 順)
+   v15.6: COTECNA seal 記録のキーを IV | Partial | CT に (コンテナ再使用で上書きしない) · SEAL 出所 · 最初の保存日時 · Excel に出所と保存日時
    v15.5: リストに「検査書類」列 (✅ この Partial の書類あり / △ 書類はあるが不明 / ❌ この Partial の書類なし · AI を使わない)
    v15.4: 토르 実データ検証の結果 — 1 PDF に複数 Partial · 検査員の紙の食い違いは黄 · BALING の答えの長さ · 品目は CT の CHECK LIST から · 検査場所の業者名重複
    v15.3: COMPASS でコンテナ番号が未入力の CT を CT として扱わない (空の番号が _書類 フォルダに当たっていた) · 写真フォルダは CT 番号の形 (英字4+数字7) のものだけ
@@ -1096,21 +1097,31 @@ async function saveSealRecords(job){
     S.sealMaster=null;const m=await loadSealMaster();
     const now=new Date().toISOString(),r=job.row;
     const en=(job.place.split(' / ')[1]||'').trim();
+    /* v15.6: 記録のキー = IV | Partial | CT (コンテナは別の船積みで再び使われるため、CT 番号だけのキーだと前の記録を上書きしてしまう)
+       形님 (2026-11-22): 「partial 別、業者別、日付別 cotecna seal 番号はちゃんと保管しなければ。後で使うことがある」
+       v15.5 までの CT キーの記録は、同じ IV · Partial のものだけ新しいキーへ移し、ほかはそのまま残す (削除しない) */
     job.cts.forEach(c=>{
-      m.records[c.ctNo]={ct_no:c.ctNo,seal_no:c.seal,packer:r.packer,plant_jp:r.plantJa,plant_en:en,iv_no:r.ivNo,vo_no:r.voNo,partial:r.partial,work_date:c.date,saved_at:now};
+      const key=sealKey(r.ivNo,r.partial,c.ctNo);
+      const old=m.records[c.ctNo];
+      const sameOld=old&&old.iv_no===r.ivNo&&old.partial===r.partial;
+      if(sameOld)delete m.records[c.ctNo];
+      const prev=m.records[key]||(sameOld?old:null);
+      m.records[key]={ct_no:c.ctNo,seal_no:c.seal,seal_src:c.sealSrc||'',packer:r.packer,plant_jp:r.plantJa,plant_en:en,iv_no:r.ivNo,vo_no:r.voNo,partial:r.partial,work_date:c.date,
+        saved_at:now,first_saved_at:(prev&&(prev.first_saved_at||prev.saved_at))||now};
     });
-    m.version=m.version||'1.0';m.updated_at=now;
+    m.version='1.1';m.key='iv_no|partial|ct_no';m.updated_at=now;
     await grPutJson(SEAL_JSON_PATH,m);
     log('  seal 記録を保存しました ('+job.cts.length+' CT)','ok');
   }catch(e){log('  seal 記録を保存できません: '+e.message,'warn');}
 }
+function sealKey(iv,partial,ct){return [iv||'',partial||'',ct||''].join('|');}
 async function exportSealExcel(){
   if(LEENAI.auth.status.graph!=='ok'){alert('SharePoint にログインしてください');return;}
   try{
     S.sealMaster=null;const m=await loadSealMaster();
-    const rows=Object.values(m.records||{}).sort((a,b)=>(a.work_date||'').localeCompare(b.work_date||'')||(a.iv_no||'').localeCompare(b.iv_no||''));
+    const rows=Object.values(m.records||{}).sort((a,b)=>(a.work_date||'').localeCompare(b.work_date||'')||(a.iv_no||'').localeCompare(b.iv_no||'')||(a.partial||'').localeCompare(b.partial||'',undefined,{numeric:true})||(a.ct_no||'').localeCompare(b.ct_no||''));
     if(!rows.length){alert('seal 記録がありません');return;}
-    const data=[['検査日','IV番号','VO番号','Partial','CT番号','COTECNA SEAL','PACKER','営業所(JP)','営業所(EN)']].concat(rows.map(r=>[r.work_date,r.iv_no,r.vo_no,r.partial,r.ct_no,r.seal_no,r.packer,r.plant_jp,r.plant_en].map(v=>String(v||''))));
+    const data=[['検査日','IV番号','VO番号','Partial','CT番号','COTECNA SEAL','SEAL 出所','PACKER','営業所(JP)','営業所(EN)','保存日時']].concat(rows.map(r=>[r.work_date,r.iv_no,r.vo_no,r.partial,r.ct_no,r.seal_no,r.seal_src,r.packer,r.plant_jp,r.plant_en,(r.saved_at||'').slice(0,16).replace('T',' ')].map(v=>String(v||''))));
     const buf=buildSealXlsx(data);
     const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([buf],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}));
     a.download='COTECNA_SEAL_MASTER_'+new Date().toISOString().slice(0,10).replace(/-/g,'')+'.xlsx';
@@ -1130,7 +1141,7 @@ function startTool(){
 LEENAI.init({
   sys:'C-02',
   name:'COTECNAレポートツール',
-  version:'15.5',
+  version:'15.6',
   date:'2026-11-22',
   desc:'COMPASS・COTECNA 検査書類・SharePoint の写真から COTECNA 検査レポート (VAN・BALING) を作成します',
   onReady:startTool,
